@@ -1,101 +1,285 @@
+"use client"; // Add this directive at the top of the file
+
 import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
+
+const images = [
+  "/assets/penetasan.svg",
+  "/assets/Penggemukan.svg",
+  "/assets/Layer.svg",
+];
+
+// Teks untuk setiap slide
+const headers = ["Penetasan", "Penggemukan", "Layer"];
+const descriptions = [
+  '"Penetasan merupakan fitur yang dirancang untuk mengoptimalkan proses penetasan telur itik, memastikan kesuksesan menetas maksimal dan kualitas anakan itik yang terbaik. Manfaatkan fitur ini sekarang untuk meningkatkan hasil penetasan dan mendapatkan anakan itik berkualitas tinggi!',
+  "Penggemukan merupakan fitur yang dirancang untuk membantu peternak itik mengelola fase pertumbuhan dengan efisien. Fitur ini menawarkan solusi manajemen hemat biaya untuk pengelolaan pakan, pengobatan, dan perawatan harian, memastikan kesehatan dan pertumbuhan itik yang optimal sambil menjaga biaya terkendali. Gunakan fitur ini untuk memantau kebutuhan pakan dan biaya operasional secara efektif!",
+  "Layer membantu peternak memantau produktivitas itik petelur, memastikan kesehatan optimal dan hasil produksi telur yang konsisten.",
+];
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+  // State untuk mengatur card dropdown
+  const [isOpen, setIsOpen] = useState<boolean[]>([false, false, false]);
+
+  const handlePrev = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex === 0 ? images.length - 1 : prevIndex - 1
+    );
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex === images.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
+  // Fungsi untuk toggle card dropdown
+  const toggleDropdown = (index: number) => {
+    setIsOpen((prevState) => {
+      const newState = [...prevState];
+      newState[index] = !newState[index]; // Toggle state pada index card yang dipilih
+      return newState;
+    });
+  };
+
+  return (
+    <div>
+      <header className="bg-gray-100 shadow-lg py-4">
+        <div className="navbar mx-auto flex justify-between items-center">
+          {/* Logo */}
+          <div className="logo">
             <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+              src="/assets/Logo.svg"
+              alt="SI-ITIK Logo"
+              width={250}
+              height={250}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+          </div>
+
+          {/* Navigation */}
+          <nav className="flex space-x-6">
+            <Link
+              href="#"
+              className="underline-animation text-gray-800 hover:text-gray-600 font-medium transition duration-300"
+            >
+              Tentang Kami
+            </Link>
+            <Link
+              href="#"
+              className="underline-animation text-gray-800 hover:text-gray-600 font-medium transition duration-300"
+            >
+              Fitur Utama
+            </Link>
+            <Link
+              href="#"
+              className="underline-animation text-gray-800 hover:text-gray-600 font-medium transition duration-300"
+            >
+              Testimoni
+            </Link>
+            <Link
+              href="#"
+              className="underline-animation text-gray-800 hover:text-gray-600 font-medium transition duration-300"
+            >
+              Cara Kerja
+            </Link>
+            <Link
+              href="#"
+              className="underline-animation text-[#D05805] hover:text-orange-600 font-medium transition duration-300"
+            >
+              Unduh Aplikasi Seluler
+            </Link>
+          </nav>
+
+          {/* Login Button */}
+          <div>
+            <Link
+              href="#"
+              className="border border-[#D05805] text-[#D05805] hover:bg-[#D05805] hover:text-white transition duration-300 px-4 py-2 rounded-lg font-medium"
+            >
+              Login
+            </Link>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </header>
+
+      {/* Content Layout */}
+      <div className="container">
+        {/* Info Section */}
+        <div className="info">
+          <h2 className="text-2xl font-semibold">Design Slider</h2>
+          <h1 className="text-4xl font-bold mt-2">{headers[currentIndex]}</h1>
+          <p className="mt-4">{descriptions[currentIndex]}</p>
+          <button className="btn-coba bg-[#D05805] text-white px-4 py-2 mt-4 rounded-lg font-medium hover:bg-[#D05805]">
+            Coba Sekarang
+          </button>
+        </div>
+
+        {/* Image Slider Section */}
+        <div className="slider-container">
+          <button className="arrow left" onClick={handlePrev}>
+            ←
+          </button>
+          <div className="slider">
+            <div
+              className="images"
+              style={{ transform: `translateX(-${currentIndex * 36}vw)` }}
+            >
+              {images.map((image, index) => (
+                <Image
+                  key={index}
+                  src={image}
+                  alt={`Slide ${index}`}
+                  layout="responsive"
+                  width={1000}
+                  height={1000}
+                  className={`image ${
+                    index === currentIndex ? "active" : "right"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+          <button className="arrow right" onClick={handleNext}>
+            →
+          </button>
+        </div>
+      </div>
+
+      {/* Section Tentang Kami */}
+      <section className="tentang-kami bg-[#F9C994] py-12">
+        <div className="container mx-auto flex justify-between items-start">
+          {/* Left Side: Judul dan Deskripsi */}
+          <div className="tentang-kami-info w-1/2">
+            <h2 className="text-4xl font-bold mb-4">Mengapa Harus SI-ITIK</h2>
+            <p className="text-lg">
+              Selamat datang di aplikasi SI ITIK, solusi modern yang dirancang
+              khusus untuk membantu peternak itik dalam mengelola usaha mereka
+              dengan lebih efisien dan efektif. Aplikasi ini menyediakan
+              fitur-fitur canggih untuk memantau, menganalisis, dan mengelola
+              segala aspek peternakan itik, dari skala kecil hingga besar,
+              memastikan produktivitas dan keberlanjutan usaha Anda.
+            </p>
+          </div>
+
+          {/* Right Side: Card Section */}
+          <div className="tentang-kami-cards w-1/2 grid grid-cols-1 gap-4">
+            {/* Card 1 */}
+            <div className="card bg-white p-6 rounded-lg shadow-lg flex items-center justify-between">
+              <div className="card-content">
+                <h3 className="text-2xl font-semibold">User Friendly</h3>
+                <p className={`mt-2 ${isOpen[0] ? "show" : "hidden"}`}>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                </p>
+              </div>
+              <button
+                className="dropdown-arrow ml-4"
+                onClick={() => toggleDropdown(0)}
+              >
+                {isOpen[0] ? "▲" : "▼"}
+              </button>
+            </div>
+
+            {/* Card 2 */}
+            <div className="card bg-white p-6 rounded-lg shadow-lg flex items-center justify-between">
+              <div className="card-content">
+                <h3 className="text-2xl font-semibold">Menganalisis</h3>
+                <p className={`mt-2 ${isOpen[1] ? "show" : "hidden"}`}>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                </p>
+              </div>
+              <button
+                className="dropdown-arrow ml-4"
+                onClick={() => toggleDropdown(1)}
+              >
+                {isOpen[1] ? "▲" : "▼"}
+              </button>
+            </div>
+
+            {/* Card 3 */}
+            <div className="card bg-white p-6 rounded-lg shadow-lg flex items-center justify-between">
+              <div className="card-content">
+                <h3 className="text-2xl font-semibold">Mengelola</h3>
+                <p className={`mt-2 ${isOpen[2] ? "show" : "hidden"}`}>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                </p>
+              </div>
+              <button
+                className="dropdown-arrow ml-4"
+                onClick={() => toggleDropdown(2)}
+              >
+                {isOpen[2] ? "▲" : "▼"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section Fitur Utama */}
+      <section className="fitur-utama">
+        <h2 className="fima-heading">
+          Fitur <span className="text-[#D05805]">Utama</span>
+        </h2>
+
+        <div className="fima-container">
+          {/* Penetasan */}
+          <div className="fima-box">
+            <img src="/assets/Penetasan-fima.png" alt="Penetasan" />
+            <div className="fima-layer">
+              <h4>Penetasan</h4>
+              <p>Atur dan pantau proses penetasan telur itik dengan mudah.</p>
+            </div>
+          </div>
+
+          {/* Penggemukan */}
+          <div className="fima-box">
+            <img src="/assets/penggemukan-fima.png" alt="Penggemukan" />
+            <div className="fima-layer">
+              <h4>Penggemukan</h4>
+              <p>Optimalkan pertumbuhan itik jantan dengan pencatatan</p>
+            </div>
+          </div>
+
+          {/* Layer */}
+          <div className="fima-box">
+            <img src="/assets/layer-fima.png" alt="Penggemukan" />
+            <div className="fima-layer">
+              <h4>Layer</h4>
+              <p>Pantau produksi telur itik betina dari layer dengan data</p>
+            </div>
+          </div>
+
+          {/* Analisis */}
+          <div className="fima-box">
+            <img src="/assets/Laporan-fima.png" alt="Penggemukan" />
+            <div className="fima-layer">
+              <h4>Penjualan dan Laporan Keuangan</h4>
+              <p>Pantau produksi telur itik betina dari layer dengan data</p>
+            </div>
+          </div>
+
+          {/* Analisis */}
+          <div className="fima-box">
+            <img src="/assets/analisis-fima.png" alt="Penggemukan" />
+            <div className="fima-layer">
+              <h4>Analisis Usaha Periode</h4>
+              <p>Pantau produksi telur itik betina dari layer dengan data</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section Testimoni */}
+      <section>
+        <div>Section Testimoni</div>
+      </section>
+
+      <section>
+        <div>Section Cara Kerja</div>
+      </section>
     </div>
+
   );
 }
