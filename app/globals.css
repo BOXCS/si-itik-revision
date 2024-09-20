@@ -611,3 +611,141 @@
   font-size: 1.2rem;
   margin: .3rem 0 1rem;
 }
+
+/* Testimoni Styles */
+.testimoni {
+  background-color: #F9C994;
+  padding: 2rem;
+  text-align: center;
+  margin-top: 50px;
+}
+
+.testimoni h2 {
+  font-size: 2rem;
+  margin-bottom: 0rem;
+}
+
+.testimoni h3 {
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+/* CSS for mobile and tablet */
+@media (max-width: 768px) {
+  .navbar {
+    display: none; /* Sembunyikan navbar di layar kecil */
+  }
+
+  .dropdown-menu {
+    display: block;
+    position: relative;
+  }
+
+  .dropdown-menu ul {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    z-index: 10;
+  }
+
+  .dropdown-menu ul.show {
+    display: block; /* Tampilkan dropdown ketika tombol diklik */
+  }
+
+  .dropdown-menu button {
+    background-color: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+
+  .dropdown-menu ul li {
+    padding: 1rem;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .dropdown-menu ul li:last-child {
+    border-bottom: none;
+  }
+
+  .dropdown-menu ul li a {
+    text-decoration: none;
+    color: #333;
+    display: block;
+  }
+
+  .dropdown-menu ul {
+    display: none;
+  }
+  .dropdown-menu ul.show {
+    display: block;
+  }
+  
+}
+
+/* Mobile devices (max-width 600px) */
+@media (max-width: 600px) {
+  .container {
+    flex-direction: column; /* Mengatur elemen dalam satu kolom */
+    padding: 1rem;
+  }
+
+  .info {
+    width: 100%; /* Membuat info penuh di mobile */
+    padding-right: 0;
+  }
+
+  .slider-container {
+    width: 100%; /* Menyesuaikan slider dengan lebar layar */
+  }
+
+  .image {
+    width: 100%; /* Ukuran gambar slider disesuaikan dengan lebar layar */
+  }
+
+  .arrow.right {
+    right: 2rem;
+  }
+
+  .arrow.left {
+    left: 2rem;
+  }
+}
+
+/* Tablet devices (max-width 768px) */
+@media (max-width: 768px) {
+  .container {
+    padding: 1.5rem;
+  }
+
+  .slider-container::before {
+    width: 300px; /* Perkecil ukuran lingkaran latar belakang */
+    height: 300px;
+  }
+}
+
+/* Large screens (min-width 1024px) */
+@media (min-width: 1024px) {
+  .container {
+    padding: 2rem;
+  }
+
+  .fima-container {
+    grid-template-columns: repeat(2, 1fr); /* Tampilkan dua kolom */
+  }
+}
+
+.info h1 {
+  font-size: 3vw; /* Ukuran font yang responsif dengan lebar layar */
+}
+
+img {
+  width: 100%;
+  height: auto;
+}
+

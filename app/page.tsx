@@ -1,14 +1,43 @@
 "use client"; // Add this directive at the top of the file
 
+import Footer from "@/components/Footer";
+import { TimelineDemo } from "@/components/Timeline";
+import { InfiniteMovingCards } from "@/components/ui/InfiniteMovingCards";
+import { Timeline } from "@/components/ui/timeline";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { useEffect, useRef } from "react";
 
 const images = [
   "/assets/penetasan.svg",
   "/assets/Penggemukan.svg",
   "/assets/Layer.svg",
 ];
+
+const testimonials = [
+  {
+    quote: "SI-ITIK sangat membantu saya dalam mengelola peternakan itik. Fitur-fiturnya mudah digunakan!",
+    name: "Indira Priwayanti",
+    title: "Peternak Jember",
+  },
+  {
+    quote: "Sistem yang efisien dan membantu saya mengelola usaha dengan lebih terstruktur. Sangat bermanfaat!",
+    name: "John Doe",
+    title: "Peternak Situbondo",
+  },
+  {
+    quote: "SI-ITIK memudahkan saya dalam memantau kesehatan dan produktivitas itik saya. Sangat direkomendasikan!",
+    name: "Siti Zubaidah",
+    title: "Peternak Bondowoso",
+  },
+];
+
+type TimelineEntry = {
+  title: "Buat & Masuk Akun";
+  content: "Masuk AKun";
+};
+
 
 // Teks untuk setiap slide
 const headers = ["Penetasan", "Penggemukan", "Layer"];
@@ -54,8 +83,8 @@ export default function Home() {
             <Image
               src="/assets/Logo.svg"
               alt="SI-ITIK Logo"
-              width={250}
-              height={250}
+              width={150}
+              height={0}
             />
           </div>
 
@@ -272,14 +301,31 @@ export default function Home() {
       </section>
 
       {/* Section Testimoni */}
-      <section>
-        <div>Section Testimoni</div>
+      <section className="testimoni py-20">
+        <h2>Testimoni</h2>
+        <h3>Ulasan Peternak Lain</h3>
+        <div className="flex flex-col items-center max-lg:mt-10">
+        <div
+            className="h-[50vh] md:h-[30rem] rounded-md flex flex-col antialiased items-center justify-center relative overflow-hidden"
+          >
+            <InfiniteMovingCards
+              items={testimonials}
+              direction="left"
+              speed="slow"
+            />
+          </div>
+        </div>
       </section>
 
       <section>
-        <div>Section Cara Kerja</div>
+        <div>
+          <TimelineDemo />
+        </div>
       </section>
+
+      <footer>
+        <Footer />
+      </footer>
     </div>
-
   );
 }
