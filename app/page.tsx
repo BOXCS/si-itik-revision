@@ -17,17 +17,20 @@ const images = [
 
 const testimonials = [
   {
-    quote: "SI-ITIK sangat membantu saya dalam mengelola peternakan itik. Fitur-fiturnya mudah digunakan!",
+    quote:
+      "SI-ITIK sangat membantu saya dalam mengelola peternakan itik. Fitur-fiturnya mudah digunakan!",
     name: "Indira Priwayanti",
     title: "Peternak Jember",
   },
   {
-    quote: "Sistem yang efisien dan membantu saya mengelola usaha dengan lebih terstruktur. Sangat bermanfaat!",
+    quote:
+      "Sistem yang efisien dan membantu saya mengelola usaha dengan lebih terstruktur. Sangat bermanfaat!",
     name: "John Doe",
     title: "Peternak Situbondo",
   },
   {
-    quote: "SI-ITIK memudahkan saya dalam memantau kesehatan dan produktivitas itik saya. Sangat direkomendasikan!",
+    quote:
+      "SI-ITIK memudahkan saya dalam memantau kesehatan dan produktivitas itik saya. Sangat direkomendasikan!",
     name: "Siti Zubaidah",
     title: "Peternak Bondowoso",
   },
@@ -38,12 +41,11 @@ type TimelineEntry = {
   content: "Masuk AKun";
 };
 
-
 // Teks untuk setiap slide
 const headers = ["Penetasan", "Penggemukan", "Layer"];
 const descriptions = [
-  '"Penetasan merupakan fitur yang dirancang untuk mengoptimalkan proses penetasan telur itik, memastikan kesuksesan menetas maksimal dan kualitas anakan itik yang terbaik. Manfaatkan fitur ini sekarang untuk meningkatkan hasil penetasan dan mendapatkan anakan itik berkualitas tinggi!',
-  "Penggemukan merupakan fitur yang dirancang untuk membantu peternak itik mengelola fase pertumbuhan dengan efisien. Fitur ini menawarkan solusi manajemen hemat biaya untuk pengelolaan pakan, pengobatan, dan perawatan harian, memastikan kesehatan dan pertumbuhan itik yang optimal sambil menjaga biaya terkendali. Gunakan fitur ini untuk memantau kebutuhan pakan dan biaya operasional secara efektif!",
+  '"Penetasan merupakan fitur yang dirancang untuk mengoptimalkan proses penetasan telur itik, memastikan kesuksesan menetas maksimal dan kualitas anakan itik yang terbaik.',
+  "Penggemukan merupakan fitur yang dirancang untuk membantu peternak itik mengelola fase pertumbuhan dengan efisien.",
   "Layer membantu peternak memantau produktivitas itik petelur, memastikan kesehatan optimal dan hasil produksi telur yang konsisten.",
 ];
 
@@ -148,13 +150,10 @@ export default function Home() {
 
         {/* Image Slider Section */}
         <div className="slider-container">
-          <button className="arrow left" onClick={handlePrev}>
-            ←
-          </button>
           <div className="slider">
             <div
               className="images"
-              style={{ transform: `translateX(-${currentIndex * 36}vw)` }}
+              style={{ transform: `translateX(-${currentIndex * 1}vw)` }}
             >
               {images.map((image, index) => (
                 <Image
@@ -171,10 +170,13 @@ export default function Home() {
               ))}
             </div>
           </div>
-          <button className="arrow right" onClick={handleNext}>
-            →
-          </button>
         </div>
+        <button className="arrow right" onClick={handleNext}>
+          →
+        </button>
+        <button className="arrow left" onClick={handlePrev}>
+          ←
+        </button>
       </div>
 
       {/* Section Tentang Kami */}
@@ -305,9 +307,7 @@ export default function Home() {
         <h2>Testimoni</h2>
         <h3>Ulasan Peternak Lain</h3>
         <div className="flex flex-col items-center max-lg:mt-10">
-        <div
-            className="h-[50vh] md:h-[30rem] rounded-md flex flex-col antialiased items-center justify-center relative overflow-hidden"
-          >
+          <div className="h-[50vh] md:h-[30rem] rounded-md flex flex-col antialiased items-center justify-center relative overflow-hidden">
             <InfiniteMovingCards
               items={testimonials}
               direction="left"
