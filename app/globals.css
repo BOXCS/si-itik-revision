@@ -356,13 +356,13 @@
 }
 
 .underline-animation::after {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   bottom: -2px;
   width: 0;
   height: 2px;
-  background-color: #D05805; /* Warna underline */
+  background-color: #d05805; /* Warna underline */
   transition: width 0.3s ease;
 }
 
@@ -420,17 +420,23 @@
   padding: 10px 20px;
   font-size: 1rem;
   cursor: pointer;
-  background-color: #D05805;
+  background-color: #d05805;
   color: white;
   border: none;
   border-radius: 20px;
   margin-top: 1rem;
+  top: 30px;
+  position: relative;
+}
+
+.info a {
+  margin-top: 50px;
 }
 
 /* Slider Section */
 .slider-container {
   width: 100%;
-  position: relative;
+  /* position: relative; */
   height: 820px;
 }
 
@@ -486,18 +492,23 @@
 }
 
 /* Lingkaran Latar Belakang dengan Gradien dan Blur yang Lebih Terlihat */
-.slider-container::before {
-  content: '';
+.container::before {
+  content: "";
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 600px; /* Perbesar lingkaran untuk efek yang lebih terlihat */
+  top: 50%; /* Diubah nanti dengan JavaScript */
+  left: 50%; /* Diubah nanti dengan JavaScript */
+  width: 600px;
   height: 500px;
-  background: radial-gradient(circle, rgba(208,88,5,0.8) 0%, rgba(249,202,150,0.6) 70%);
+  background: radial-gradient(
+    circle,
+    rgba(208, 88, 5, 0.8) 0%,
+    rgba(249, 202, 150, 0.6) 70%
+  );
   border-radius: 50%;
   transform: translate(-50%, -50%);
   z-index: 0;
-  filter: blur(80px); /* Kurangi blur agar gradien lebih jelas */
+  filter: blur(80px);
+  transition: top 0.5s ease, left 0.5s ease; /* Animasi perpindahan */
 }
 
 .slider-container {
@@ -510,8 +521,13 @@
 }
 
 /* Section Tentang Kami */
+.tentang-kami-container {
+  margin-left: 40px;
+  margin-right: 40px;
+}
+
 .tentang-kami {
-  background-color: #F9C994;
+  background-color: #f9c994;
   padding: 3rem 0;
 }
 
@@ -544,7 +560,7 @@
 }
 
 .dropdown-arrow:hover {
-  color: #D05805; /* Warna saat hover, sesuai dengan tema */
+  color: #d05805; /* Warna saat hover, sesuai dengan tema */
 }
 
 /* Section Fitur Utama */
@@ -574,7 +590,7 @@
 .fima-container .fima-box {
   position: relative;
   border-radius: 2rem;
-  box-shadow: 0 0 1rem #D05805;
+  box-shadow: 0 0 1rem #d05805;
   overflow: hidden;
   display: flex;
   height: 200px;
@@ -584,7 +600,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: .5s ease;
+  transition: 0.5s ease;
 }
 
 .fima-box:hover img {
@@ -597,7 +613,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(rgba(0, 0, 0, .1), #F9C994);
+  background: linear-gradient(rgba(0, 0, 0, 0.1), #f9c994);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -605,7 +621,7 @@
   text-align: center;
   padding: 0 4rem;
   transform: translateY(100%);
-  transition: .5s ease;
+  transition: 0.5s ease;
 }
 
 .fima-box:hover .fima-layer {
@@ -620,12 +636,12 @@
 
 .fima-layer p {
   font-size: 1.2rem;
-  margin: .3rem 0 1rem;
+  margin: 0.3rem 0 1rem;
 }
 
 /* Testimoni Styles */
 .testimoni {
-  background-color: #F9C994;
+  background-color: #f9c994;
   padding: 2rem;
   text-align: center;
   margin-top: 50px;
@@ -641,117 +657,62 @@
   font-weight: 700;
 }
 
-/* CSS for mobile and tablet */
-@media (max-width: 768px) {
-  .navbar {
-    display: none;
-  }
-
-  .dropdown-menu {
-    display: block;
-    position: relative;
-  }
-
-  .dropdown-menu ul {
-    display: none;
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    z-index: 10;
-  }
-
-  .dropdown-menu ul.show {
-    display: block; /* Tampilkan dropdown ketika tombol diklik */
-  }
-
-  .dropdown-menu button {
-    background-color: transparent;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-  }
-
-  .dropdown-menu ul li {
-    padding: 1rem;
-    border-bottom: 1px solid #ddd;
-  }
-
-  .dropdown-menu ul li:last-child {
-    border-bottom: none;
-  }
-
-  .dropdown-menu ul li a {
-    text-decoration: none;
-    color: #333;
-    display: block;
-  }
-
-  .dropdown-menu ul {
-    display: none;
-  }
-  .dropdown-menu ul.show {
-    display: block;
-  }
-
-  .fima-heading {
-    font-size: 2.5rem;
-  }
-
-  .fima-container {
-    grid-template-columns: repeat(1, 1fr);
-  }
-
-  .fima-container .fima-box {
-    height: 100px;
-    width: 450px;
-    right: 200px;
-    border-radius: 4rem;
-  }
-
-  .fima-layer h4 {
-    font-size: 1rem;
-    font-weight: 300;
-  }
-
-  .fima-layer p {
-    font-size: 0.8rem;
-  }
-  
+.footer-container {
+  margin-bottom: 2px;
+  display: flex;
+  justify-content: space-evenly;
+  height: 290px;
 }
 
-/* Mobile devices (max-width 600px) */
-@media (max-width: 600px) {
-  .container {
-    flex-direction: column; /* Mengatur elemen dalam satu kolom */
-    padding: 1rem;
-  }
-
-  .info {
-    width: 100%; /* Membuat info penuh di mobile */
-    padding-right: 0;
-  }
-
-  .slider-container {
-    width: 100%; /* Menyesuaikan slider dengan lebar layar */
-  }
-
-  .image {
-    width: 100%; /* Ukuran gambar slider disesuaikan dengan lebar layar */
-  }
-
-  .arrow.right {
-    right: 2rem;
-  }
-
-  .arrow.left {
-    left: 2rem;
-  }
+.footer-container .logo-si-itik {
+  width: 150px;
+  margin-top: 50px;
 }
 
+.footer-container .footer-social  {
+  margin-top: 50px;
+  display: grid;
+  gap: -9rem;
+  color: #fff;
+}
+
+.footer-container .footer-social h2 {
+  font-weight: 600;
+  font-size: large;
+}
+
+.footer-container .footer-social a {
+  margin-bottom: 50px;
+}
+
+.footer-container .footer-location {
+  display: grid;
+}
+
+.footer-container .footer-location h2 {
+  font-weight: 600;
+  margin-top: 20px;
+  color: #fff;
+}
+
+.footer-container .footer-update {
+  display: grid;
+  color: #fff;
+}
+
+.footer-container .footer-update h2 {
+  font-weight: 600;
+  margin-top: 20px;
+}
+
+.footer-container .footer-update p {
+  margin-bottom: 50px;
+}
+
+.footer-container .footer-update button {
+  margin-bottom: 50px;
+  width: 200px;
+}
 /* Large screens (min-width 1024px) */
 @media (max-width: 1024px) {
   .slider-container .images {
@@ -810,28 +771,137 @@ img {
   height: auto;
 }
 
+/* CSS for mobile and tablet */
+@media (max-width: 768px) {
+  .navbar {
+    display: none;
+  }
+
+  .dropdown-menu {
+    display: block;
+    position: relative;
+  }
+
+  .dropdown-menu ul {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    z-index: 10;
+  }
+
+  .dropdown-menu ul.show {
+    display: block; /* Tampilkan dropdown ketika tombol diklik */
+  }
+
+  .dropdown-menu button {
+    background-color: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+
+  .dropdown-menu ul li {
+    padding: 1rem;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .dropdown-menu ul li:last-child {
+    border-bottom: none;
+  }
+
+  .dropdown-menu ul li a {
+    text-decoration: none;
+    color: #333;
+    display: block;
+  }
+
+  .dropdown-menu ul {
+    display: none;
+  }
+  .dropdown-menu ul.show {
+    display: block;
+  }
+
+  .container {
+    display: grid;
+    justify-items: center;
+  }
+
+  .fima-container {
+    grid-template-columns: repeat(1, 1fr);
+  }
+
+  .fima-heading {
+    font-size: 2.5rem;
+  }
+
+  .fima-container .fima-box {
+    height: 100px;
+    width: 650px;
+    right: 100px;
+    border-radius: 1.5rem;
+  }
+
+  .fima-layer h4 {
+    font-size: 1rem;
+    font-weight: 300;
+  }
+
+  .fima-layer p {
+    font-size: 0.8rem;
+  }
+}
+
 @media (max-width: 425px) {
   .images {
     display: flexbox;
   }
 
+  .container {
+    display: grid;
+    margin-right: 20px;
+    height: 52.5rem;
+    overflow: hidden;
+  }
+
+  .info {
+    width: fit-content;
+    margin-right: 50px;
+    margin-bottom: 90px;
+    margin-top: -90px;
+  }
+
+  .info h2 {
+    font-weight: 800;
+  }
+
   .slider-container {
+    position: absolute;
     bottom: 0rem;
+    top: 23rem;
     /* left: 1.5rem; */
     height: 510px;
+    margin-left: 4rem;
   }
 
   .slider-container .images {
     width: 100px;
   }
 
-  .slider-container::before {
-    width: 200px;
-    height: 200px;
+  .container::before {
+    /* display: none; */
+    width: 300px;
+    height: 300px;
+    top: 78%;
   }
 
   .arrow {
-    top: 760px;
+    top: 730px;
     position: absolute;
   }
 
@@ -839,11 +909,25 @@ img {
     z-index: 1;
   }
 
+  .tentang-kami-container {
+    display: grid;
+  }
+
+  .tentang-kami-info {
+    width: fit-content;
+  }
+  
+  .tentang-kami-cards {
+    margin-top: 50px;
+    width: 22rem;
+  }
+
   .fima-heading {
     font-size: 2rem;
   }
 
   .fima-container {
+    display: grid;
     grid-template-columns: repeat(1, 1fr);
   }
 
@@ -865,5 +949,14 @@ img {
 
   .fima-layer p {
     font-size: 0.5rem;
+  }
+
+  .footer-container {
+    display: grid;
+    height: fit-content;
+  }
+
+  .footer-end h3 {
+    font-size: 10px;
   }
 }

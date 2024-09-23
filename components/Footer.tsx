@@ -9,6 +9,10 @@ const Footer = () => {
           <div>
             <h3 className="text-sm font-thin">Copyright © 2024 SI-ITIK Politeknik Negeri Jember. All rights reserved.</h3>
           </div>
+
+          <div className='footer-iconTop'>
+                <a href=""></a>
+          </div>
         </div>
       </div>
     </footer>

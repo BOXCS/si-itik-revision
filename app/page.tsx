@@ -51,6 +51,7 @@ const descriptions = [
 
 export default function Home() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // State untuk mengatur card dropdown
   const [isOpen, setIsOpen] = useState<boolean[]>([false, false, false]);
@@ -68,12 +69,17 @@ export default function Home() {
   };
 
   // Fungsi untuk toggle card dropdown
-  const toggleDropdown = (index: number) => {
+  const toggleDropdownTami = (index: number) => {
     setIsOpen((prevState) => {
       const newState = [...prevState];
       newState[index] = !newState[index]; // Toggle state pada index card yang dipilih
       return newState;
     });
+  };
+
+  // Fungsi untuk toggle dropdown
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen); // Toggle dropdown terbuka atau tertutup
   };
 
   return (
@@ -93,25 +99,25 @@ export default function Home() {
           {/* Navigation */}
           <nav className="flex space-x-6">
             <Link
-              href="#"
+              href="#tentangKami"
               className="underline-animation text-gray-800 hover:text-gray-600 font-medium transition duration-300"
             >
               Tentang Kami
             </Link>
             <Link
-              href="#"
+              href="#fiturUtama"
               className="underline-animation text-gray-800 hover:text-gray-600 font-medium transition duration-300"
             >
               Fitur Utama
             </Link>
             <Link
-              href="#"
+              href="#testimoniPeternak"
               className="underline-animation text-gray-800 hover:text-gray-600 font-medium transition duration-300"
             >
               Testimoni
             </Link>
             <Link
-              href="#"
+              href="#timelineCaKer"
               className="underline-animation text-gray-800 hover:text-gray-600 font-medium transition duration-300"
             >
               Cara Kerja
@@ -137,15 +143,16 @@ export default function Home() {
       </header>
 
       {/* Content Layout */}
-      <div className="container">
+      <div className="container" id="Home">
         {/* Info Section */}
         <div className="info">
           <h2 className="text-2xl font-semibold">Design Slider</h2>
           <h1 className="text-4xl font-bold mt-2">{headers[currentIndex]}</h1>
           <p className="mt-4">{descriptions[currentIndex]}</p>
-          <button className="btn-coba bg-[#D05805] text-white px-4 py-2 mt-4 rounded-lg font-medium hover:bg-[#D05805]">
+          {/* <button className="btn-coba bg-[#D05805] text-white px-4 py-2 mt-4 rounded-lg font-medium transition duration-200 hover:bg-white hover:text-black border-2 border-transparent hover:border-teal-500">
             Coba Sekarang
-          </button>
+          </button> */}
+          <a href="#Beranda" className="btn-coba bg-[#D05805] text-white px-4 py-2 mt-4 rounded-lg font-medium transition duration-200 hover:bg-white hover:text-black border-2 border-transparent hover:border-teal-500">Coba Sekarang</a>
         </div>
 
         {/* Image Slider Section */}
@@ -180,8 +187,8 @@ export default function Home() {
       </div>
 
       {/* Section Tentang Kami */}
-      <section className="tentang-kami bg-[#F9C994] py-12">
-        <div className="container mx-auto flex justify-between items-start">
+      <section className="tentang-kami bg-[#F9C994] py-12" id="tentangKami">
+        <div className="tentang-kami-container mx-auto flex justify-between items-start">
           {/* Left Side: Judul dan Deskripsi */}
           <div className="tentang-kami-info w-1/2">
             <h2 className="text-4xl font-bold mb-4">Mengapa Harus SI-ITIK</h2>
@@ -207,7 +214,7 @@ export default function Home() {
               </div>
               <button
                 className="dropdown-arrow ml-4"
-                onClick={() => toggleDropdown(0)}
+                onClick={() => toggleDropdownTami(0)}
               >
                 {isOpen[0] ? "▲" : "▼"}
               </button>
@@ -223,7 +230,7 @@ export default function Home() {
               </div>
               <button
                 className="dropdown-arrow ml-4"
-                onClick={() => toggleDropdown(1)}
+                onClick={() => toggleDropdownTami(1)}
               >
                 {isOpen[1] ? "▲" : "▼"}
               </button>
@@ -239,7 +246,7 @@ export default function Home() {
               </div>
               <button
                 className="dropdown-arrow ml-4"
-                onClick={() => toggleDropdown(2)}
+                onClick={() => toggleDropdownTami(2)}
               >
                 {isOpen[2] ? "▲" : "▼"}
               </button>
@@ -249,7 +256,7 @@ export default function Home() {
       </section>
 
       {/* Section Fitur Utama */}
-      <section className="fitur-utama">
+      <section className="fitur-utama" id="fiturUtama">
         <h2 className="fima-heading">
           Fitur <span className="text-[#D05805]">Utama</span>
         </h2>
@@ -303,7 +310,7 @@ export default function Home() {
       </section>
 
       {/* Section Testimoni */}
-      <section className="testimoni py-20">
+      <section className="testimoni py-20" id="testimoniPeternak">
         <h2>Testimoni</h2>
         <h3>Ulasan Peternak Lain</h3>
         <div className="flex flex-col items-center max-lg:mt-10">
@@ -317,14 +324,68 @@ export default function Home() {
         </div>
       </section>
 
-      <section>
+      <section id="timelineCaKer">
         <div>
           <TimelineDemo />
         </div>
       </section>
 
-      <footer>
-        <Footer />
+      <section className="footer-container bg-[#CF5804]">
+        <div className="logo-si-itik">
+          <img src="/assets/logo-si-itik.svg" alt="Logo SI-ITIK" />
+        </div>
+
+        <div className="footer-social">
+          <h2>Social Media</h2>
+          <a href="">Whatsapp</a>
+          <a href="https://www.instagram.com/zaboxc/">Instagram</a>
+        </div>
+
+        <div className="footer-location">
+          <h2>Location</h2>
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3949.424154373322!2d113.72049301127193!3d-8.15994978172228!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd695b617d8f623%3A0xf6c4437632474338!2sPoliteknik%20Negeri%20Jember!5e0!3m2!1sid!2sid!4v1726996903102!5m2!1sid!2sid"
+            width="350"
+            height="200"
+            style={{ border: 0 }}
+            allowFullScreen={true}
+            loading="lazy"
+          ></iframe>
+        </div>
+
+        <div className="footer-update">
+          <h2>New</h2>
+          <p>Ingin Update ternak usaha itik ?</p>
+          <p>Klik berikut</p>
+          <button
+          className="px-8 py-2 rounded-md bg-teal-500 text-white font-bold transition duration-200 hover:bg-white hover:text-black border-2 border-transparent hover:border-teal-500"
+          >
+            Follow it
+          </button>
+        </div>
+      </section>
+
+      <footer className="footer-end bg-[#CF5804] text-white py-6">
+        <div className="footer-end-fill max-w-7xl mx-auto px-4">
+          <div className="footer-end-inner flex justify-between items-center">
+            <div>
+              <h3 className="text-sm font-thin">
+                Copyright © 2024 si-itikpolije.com. All rights reserved.
+              </h3>
+            </div>
+
+            <Link
+              href="#Home"
+              className="px-8 py-2 rounded-md bg-teal-500 text-white font-bold transition duration-200 hover:bg-white hover:text-black border-2 border-transparent hover:border-teal-500"
+            >
+              ⬆️
+            </Link>
+
+            {/* <div className='footer-iconTop'>
+                <a href="#Home"><i className="bx bx-up-arrow-alt">A</i></a>
+          </div> */}
+          </div>
+        </div>
       </footer>
     </div>
   );
