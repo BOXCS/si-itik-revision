@@ -372,13 +372,26 @@
 
 /* Container for centering the header */
 .navbar {
-  width: 95%; /* Memastikan container memenuhi lebar penuh */
+  background-color: #ddd;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
   padding: 0;
   box-sizing: border-box;
+  height: 70px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
 }
 
 .navbar .logo {
   width: 200px;
+}
+
+.dropdown-menu {
+  display: none;
 }
 
 /* Main container */
@@ -520,6 +533,49 @@
   width: 300px;
 }
 
+@keyframes blur-in {
+  0% {
+    opacity: 0;
+    filter: blur(10px);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+@keyframes blur-out {
+  0% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    opacity: 0;
+    filter: blur(10px);
+  }
+}
+
+.info h2,
+.info h1,
+.info p {
+  animation-duration: 0.6s;
+  animation-fill-mode: forwards;
+}
+
+.info h2 {
+  animation-name: blur-in;
+}
+
+.info h1 {
+  animation-name: blur-in;
+  animation-delay: 0.2s;
+}
+
+.info p {
+  animation-name: blur-in;
+  animation-delay: 0.4s;
+}
+
 /* Section Tentang Kami */
 .tentang-kami-container {
   margin-left: 40px;
@@ -548,6 +604,19 @@
   justify-content: space-between; /* Menempatkan konten dan panah di ujung card */
   align-items: center; /* Menjaga elemen pada vertikal tengah */
   border-radius: 20px;
+}
+
+/* Dropdown Anim */
+.card-content p {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  opacity: 0;
+}
+
+.card-content p.show {
+  max-height: 100px; /* Atur sesuai kebutuhan */
+  opacity: 1;
 }
 
 /* Dropdown arrow */
@@ -580,6 +649,7 @@
   margin-right: 10rem;
   grid-template-columns: repeat(2, 1fr);
   align-items: center;
+  justify-content: center;
   gap: 2.5rem;
 }
 
@@ -605,6 +675,23 @@
 
 .fima-box:hover img {
   transform: scale(1.1);
+}
+
+.fima-box .fima-layer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(0, 0, 0, 0.1), #f9c994);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  padding: 0 4rem;
+  transform: translateY(100%);
+  transition: 0.5s ease;
 }
 
 .fima-box .fima-layer {
@@ -669,7 +756,7 @@
   margin-top: 50px;
 }
 
-.footer-container .footer-social  {
+.footer-container .footer-social {
   margin-top: 50px;
   display: grid;
   gap: -9rem;
@@ -724,7 +811,7 @@
   }
 
   .navbar {
-    width: 90%; /* Memastikan container memenuhi lebar penuh */
+    width: 100%; /* Memastikan container memenuhi lebar penuh */
     padding: 0;
     box-sizing: border-box;
   }
@@ -748,7 +835,7 @@
   .fima-container .fima-box {
     height: 100px;
     width: 450px;
-    right: 120px;
+    right: 0px;
     border-radius: 1rem;
   }
 
@@ -773,16 +860,50 @@ img {
 
 /* CSS for mobile and tablet */
 @media (max-width: 768px) {
-  .navbar {
+  .nav-links {
+    display: none; /* Sembunyikan navbar default */
+  }
+
+  .navbar .nav-links {
     display: none;
   }
 
-  .dropdown-menu {
-    display: block;
-    position: relative;
+  .navbar .logo {
+    margin-left: 30px;
   }
 
-  .dropdown-menu ul {
+  .navbar {
+    width: 100%;
+  }
+
+  .dropdown-menu {
+    width: 100%;
+  }
+
+  .navbar .login-btn {
+    display: none;
+  }
+
+  .dropdown-menu .dropdown-toggle {
+    margin-left: 400px;
+  }
+
+  /* Dropdown Menu */
+  .dropdown-menu {
+    display: flex;
+    position: relative;
+    justify-content: space-around;
+  }
+
+  .dropdown-toggle {
+    background-color: transparent;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #333; /* Sesuaikan dengan tema Anda */
+  }
+
+  .dropdown-content {
     display: none;
     position: absolute;
     top: 100%;
@@ -794,42 +915,103 @@ img {
     z-index: 10;
   }
 
-  .dropdown-menu ul.show {
-    display: block; /* Tampilkan dropdown ketika tombol diklik */
+  .dropdown-content.show {
+    display: block;
   }
 
-  .dropdown-menu button {
-    background-color: transparent;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-  }
-
-  .dropdown-menu ul li {
+  .dropdown-content li {
     padding: 1rem;
     border-bottom: 1px solid #ddd;
   }
 
-  .dropdown-menu ul li:last-child {
+  .dropdown-content li:last-child {
     border-bottom: none;
   }
 
-  .dropdown-menu ul li a {
+  .dropdown-content li a {
     text-decoration: none;
     color: #333;
     display: block;
   }
 
-  .dropdown-menu ul {
-    display: none;
-  }
-  .dropdown-menu ul.show {
-    display: block;
-  }
-
   .container {
     display: grid;
+    margin-right: 20px;
+    height: 52.5rem;
+    overflow: hidden;
+  }
+
+  .info {
+    width: fit-content;
+    margin-right: 50px;
+    margin-bottom: 90px;
+    margin-top: -310px;
+  }
+
+  .info h2 {
+    font-weight: 800;
+  }
+
+  .slider-container {
+    position: absolute;
+    bottom: 0rem;
+    top: 23rem;
+    /* left: 1.5rem; */
+    height: 510px;
+    margin-left: 4rem;
+  }
+
+  .slider-container .images {
+    width: 200px;
+    margin-bottom: 200px;
+    margin-left: 30px;
+  }
+
+  .container::before {
+    /* display: none; */
+    width: 400px;
+    height: 400px;
+    top: 65%;
+  }
+
+  .arrow {
+    top: 730px;
+    position: absolute;
+  }
+
+  .arrow.left {
+    z-index: 1;
+  }
+
+  .tentang-kami-container {
+    overflow: hidden;
+  }
+
+  .tentang-kami-info {
+    overflow: hidden;
+    margin-right: 20px;
+  }
+
+  .tentang-kami-info h2 {
+    font-size: larger;
     justify-items: center;
+  }
+
+  .tentang-kami-info p {
+    margin-right: 30px;
+  }
+
+  .tentang-kami-cards {
+    margin-right: 20px;
+  }
+
+  .card {
+    overflow: hidden;
+    align-items: center;
+  }
+
+  .tentang-kami-container {
+    width: fit-content;
   }
 
   .fima-container {
@@ -841,23 +1023,130 @@ img {
   }
 
   .fima-container .fima-box {
-    height: 100px;
+    height: 150px;
     width: 650px;
-    right: 100px;
+    right: 10px;
     border-radius: 1.5rem;
   }
 
   .fima-layer h4 {
-    font-size: 1rem;
-    font-weight: 300;
+    font-size: 1.7rem;
+    font-weight: 600;
   }
 
   .fima-layer p {
-    font-size: 0.8rem;
+    font-size: 1rem;
+  }
+
+  .footer-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    height: fit-content;
+  }
+
+  .footer-container .logo-si-itik {
+    margin-left: 100px;
+  }
+
+  .footer-end h3 {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 375px) {
+  .navbar {
+    width: 100%;
+  }
+
+  .dropdown-menu {
+    width: 100%;
+  }
+
+  .dropdown-menu .dropdown-toggle {
+    /* margin-left: 0px; */
+    margin-right: 15px;
+  }
+
+  .tentang-kami-container {
+    overflow: hidden;
+    margin-right: 50px;
+  }
+
+  .tentang-kami-info {
+    /* overflow: hidden; */
+    margin-right: 20px;
+  }
+
+  .tentang-kami-info h2 {
+    font-size: larger;
+    justify-items: center;
+  }
+
+  .tentang-kami-info p {
+    margin-right: 30px;
+  }
+
+  .tentang-kami-cards {
+    display: none;
+    width: fit-content;
+    height: 200px;
+  }
+
+  .tentang-kami-cards h3 {
+    font-size: medium;
+  }
+
+  .card {
+    overflow: hidden;
+    margin-right: 30px;
+  }
+
+  .tentang-kami-container {
+    width: fit-content;
+  }
+
+  .footer-container {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    height: fit-content;
+    overflow: hidden;
+  }
+
+  .footer-container .logo-si-itik {
+    margin-left: 100px;
+  }
+
+  .footer-end h3 {
+    font-size: 10px;
   }
 }
 
 @media (max-width: 425px) {
+  .navbar .logo {
+    margin-left: 30px;
+  }
+
+  .navbar {
+    width: 100%;
+  }
+
+  .dropdown-menu {
+    display: flex;
+    justify-content: space-around;
+  }
+
+  .dropdown-menu .dropdown-toggle {
+    margin-left: 200px;
+  }
+
+  .navbar .login-btn {
+    display: none;
+  }
+
+  .dropdown-menu {
+    width: 100%;
+  }
+
   .images {
     display: flexbox;
   }
@@ -883,10 +1172,9 @@ img {
   .slider-container {
     position: absolute;
     bottom: 0rem;
-    top: 23rem;
-    /* left: 1.5rem; */
+    top: 29rem;
     height: 510px;
-    margin-left: 4rem;
+    margin-left: 2rem;
   }
 
   .slider-container .images {
@@ -916,7 +1204,7 @@ img {
   .tentang-kami-info {
     width: fit-content;
   }
-  
+
   .tentang-kami-cards {
     margin-top: 50px;
     width: 22rem;
@@ -934,7 +1222,7 @@ img {
   .fima-container .fima-box {
     height: 80px;
     width: 310px;
-    right: 105px;
+    right: 10px;
     border-radius: 1rem;
   }
 
@@ -953,7 +1241,12 @@ img {
 
   .footer-container {
     display: grid;
+    grid-template-columns: repeat(1, 1fr);
     height: fit-content;
+  }
+
+  .footer-container .logo-si-itik {
+    margin-left: 130px;
   }
 
   .footer-end h3 {

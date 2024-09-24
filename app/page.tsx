@@ -57,15 +57,43 @@ export default function Home() {
   const [isOpen, setIsOpen] = useState<boolean[]>([false, false, false]);
 
   const handlePrev = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? images.length - 1 : prevIndex - 1
-    );
+    // Trigger blur-out before changing slide
+    const elements = document.querySelectorAll(".info h2, .info h1, .info p");
+
+    elements.forEach((el) => {
+      (el as HTMLElement).style.animationName = "blur-out"; // Type assertion
+    });
+
+    setTimeout(() => {
+      setCurrentIndex((prevIndex) =>
+        prevIndex === 0 ? images.length - 1 : prevIndex - 1
+      );
+
+      // Trigger blur-in after slide changes
+      elements.forEach((el) => {
+        (el as HTMLElement).style.animationName = "blur-in"; // Type assertion
+      });
+    }, 600); // Matches the animation duration
   };
 
   const handleNext = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === images.length - 1 ? 0 : prevIndex + 1
-    );
+    // Trigger blur-out before changing slide
+    const elements = document.querySelectorAll(".info h2, .info h1, .info p");
+
+    elements.forEach((el) => {
+      (el as HTMLElement).style.animationName = "blur-out"; // Type assertion
+    });
+
+    setTimeout(() => {
+      setCurrentIndex((prevIndex) =>
+        prevIndex === images.length - 1 ? 0 : prevIndex + 1
+      );
+
+      // Trigger blur-in after slide changes
+      elements.forEach((el) => {
+        (el as HTMLElement).style.animationName = "blur-in"; // Type assertion
+      });
+    }, 600); // Matches the animation duration
   };
 
   // Fungsi untuk toggle card dropdown
@@ -84,78 +112,79 @@ export default function Home() {
 
   return (
     <div>
-      <header className="bg-gray-100 shadow-lg py-4">
-        <div className="navbar mx-auto flex justify-between items-center">
-          {/* Logo */}
-          <div className="logo">
-            <Image
+      <header className="navbar">
+        <div className="logo">
+        <Image
               src="/assets/Logo.svg"
               alt="SI-ITIK Logo"
-              width={150}
+              width={100}
               height={0}
             />
-          </div>
+        </div>
 
-          {/* Navigation */}
-          <nav className="flex space-x-6">
-            <Link
-              href="#tentangKami"
-              className="underline-animation text-gray-800 hover:text-gray-600 font-medium transition duration-300"
-            >
-              Tentang Kami
-            </Link>
-            <Link
-              href="#fiturUtama"
-              className="underline-animation text-gray-800 hover:text-gray-600 font-medium transition duration-300"
-            >
-              Fitur Utama
-            </Link>
-            <Link
-              href="#testimoniPeternak"
-              className="underline-animation text-gray-800 hover:text-gray-600 font-medium transition duration-300"
-            >
-              Testimoni
-            </Link>
-            <Link
-              href="#timelineCaKer"
-              className="underline-animation text-gray-800 hover:text-gray-600 font-medium transition duration-300"
-            >
-              Cara Kerja
-            </Link>
-            <Link
-              href="#"
-              className="underline-animation text-[#D05805] hover:text-orange-600 font-medium transition duration-300"
-            >
-              Unduh Aplikasi Seluler
-            </Link>
-          </nav>
+        {/* Navbar Default (untuk desktop) */}
+        <ul className="nav-links">
+          <li className="underline-animation text-gray-800 hover:text-gray-600 font-medium transition duration-300">
+            <a href="#tentangKami">Tentang Kami</a>
+          </li>
+          <li className="underline-animation text-gray-800 hover:text-gray-600 font-medium transition duration-300">
+            <a href="#fiturUtama">Fitur Utama</a>
+          </li>
+          <li className="underline-animation text-gray-800 hover:text-gray-600 font-medium transition duration-300">
+            <a href="#testimoniPeternak">Testimoni</a>
+          </li>
+          <li className="underline-animation text-gray-800 hover:text-gray-600 font-medium transition duration-300">
+            <a href="#timelineCaKer">Cara Kerja</a>
+          </li>
+          <li className="underline-animation text-[#D05805] hover:text-orange-600 font-medium transition duration-300">
+            <a href="#">Unduh Aplikasi Seluler</a>
+          </li>
+        </ul>
 
-          {/* Login Button */}
-          <div>
-            <Link
-              href="#"
-              className="border border-[#D05805] text-[#D05805] hover:bg-[#D05805] hover:text-white transition duration-300 px-4 py-2 rounded-lg font-medium"
-            >
-              Login
-            </Link>
-          </div>
+        <a href="#Login" className="login-btn border border-[#D05805] text-[#D05805] hover:bg-[#D05805] hover:text-white transition duration-300 px-4 py-2 rounded-lg font-medium">Login</a>
+
+        {/* Dropdown Navbar (untuk mobile/tablet) */}
+        <div className="dropdown-menu">
+          <button className="dropdown-toggle" onClick={toggleDropdown}>
+            &#9776; {/* Ikon burger */}
+          </button>
+          <ul className={`dropdown-content ${isDropdownOpen ? "show" : ""}`}>
+            <li>
+              <a href="#tentangKami">Tentang Kami</a>
+            </li>
+            <li>
+              <a href="#fiturUtama">Fitur Utama</a>
+            </li>
+            <li>
+              <a href="#testimoniPeternak">Testimoni</a>
+            </li>
+            <li>
+              <a href="#timelineCaKer">Cara Kerja</a>
+            </li>
+            <li>
+              <a href="#">Unduh Aplikasi Seluler</a>
+            </li>
+            <li>
+              <a href="#">Login</a>
+            </li>
+          </ul>
         </div>
       </header>
 
       {/* Content Layout */}
       <div className="container" id="Home">
-        {/* Info Section */}
         <div className="info">
           <h2 className="text-2xl font-semibold">Design Slider</h2>
           <h1 className="text-4xl font-bold mt-2">{headers[currentIndex]}</h1>
           <p className="mt-4">{descriptions[currentIndex]}</p>
-          {/* <button className="btn-coba bg-[#D05805] text-white px-4 py-2 mt-4 rounded-lg font-medium transition duration-200 hover:bg-white hover:text-black border-2 border-transparent hover:border-teal-500">
+          <a
+            href="#Beranda"
+            className="btn-coba bg-[#D05805] text-white px-4 py-2 mt-4 rounded-lg font-medium transition duration-200 hover:bg-white hover:text-black border-2 border-transparent hover:border-teal-500"
+          >
             Coba Sekarang
-          </button> */}
-          <a href="#Beranda" className="btn-coba bg-[#D05805] text-white px-4 py-2 mt-4 rounded-lg font-medium transition duration-200 hover:bg-white hover:text-black border-2 border-transparent hover:border-teal-500">Coba Sekarang</a>
+          </a>
         </div>
 
-        {/* Image Slider Section */}
         <div className="slider-container">
           <div className="slider">
             <div
@@ -178,6 +207,7 @@ export default function Home() {
             </div>
           </div>
         </div>
+
         <button className="arrow right" onClick={handleNext}>
           →
         </button>
@@ -188,7 +218,7 @@ export default function Home() {
 
       {/* Section Tentang Kami */}
       <section className="tentang-kami bg-[#F9C994] py-12" id="tentangKami">
-        <div className="tentang-kami-container mx-auto flex justify-between items-start">
+        <div className="tentang-kami-container flex justify-between items-start">
           {/* Left Side: Judul dan Deskripsi */}
           <div className="tentang-kami-info w-1/2">
             <h2 className="text-4xl font-bold mb-4">Mengapa Harus SI-ITIK</h2>
@@ -357,9 +387,7 @@ export default function Home() {
           <h2>New</h2>
           <p>Ingin Update ternak usaha itik ?</p>
           <p>Klik berikut</p>
-          <button
-          className="px-8 py-2 rounded-md bg-teal-500 text-white font-bold transition duration-200 hover:bg-white hover:text-black border-2 border-transparent hover:border-teal-500"
-          >
+          <button className="px-8 py-2 rounded-md bg-teal-500 text-white font-bold transition duration-200 hover:bg-white hover:text-black border-2 border-transparent hover:border-teal-500">
             Follow it
           </button>
         </div>
@@ -375,7 +403,7 @@ export default function Home() {
             </div>
 
             <Link
-              href="#Home"
+              href="#Navbar"
               className="px-8 py-2 rounded-md bg-teal-500 text-white font-bold transition duration-200 hover:bg-white hover:text-black border-2 border-transparent hover:border-teal-500"
             >
               ⬆️
