@@ -174,7 +174,7 @@ export default function Home() {
       {/* Content Layout */}
       <div className="container" id="Home">
         <div className="info">
-          <h2 className="text-2xl font-semibold">Design Slider</h2>
+          <h2 className="text-2xl font-semibold">SI-ITIK</h2>
           <h1 className="text-4xl font-bold mt-2">{headers[currentIndex]}</h1>
           <p className="mt-4">{descriptions[currentIndex]}</p>
           <a

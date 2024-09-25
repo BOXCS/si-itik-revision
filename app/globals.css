@@ -800,6 +800,10 @@
   margin-bottom: 50px;
   width: 200px;
 }
+
+.timeline-heading h2 {
+  font-size: 4rem;
+}
 /* Large screens (min-width 1024px) */
 @media (max-width: 1024px) {
   .slider-container .images {
