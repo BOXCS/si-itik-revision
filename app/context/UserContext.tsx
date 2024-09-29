@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 // Definisikan tipe data user
 interface User {
@@ -13,12 +15,13 @@ interface UserContextType {
 }
 
 // Membuat UserContext
-const UserContext = createContext<UserContextType | undefined>(undefined);
+export const UserContext = createContext<UserContextType | undefined>(undefined);
 
+// Custom hook untuk menggunakan UserContext
 export const useUser = () => {
   const context = useContext(UserContext);
   if (!context) {
-    throw new Error('useUser harus digunakan di dalam UserProvider');
+    throw new Error("useUser harus digunakan di dalam UserProvider");
   }
   return context;
 };
@@ -27,33 +30,23 @@ export const useUser = () => {
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
 
-  // Fungsi untuk memeriksa dan memparse user dari localStorage
-  const loadUserFromStorage = () => {
-    try {
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser); // Pastikan data yang diparse valid JSON
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        // Sesuaikan dengan user data yang kamu butuhkan
+        const newUser: User = {
+          username: firebaseUser.displayName || "",
+          email: firebaseUser.email || ""
+        };
+        setUser(newUser);
+      } else {
+        setUser(null);
       }
-    } catch (error) {
-      console.error('Error parsing user data from localStorage:', error);
-      // Jika terjadi error saat parsing, hapus data yang tidak valid
-      localStorage.removeItem('user');
-    }
-  };
+    });
 
-  useEffect(() => {
-    loadUserFromStorage();
+    // Clean up the subscription on unmount
+    return () => unsubscribe();
   }, []);
-
-  // Simpan user ke localStorage jika user berubah
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem('user', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('user');
-    }
-  }, [user]);
 
   return (
     <UserContext.Provider value={{ user, setUser }}>

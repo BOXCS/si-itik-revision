@@ -4,16 +4,15 @@ import { usePathname } from "next/navigation";
 import LandingPage from "./root/pages/LandingPage";
 import SignUpPage from "./auth/signup/page";
 import LoginPage from "./auth/login/page";
-import Nav from "@/components/Nav";
 import UsersPage from "./users";
-import ClientProvider from './ClientProvider'; // Import ClientProvider
 import Dashboard from "./dashboard/page";
-import { UserProvider } from "./context/UserContext";
+import { UserProvider } from "./context/UserContext"; // Pastikan ini diimpor
+import PenetasanPage from "./analisis/penetasan/page";
+import { SidebarDemo } from "@/components/Sidebar";
 
 const Home = () => {
-  const pathname = usePathname(); // Get the current pathname
+  const pathname = usePathname(); // Ambil pathname saat ini
 
-  // Ensure the path matches exactly
   let content;
 
   switch (pathname) {
@@ -29,13 +28,16 @@ const Home = () => {
     case "/dashboard":
       content = <Dashboard />;
       break;
+    case "/analisis/penetasan":
+      content = <PenetasanPage />; // Pastikan ini berada dalam UserProvider
+      break;
     default:
       content = <LandingPage />;
   }
 
   return (
-    <UserProvider>
-      {content}
+    <UserProvider> {/* UserProvider membungkus seluruh aplikasi */}
+        {content}
     </UserProvider>
   );
 };

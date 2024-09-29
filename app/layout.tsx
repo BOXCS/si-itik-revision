@@ -1,6 +1,8 @@
+// app/layout.tsx
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google"; 
 import "./globals.css";
+import ClientProvider from "./ClientProvider";
 
 const fontSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -8,22 +10,18 @@ const fontSans = Plus_Jakarta_Sans({
   variable: "--font-sans",
 });
 
-// Define the metadata outside the client component
 export const metadata: Metadata = {
   title: "SI-ITIK",
   description: "Pengelolaan Ternak Itik",
 };
 
-// Define RootLayout as a Server Component
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
       <body className={fontSans.className}>
-        <main>
-          {children}
-          </main>
+        <ClientProvider>{children}</ClientProvider> {/* Bungkus dengan ClientProvider */}
       </body>
     </html>
   );
