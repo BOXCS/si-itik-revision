@@ -15,7 +15,7 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-toast": "^1.2.1",
     "@shadcn/ui": "^0.0.4",
-    "@tabler/icons-react": "^3.17.0",
+    "@tabler/icons-react": "^3.18.0",
     "autoprefixer": "^10.4.20",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",

@@ -1,0 +1,72 @@
+.entire-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;    /* Memusatkan secara vertical */
+    height: 100vh;          /* Pastikan ada tinggi yang cukup */
+    padding: 20px; 
+    margin-left: 2vh;         /* Jarak dari tepi */
+  }
+
+  .periode-container {
+    position: absolute;
+    margin-bottom: 700px;
+    margin-left: 500px;
+  }
+
+  .periode-container h1 {
+    font-size: 2rem;
+    font-weight: 900;
+  }
+
+  .form-container {
+    margin-left: 150px;
+    justify-items: center;
+    justify-content: center;
+
+  }
+
+  .btn-selanjutnya {
+    justify-content: end;
+    margin-left: 75%;
+    width: 200px;
+  }
+
+  @media (max-width: 1440px) {
+    .tab-container {
+        margin-left: -200px;
+    }
+
+    .form-container {
+        width: fit-content;
+        margin-left: 80px;
+    }
+
+    .btn-selanjutnya {
+        margin-bottom: -90px;
+    }
+}
+  
+
+@media (max-width: 1024px) {
+    .tab-container {
+        margin-right: 50vh;
+        margin-left: -500px;
+    }
+
+    .periode-container h1 {
+        margin-right: 50vh;
+        margin-left: -500px;
+    }
+}
+
+@media (max-width: 768px) {
+    .tab-container {
+        margin-left: -80px;
+    }
+}
+
+@media (max-width: 425px) {
+    .tab-container {
+        margin-left: -280px;
+    }
+}
