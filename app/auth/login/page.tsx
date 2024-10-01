@@ -46,7 +46,7 @@ const LoginPage = () => {
       // await firebaseSignIn(username, password); // Uncomment and implement
 
       // Redirect to Beranda page directly after successful login
-      router.push("/root/pages");
+      router.push(`/dashboard?username=${username}`);
     } catch (error) {
       console.error("Error logging in:", error);
       // Handle error: show notification or set form error
@@ -119,7 +119,7 @@ const LoginPage = () => {
         </div>
       </div>
 
-      <div className="form-login bg-white p-8 rounded-lg -mr-64 shadow-lg w-1/3 h-2/3">
+      <div className="form-login flex flex-col bg-white p-8 rounded-lg -mr-64 shadow-lg w-1/3 h-2/3">
         <h1 className="font-bold text-3xl">Masuk</h1>
         <h2 className="text-lg mt-5 mb-3">
           Tidak Memiliki Akun ?{" "}
@@ -156,9 +156,15 @@ const LoginPage = () => {
           <button
             onClick={async () => {
               setIsLoading(true);
-              await signInWithFacebook();
-              setIsLoading(false);
-              router.push("/dashboard/Beranda"); // Redirect after successful login
+              try {
+                const user = await signInWithFacebook(); // Assuming this returns a user object
+                const username = user?.displayName || "FacebookUser"; // Extract username or set a default
+                router.push(`/dashboard?username=${username}`);
+              } catch (error) {
+                console.error("Error logging in with Google:", error);
+              } finally {
+                setIsLoading(false);
+              }
             }}
             className="flex items-center justify-center w-fit border border-black text-black bg-white hover:bg-gray-100 rounded-lg py-2 px-4"
           >
