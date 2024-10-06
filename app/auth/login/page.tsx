@@ -20,6 +20,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { signInWithGoogle, signInWithFacebook } from "@/lib/authProviders"; // Ensure these functions are defined
 import { useRouter } from "next/navigation"; // Import useRouter
+import "@/app/auth.css";
 
 const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -46,7 +47,7 @@ const LoginPage = () => {
       // await firebaseSignIn(username, password); // Uncomment and implement
 
       // Redirect to Beranda page directly after successful login
-      router.push("/root/pages");
+      router.push(`/dashboard?username=${username}`);
     } catch (error) {
       console.error("Error logging in:", error);
       // Handle error: show notification or set form error
@@ -68,13 +69,13 @@ const LoginPage = () => {
         alignItems: "center",
       }}
     >
-      <div className="benefit-container relative grid gap-5 -left-96">
+      <div className="benefit-container flex flex-col relative gap-5 -left-96">
         <img
           src="/assets/logo-si-itik.svg"
           alt="Logo SI_ITIK"
           className="w-20"
         />
-        <h1 className="text-5xl font-bold text-white">Keunggulan SI-ITIK</h1>
+        <h1 className="flex flex-col text-5xl font-bold text-white">Keunggulan SI-ITIK</h1>
         <div className="benefit-point grid text-2xl font-semibold gap-5">
           <h2>
             <img
@@ -119,7 +120,7 @@ const LoginPage = () => {
         </div>
       </div>
 
-      <div className="form-login bg-white p-8 rounded-lg -mr-64 shadow-lg w-1/3 h-2/3">
+      <div className="form-login flex flex-col bg-white p-8 rounded-lg -mr-64 shadow-lg w-1/3 h-2/3">
         <h1 className="font-bold text-3xl">Masuk</h1>
         <h2 className="text-lg mt-5 mb-3">
           Tidak Memiliki Akun ?{" "}
@@ -127,7 +128,7 @@ const LoginPage = () => {
             Daftar Sekarang
           </Link>
         </h2>
-        <div className="flex justify-between mt-7">
+        <div className="flex justify-center mt-7">
           <button
             onClick={async () => {
               setIsLoading(true);
@@ -151,25 +152,6 @@ const LoginPage = () => {
               className="mr-2 w-10"
             />
             Masuk dengan Google
-          </button>
-
-          <button
-            onClick={async () => {
-              setIsLoading(true);
-              await signInWithFacebook();
-              setIsLoading(false);
-              router.push("/dashboard/Beranda"); // Redirect after successful login
-            }}
-            className="flex items-center justify-center w-fit border border-black text-black bg-white hover:bg-gray-100 rounded-lg py-2 px-4"
-          >
-            <Image
-              src="/assets/facebook-logo.svg"
-              alt="Facebook Logo"
-              width={24}
-              height={24}
-              className="mr-2 w-10"
-            />
-            Masuk dengan Facebook
           </button>
         </div>
         <h3 className="text-center mt-10">OR</h3>

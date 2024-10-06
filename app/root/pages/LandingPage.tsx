@@ -1,14 +1,13 @@
 "use client"; // Add this directive at the top of the file
 
-import Footer from "@/components/Footer";
 import { TimelineDemo } from "@/components/Timeline";
 import { InfiniteMovingCards } from "@/components/ui/InfiniteMovingCards";
-import { Timeline } from "@/components/ui/timeline";
 import Image from "next/image";
 import { useState } from "react";
-import { useEffect, useRef } from "react";
-import { signIn } from "next-auth/react";
 import Link from "next/link";
+import {
+  IconArrowUp,
+} from "@tabler/icons-react";
 
 const images = [
   "/assets/penetasan.svg",
@@ -182,11 +181,11 @@ export default function LandingPage() {
       <div className="container" id="Home">
         <div className="info">
           <h2 className="text-2xl font-semibold">SI-ITIK</h2>
-          <h1 className="text-4xl font-bold mt-2">{headers[currentIndex]}</h1>
+          <h1 className="text-[#d05805] text-lg font-bold mt-3">{headers[currentIndex]}</h1>
           <p className="mt-4">{descriptions[currentIndex]}</p>
           <a
             href="#Beranda"
-            className="btn-coba bg-[#D05805] text-white px-4 py-2 mt-4 rounded-lg font-medium transition duration-200 hover:bg-white hover:text-black border-2 border-transparent hover:border-teal-500"
+            className="btn-coba bg-[#D05805] text-white px-4 py-2 mt-4 rounded-lg font-medium transition duration-200 hover:bg-[#F68110] hover:text-black border-2 border-transparent hover:border-teal-500"
           >
             Coba Sekarang
           </a>
@@ -203,9 +202,8 @@ export default function LandingPage() {
                   key={index}
                   src={image}
                   alt={`Slide ${index}`}
-                  layout="responsive"
-                  width={1000}
-                  height={1000}
+                  width={2000}
+                  height={2000}
                   className={`image ${
                     index === currentIndex ? "active" : "right"
                   }`}
@@ -385,7 +383,7 @@ export default function LandingPage() {
           <h2>New</h2>
           <p>Ingin Update ternak usaha itik ?</p>
           <p>Klik berikut</p>
-          <button className="px-8 py-2 rounded-md bg-teal-500 text-white font-bold transition duration-200 hover:bg-white hover:text-black border-2 border-transparent hover:border-teal-500">
+          <button className="px-8 py-2 rounded-md bg-[#FCCD8F] text-black font-bold transition duration-200 hover:bg-white hover:text-black border-2 border-transparent hover:border-[#FCCD8F]">
             Follow it
           </button>
         </div>
@@ -402,9 +400,9 @@ export default function LandingPage() {
 
             <Link
               href="#Navbar"
-              className="px-8 py-2 rounded-md bg-teal-500 text-white font-bold transition duration-200 hover:bg-white hover:text-black border-2 border-transparent hover:border-teal-500"
+              className="px-8 py-2 rounded-md bg-[#FCCD8F] text-black font-bold transition duration-200 hover:bg-white hover:text-black border-2 border-transparent hover:border-[#FCCD8F]"
             >
-              ⬆️
+              <IconArrowUp />
             </Link>
 
             {/* <div className='footer-iconTop'>

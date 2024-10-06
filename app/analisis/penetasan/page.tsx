@@ -5,8 +5,9 @@ import { useUser } from "@/app/context/UserContext";
 import React, { useState, useEffect } from "react";
 import HorizontalTimeline from "@/components/HorizontalTimeline";
 import "@/app/analisis.css";
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, Timestamp } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
+import { useToast } from "@/hooks/use-toast";
 
 interface TabSelectionProps {
   setSelectedPeriod: (period: string) => void; // Mengatur tipe untuk setSelectedPeriod
@@ -22,8 +23,10 @@ const PenetasanPage = () => {
     "Periode 6",
   ];
 
+  const { toast } = useToast();
+  const [selectedPeriod, setSelectedPeriod] = useState(periods[0]); // Default periode pertama
+  const [periode, setPeriode] = useState(periods[0]);
   const { user } = useUser(); // Pindahkan di sini
-  const [selectedPeriod, setSelectedPeriod] = useState(periods[0]);
 
   // State untuk form visibility
   const [currentForm, setCurrentForm] = useState("Penerimaan");
@@ -59,19 +62,20 @@ const PenetasanPage = () => {
   const [bepHasil, setBepHasil] = useState<number>(0);
   const [laba, setLaba] = useState<number>(0);
 
-  // States for Submit firestore
-  const [periode, setPeriode] = useState("");
-
   const handleSubmit = async () => {
     if (!user) {
-      alert("User tidak terautentikasi.");
+      toast({
+        title: "Gagal",
+        description: "User tidak terautentikasi.",
+        variant: "destructive",
+      });
       return; // Hentikan eksekusi jika user tidak ada
     }
 
     try {
       const dataToSubmit = {
         userId: user.email || user.username,
-        periode,
+        periode: selectedPeriod,
         penerimaan: {
           jumlahTelurMenetas,
           jumlahTelur,
@@ -102,23 +106,32 @@ const PenetasanPage = () => {
           bepHasil,
           laba,
         },
+        created_at: Timestamp.now(), // Tambahkan timestamp untuk mencatat waktu submit
       };
 
       await addDoc(collection(firestore, "detail_penetasan"), dataToSubmit);
-      alert("Data berhasil disubmit!");
+
+      // Tampilkan toast sukses
+      toast({
+        title: "Sukses",
+        description: "Data berhasil disimpan!",
+      });
     } catch (error) {
       console.error("Error adding document: ", error);
-      alert("Gagal menambahkan data!");
+
+      // Tampilkan toast error
+      toast({
+        title: "Gagal",
+        description: "Gagal menambahkan data!",
+        variant: "destructive",
+      });
     }
   };
 
   // Rumus Penerimaan
   useEffect(() => {
-    if (jumlahTelur > 0) {
-      setPersentase((jumlahTelurMenetas * 100) / jumlahTelur);
-    } else {
-      setPersentase(0);
-    }
+    const persentase = (jumlahTelurMenetas / jumlahTelur) * 100;
+    setPersentase(persentase);
   }, [jumlahTelurMenetas, jumlahTelur]);
 
   useEffect(() => {
@@ -137,7 +150,7 @@ const PenetasanPage = () => {
   }, [sewaKandang, penyusutanPeralatan]);
 
   useEffect(() => {
-    const totalFixedCost = totalBiaya * jumlahTelur * 60;
+    const totalFixedCost = totalBiaya * 28;
     setTotalFixedCost(totalFixedCost);
   }, [totalBiaya, jumlahTelur]);
 
@@ -147,7 +160,7 @@ const PenetasanPage = () => {
   }, [biayaTenagaKerja, biayaListrik, biayaOvk]);
 
   useEffect(() => {
-    const totalBiayaOperasional = biayaOperasional * jumlahTelur * 60;
+    const totalBiayaOperasional = biayaOperasional * 28;
     setTotalBiayaOperasional(totalBiayaOperasional);
   }, [biayaOperasional, jumlahTelur]);
 
@@ -165,6 +178,20 @@ const PenetasanPage = () => {
     const totalCost = totalVariableCost + totalFixedCost;
     setTotalCost(totalCost);
   }, [totalVariableCost, totalFixedCost]);
+
+  // Fungsi untuk format angka ke Rupiah
+  const formatNumber = (number: number) => {
+    return new Intl.NumberFormat("id-ID", {
+      minimumFractionDigits: 0, // Menghilangkan desimal
+    }).format(number);
+  };
+
+  const handleInputChange =
+    (setter: React.Dispatch<React.SetStateAction<number>>) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value.replace(/[^0-9]/g, ""); // Menghapus karakter non-angka
+      setter(value ? parseFloat(value) : 0); // Jika nilai ada, set sebagai angka
+    };
 
   const handleNextForm = () => {
     if (currentForm === "Penerimaan") {
@@ -199,8 +226,8 @@ const PenetasanPage = () => {
               <button
                 key={index}
                 onClick={() => {
-                  setPeriode(period);
-                  setSelectedPeriod(period);
+                  setPeriode(period); // Perbarui periode
+                  setSelectedPeriod(period); // Perbarui selectedPeriod
                 }}
                 className={`px-4 py-2 rounded-full text-white ${
                   selectedPeriod === period ? "bg-orange-500" : "bg-gray-400"
@@ -219,6 +246,9 @@ const PenetasanPage = () => {
                 <h2 className="text-xl font-extrabold mb-6">Data Penerimaan</h2>
                 {/* Penerimaan Form */}
                 <div className="flex items-center justify-center">
+                  <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
+                    (
+                  </span>
                   <div className="flex flex-col">
                     <label className="font-semibold">
                       Jumlah Telur Menetas
@@ -232,7 +262,7 @@ const PenetasanPage = () => {
                       className="border border-gray-300 p-2 rounded-md"
                     />
                   </div>
-                  <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                  <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
                     /
                   </span>
                   <div className="flex flex-col">
@@ -248,7 +278,10 @@ const PenetasanPage = () => {
                       className="border border-gray-300 p-2 rounded-md"
                     />
                   </div>
-                  <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                  <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
+                    )
+                  </span>
+                  <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
                     ×
                   </span>
                   <div className="flex flex-col">
@@ -260,14 +293,14 @@ const PenetasanPage = () => {
                       className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
                     />
                   </div>
-                  <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                  <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
                     =
                   </span>
                   <div className="flex flex-col">
                     <label className="font-semibold">Persentase Menetas</label>
                     <input
                       type="text"
-                      value={`${persentase.toFixed(2)}%`}
+                      value={`${persentase.toFixed(0)}%`}
                       readOnly
                       className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
                     />
@@ -287,26 +320,26 @@ const PenetasanPage = () => {
                       className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
                     />
                   </div>
-                  <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                  <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
                     ×
                   </span>
                   <div className="flex flex-col">
                     <label className="font-semibold">Persentase Menetas</label>
                     <input
                       type="text"
-                      value={`${persentase.toFixed(2)}%`}
+                      value={`${persentase.toFixed(0)}%`}
                       readOnly
                       className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
                     />
                   </div>
-                  <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                  <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
                     =
                   </span>
                   <div className="flex flex-col">
                     <label className="font-semibold">Jumlah DOD</label>
                     <input
                       type="text"
-                      value={jumlahDOD.toFixed(2)}
+                      value={jumlahDOD.toFixed(0)}
                       readOnly
                       className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
                     />
@@ -319,12 +352,12 @@ const PenetasanPage = () => {
                     <label className="font-semibold">Jumlah DOD</label>
                     <input
                       type="text"
-                      value={jumlahDOD}
+                      value={jumlahDOD.toFixed(0)}
                       readOnly
                       className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
                     />
                   </div>
-                  <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                  <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
                     ×
                   </span>
                   <div className="flex flex-col">
@@ -332,17 +365,20 @@ const PenetasanPage = () => {
                     <div className="flex items-center border border-gray-300 rounded-md">
                       <span className="p-2 bg-gray-100">Rp.</span>
                       <input
-                        type="number"
-                        value={hargaDOD}
-                        onChange={(e) =>
-                          setHargaDOD(parseFloat(e.target.value))
-                        }
-                        className="border-0 p-2 rounded-md flex-1" // border-0 untuk menghapus border input
+                        type="text" // Mengubah ke 'text' agar bisa memasukkan angka yang diformat
+                        value={formatNumber(hargaDOD)} // Tetap tampilkan angka terformat
+                        onChange={handleInputChange(setHargaDOD)} // Tangani perubahan input
+                        onBlur={(e) =>
+                          setHargaDOD(
+                            parseFloat(e.target.value.replace(/[^0-9]/g, ""))
+                          )
+                        } // Mengembalikan angka asli saat blur
+                        className="border-0 p-2 rounded-md flex-1"
                         placeholder="Masukkan harga DOD"
                       />
                     </div>
                   </div>
-                  <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                  <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
                     =
                   </span>
                   <div className="flex flex-col">
@@ -351,9 +387,9 @@ const PenetasanPage = () => {
                       <span className="p-2 bg-orange-200">Rp.</span>
                       <input
                         type="text"
-                        value={totalRevenue.toFixed(2)}
+                        value={formatNumber(totalRevenue)} // Memformat total revenue
                         readOnly
-                        className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-orange-100" // border-0 untuk menghapus border input
+                        className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-orange-100"
                       />
                     </div>
                   </div>
@@ -386,16 +422,21 @@ const PenetasanPage = () => {
                     <div className="flex items-center border border-gray-300 rounded-md">
                       <span className="p-2 bg-gray-100">Rp.</span>
                       <input
-                        type="number"
-                        value={sewaKandang}
-                        onChange={(e) =>
-                          setSewaKandang(parseFloat(e.target.value))
-                        }
+                        type="text"
+                        value={sewaKandang ? formatNumber(sewaKandang) : ""} // Format angka saat render
+                        onChange={handleInputChange(setSewaKandang)} // Panggil setter dinamis
+                        onBlur={(e) =>
+                          setSewaKandang(
+                            parseFloat(e.target.value.replace(/[^0-9]/g, "")) ||
+                              0
+                          )
+                        } // Set angka mentah saat blur
                         className="border border-gray-300 p-2 rounded-md"
+                        placeholder="Masukkan harga sewa kandang"
                       />
                     </div>
                   </div>
-                  <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                  <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
                     +
                   </span>
                   <div className="flex flex-col">
@@ -405,16 +446,25 @@ const PenetasanPage = () => {
                     <div className="flex items-center border border-gray-300 rounded-md">
                       <span className="p-2 bg-gray-100">Rp.</span>
                       <input
-                        type="number"
-                        value={penyusutanPeralatan}
-                        onChange={(e) =>
-                          setPenyusutanPeralatan(parseFloat(e.target.value))
+                        type="text"
+                        value={
+                          penyusutanPeralatan
+                            ? formatNumber(penyusutanPeralatan)
+                            : ""
+                        }
+                        onChange={handleInputChange(setPenyusutanPeralatan)}
+                        onBlur={(e) =>
+                          setPenyusutanPeralatan(
+                            parseFloat(e.target.value.replace(/[^0-9]/g, "")) ||
+                              0
+                          )
                         }
                         className="border border-gray-300 p-2 rounded-md"
+                        placeholder="Masukkan Penyusutan Peralatan"
                       />
                     </div>
                   </div>
-                  <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                  <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
                     =
                   </span>
                   <div className="flex flex-col">
@@ -423,7 +473,7 @@ const PenetasanPage = () => {
                       <span className="p-2 bg-gray-100">Rp.</span>
                       <input
                         type="text"
-                        value={totalBiaya.toFixed(2)}
+                        value={formatNumber(totalBiaya)}
                         readOnly
                         className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
                       />
@@ -438,39 +488,25 @@ const PenetasanPage = () => {
                         <span className="p-2 bg-gray-100">Rp.</span>
                         <input
                           type="text"
-                          value={totalBiaya.toFixed(2)}
+                          value={formatNumber(totalBiaya)}
                           readOnly
                           className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
                         />
                       </div>
                     </div>
-                    <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
-                      ×
-                    </span>
-                    <div className="flex flex-col">
-                      <label className="font-semibold">
-                        Jumlah Telur (Butir)
-                      </label>
-                      <input
-                        type="text"
-                        value={jumlahTelur}
-                        readOnly
-                        className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
-                      />
-                    </div>
-                    <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
                       ×
                     </span>
                     <div className="flex flex-col">
                       <label className="font-semibold">Jumlah hari</label>
                       <input
                         type="text"
-                        value={"60 Hari"}
+                        value={"28 Hari"}
                         readOnly
                         className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
                       />
                     </div>
-                    <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
                       =
                     </span>
                     <div className="flex flex-col">
@@ -479,7 +515,7 @@ const PenetasanPage = () => {
                         <span className="p-2 bg-gray-100">Rp.</span>
                         <input
                           type="text"
-                          value={totalFixedCost.toFixed(2)}
+                          value={formatNumber(totalFixedCost)}
                           readOnly
                           className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
                         />
@@ -503,16 +539,26 @@ const PenetasanPage = () => {
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <span className="p-2 bg-gray-100">Rp.</span>
                         <input
-                          type="number"
-                          value={biayaTenagaKerja}
-                          onChange={(e) =>
-                            setBiayaTenagaKerja(parseFloat(e.target.value))
+                          type="text"
+                          value={
+                            biayaTenagaKerja
+                              ? formatNumber(biayaTenagaKerja)
+                              : ""
+                          }
+                          onChange={handleInputChange(setBiayaTenagaKerja)}
+                          onBlur={(e) =>
+                            setBiayaTenagaKerja(
+                              parseFloat(
+                                e.target.value.replace(/[^0-9]/g, "")
+                              ) || 0
+                            )
                           }
                           className="border border-gray-300 p-2 rounded-md"
+                          placeholder="Masukkan Biaya Tenaga Kerja"
                         />
                       </div>
                     </div>
-                    <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
                       +
                     </span>
                     <div className="flex flex-col">
@@ -520,16 +566,22 @@ const PenetasanPage = () => {
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <span className="p-2 bg-gray-100">Rp.</span>
                         <input
-                          type="number"
-                          value={biayaListrik}
-                          onChange={(e) =>
-                            setBiayaListrik(parseFloat(e.target.value))
-                          }
+                          type="text"
+                          value={biayaListrik ? formatNumber(biayaListrik) : ""} // Format angka saat render
+                          onChange={handleInputChange(setBiayaListrik)} // Panggil setter dinamis
+                          onBlur={(e) =>
+                            setBiayaListrik(
+                              parseFloat(
+                                e.target.value.replace(/[^0-9]/g, "")
+                              ) || 0
+                            )
+                          } // Set angka mentah saat blur
                           className="border border-gray-300 p-2 rounded-md"
+                          placeholder="Masukkan biaya listrik"
                         />
                       </div>
                     </div>
-                    <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
                       +
                     </span>
                     <div className="flex flex-col">
@@ -537,16 +589,16 @@ const PenetasanPage = () => {
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <span className="p-2 bg-gray-100">Rp.</span>
                         <input
-                          type="number"
-                          value={biayaOvk}
-                          onChange={(e) =>
-                            setBiayaOvk(parseFloat(e.target.value))
-                          }
+                          type="text"
+                          value={biayaOvk ? formatNumber(biayaOvk) : ""}
+                          onChange={handleInputChange(setBiayaOvk)}
+                          onBlur={(e) => setBiayaOvk(parseFloat(e.target.value.replace(/[^0-9]/g, "")) || 0)}
                           className="border border-gray-300 p-2 rounded-md"
+                          placeholder="Masukkan biaya OVK"
                         />
                       </div>
                     </div>
-                    <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
                       =
                     </span>
                     <div className="flex flex-col">
@@ -555,7 +607,7 @@ const PenetasanPage = () => {
                         <span className="p-2 bg-gray-100">Rp.</span>
                         <input
                           type="text"
-                          value={biayaOperasional.toFixed(2)}
+                          value={formatNumber(biayaOperasional)}
                           readOnly
                           className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
                         />
@@ -569,39 +621,25 @@ const PenetasanPage = () => {
                         <span className="p-2 bg-gray-100">Rp.</span>
                         <input
                           type="text"
-                          value={biayaOperasional.toFixed(2)}
+                          value={formatNumber(biayaOperasional)}
                           readOnly
                           className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
                         />
                       </div>
                     </div>
-                    <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
-                      ×
-                    </span>
-                    <div className="flex flex-col">
-                      <label className="font-semibold">
-                        Jumlah Telur (Butir)
-                      </label>
-                      <input
-                        type="text"
-                        value={jumlahTelur}
-                        readOnly
-                        className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
-                      />
-                    </div>
-                    <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
                       ×
                     </span>
                     <div className="flex flex-col">
                       <label className="font-semibold">Jumlah hari</label>
                       <input
                         type="text"
-                        value={"60 Hari"}
+                        value={"28 Hari"}
                         readOnly
                         className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
                       />
                     </div>
-                    <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
                       =
                     </span>
                     <div className="flex flex-col">
@@ -612,7 +650,7 @@ const PenetasanPage = () => {
                         <span className="p-2 bg-gray-100">Rp.</span>
                         <input
                           type="text"
-                          value={totalBiayaOperasional.toFixed(2)}
+                          value={formatNumber(totalBiayaOperasional)}
                           readOnly
                           className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
                         />
@@ -639,7 +677,7 @@ const PenetasanPage = () => {
                       className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
                     />
                   </div>
-                  <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                  <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
                     ×
                   </span>
                   <div className="flex flex-col">
@@ -647,16 +685,16 @@ const PenetasanPage = () => {
                     <div className="flex items-center border border-gray-300 rounded-md">
                       <span className="p-2 bg-gray-100">Rp.</span>
                       <input
-                        type="number"
-                        value={hargaTelur}
-                        onChange={(e) =>
-                          setHargaTelur(parseFloat(e.target.value))
-                        }
+                        type="text"
+                        value={hargaTelur ? formatNumber(hargaTelur) : ""}
+                        onChange={handleInputChange(setHargaTelur)}
+                        onBlur={(e) => setHargaTelur(parseFloat(e.target.value.replace(/[^0-9]/g, "")) || 0)}
                         className="border border-gray-300 p-2 rounded-md"
+                        placeholder="Masukkan Harga Telur"
                       />
                     </div>
                   </div>
-                  <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                  <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
                     =
                   </span>
                   <div className="flex flex-col">
@@ -667,7 +705,7 @@ const PenetasanPage = () => {
                       <span className="p-2 bg-gray-100">Rp.</span>
                       <input
                         type="text"
-                        value={totalBiayaPembelianTelur.toFixed(2)}
+                        value={formatNumber(totalBiayaPembelianTelur)}
                         readOnly
                         className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
                       />
@@ -688,13 +726,13 @@ const PenetasanPage = () => {
                       <span className="p-2 bg-gray-100">Rp.</span>
                       <input
                         type="text"
-                        value={totalBiayaOperasional.toFixed(2)}
+                        value={formatNumber(totalBiayaOperasional)}
                         readOnly
                         className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
                       />
                     </div>
                   </div>
-                  <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                  <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
                     +
                   </span>
                   <div className="flex flex-col">
@@ -705,13 +743,13 @@ const PenetasanPage = () => {
                       <span className="p-2 bg-gray-100">Rp.</span>
                       <input
                         type="text"
-                        value={totalBiayaPembelianTelur.toFixed(2)}
+                        value={formatNumber(totalBiayaPembelianTelur)}
                         readOnly
                         className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
                       />
                     </div>
                   </div>
-                  <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                  <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
                     =
                   </span>
                   <div className="flex flex-col">
@@ -720,7 +758,7 @@ const PenetasanPage = () => {
                       <span className="p-2 bg-gray-100">Rp.</span>
                       <input
                         type="text"
-                        value={totalVariableCost.toFixed(2)}
+                        value={formatNumber(totalVariableCost)}
                         readOnly
                         className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
                       />
@@ -739,13 +777,13 @@ const PenetasanPage = () => {
                       <span className="p-2 bg-gray-100">Rp.</span>
                       <input
                         type="text"
-                        value={totalVariableCost.toFixed(2)}
+                        value={formatNumber(totalVariableCost)}
                         readOnly
                         className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
                       />
                     </div>
                   </div>
-                  <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                  <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
                     +
                   </span>
                   <div className="flex flex-col">
@@ -754,24 +792,24 @@ const PenetasanPage = () => {
                       <span className="p-2 bg-gray-100">Rp.</span>
                       <input
                         type="text"
-                        value={totalFixedCost.toFixed(2)}
+                        value={formatNumber(totalFixedCost)}
                         readOnly
                         className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
                       />
                     </div>
                   </div>
-                  <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                  <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
                     =
                   </span>
                   <div className="flex flex-col">
                     <label className="font-semibold">Total Cost</label>
                     <div className="flex items-center border border-gray-300 rounded-md">
-                      <span className="p-2 bg-gray-100">Rp.</span>
+                      <span className="p-2 bg-orange-200">Rp.</span>
                       <input
                         type="text"
-                        value={totalCost.toFixed(2)}
+                        value={formatNumber(totalCost)}
                         readOnly
-                        className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
+                        className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-orange-100" // border-0 untuk menghapus border input
                       />
                     </div>
                   </div>
@@ -807,12 +845,12 @@ const PenetasanPage = () => {
                       Margin Of Safety (MOS)
                     </label>
                     <div className="flex items-center border border-gray-300 rounded-md">
-                      <span className="p-2 bg-gray-100">Rp.</span>
+                      <span className="p-2 bg-orange-200">Rp.</span>
                       <input
                         type="text"
                         value={marginOfSafety.toFixed(2)}
                         // readOnly
-                        className="border-0 p-2 rounded-md flex-1 bg-gray-100" // border-0 untuk menghapus border input
+                        className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
                     </div>
                   </div>
@@ -823,19 +861,19 @@ const PenetasanPage = () => {
                         type="text"
                         value={rcRatio.toFixed(2)}
                         // readOnly
-                        className="border-0 p-2 rounded-md flex-1 bg-gray-100" // border-0 untuk menghapus border input
+                        className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
                     </div>
                   </div>
                   <div className="flex flex-col">
                     <label className="font-semibold">BEP Harga</label>
                     <div className="flex items-center border border-gray-300 rounded-md">
-                      <span className="p-2 bg-gray-100">Rp.</span>
+                      <span className="p-2 bg-orange-200">Rp.</span>
                       <input
                         type="text"
                         value={bepHarga.toFixed(2)}
                         // readOnly
-                        className="border-0 p-2 rounded-md flex-1 bg-gray-100" // border-0 untuk menghapus border input
+                        className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
                     </div>
                   </div>
@@ -844,24 +882,24 @@ const PenetasanPage = () => {
                   <div className="flex flex-col mx-5">
                     <label className="font-semibold">BEP Hasil</label>
                     <div className="flex items-center border border-gray-300 rounded-md">
-                      <span className="p-2 bg-gray-100">Rp.</span>
+                      <span className="p-2 bg-orange-200">Rp.</span>
                       <input
                         type="text"
                         value={bepHasil.toFixed(2)}
                         // readOnly
-                        className="border-0 p-2 rounded-md flex-1 bg-gray-100" // border-0 untuk menghapus border input
+                        className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
                     </div>
                   </div>
                   <div className="flex flex-col">
                     <label className="font-semibold">Laba</label>
                     <div className="flex items-center border border-gray-300 rounded-md">
-                      <span className="p-2 bg-gray-100">Rp.</span>
+                      <span className="p-2 bg-orange-200">Rp.</span>
                       <input
                         type="text"
                         value={laba.toFixed(2)}
                         // readOnly
-                        className="border-0 p-2 rounded-md flex-1 bg-gray-100" // border-0 untuk menghapus border input
+                        className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
                     </div>
                   </div>
