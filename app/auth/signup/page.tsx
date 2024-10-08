@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -253,7 +253,7 @@ const SignUpPage = () => {
 
             <div className="flex justify-between mt-4">
               <Link
-                href="/LupaPassword"
+                href="/auth/forgetPass"
                 className="w-full mr-2 border rounded-lg border-black text-black bg-white hover:bg-gray-100 py-2 text-center flex items-center justify-center"
               >
                 Lupa Password?

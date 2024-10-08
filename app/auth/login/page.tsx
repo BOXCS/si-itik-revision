@@ -209,7 +209,9 @@ const LoginPage = () => {
                 asChild
                 className="w-full mr-2 border rounded-lg border-black text-black bg-white hover:bg-gray-100"
               >
-                <Link href="/LupaPassword">Lupa Password?</Link>
+                <Link href="/auth/forgetPass" className="text-orange-500 ml-1">
+                  Lupa Password?
+                </Link>
               </Button>
               <Button
                 type="submit"
