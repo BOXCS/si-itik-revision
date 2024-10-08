@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getAuth, sendSignInLinkToEmail } from "firebase/auth";
+import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 
 // Validasi form dengan zod
 const schema = z.object({
@@ -25,8 +25,8 @@ const ForgetPasswordPage = () => {
     defaultValues: { email: "" },
   });
 
-  // Fungsi untuk mengirim email OTP
-  const sendOtpEmail = async (email: string) => {
+  // Fungsi untuk mengirim email reset password
+  const sendResetPasswordEmail = async (email: string) => {
     const auth = getAuth();
 
     // Pengaturan actionCodeSettings untuk URL dan data tambahan
@@ -36,18 +36,21 @@ const ForgetPasswordPage = () => {
     };
 
     try {
-      // Mengirim email OTP melalui Firebase Authentication
-      await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+      // Mengirim email reset password melalui Firebase Authentication
+      await sendPasswordResetEmail(auth, email, actionCodeSettings);
 
-      console.log(`OTP telah dikirim ke ${email}`);
-      alert("Email verifikasi telah dikirim. Periksa inbox Anda.");
+      console.log(`Email reset password telah dikirim ke ${email}`);
+      alert("Email reset password telah dikirim. Periksa inbox Anda.");
     } catch (error) {
-      console.error("Terjadi kesalahan dalam mengirim OTP:", error);
+      console.error(
+        "Terjadi kesalahan dalam mengirim email reset password:",
+        error
+      );
     }
   };
 
   const onSubmit = async (data: { email: string }) => {
-    await sendOtpEmail(data.email);
+    await sendResetPasswordEmail(data.email);
   };
 
   return (
