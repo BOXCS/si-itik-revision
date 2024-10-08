@@ -73,7 +73,7 @@ export default function LandingPage() {
       elements.forEach((el) => {
         (el as HTMLElement).style.animationName = "blur-in"; // Type assertion
       });
-    }, 600); // Matches the animation duration
+    }, 600);
   };
 
   const handleNext = () => {
