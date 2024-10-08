@@ -466,20 +466,21 @@
 }
 
 .info h2 {
-  font-size: 1.5rem;
+  justify-content: start;
+  font-size: 2rem;
   font-weight: 600;
 }
 
 .info h1 {
-  font-size: 3rem;
-  font-weight: 700;
+  text-align: start;
+  font-weight: 500;
 }
 
 .info p {
   font-size: 1.125rem;
   line-height: 1.6;
   margin-top: 1rem;
-  max-width: 500px;
+  max-width: 400px;
 }
 
 .btn-coba {
@@ -508,8 +509,8 @@
 
 .slider {
   display: flex;
-  overflow: hidden;
-  width: 100%;
+  overflow: visible;
+  width: fit-content;
   height: 100%;
 }
 
@@ -517,14 +518,16 @@
   display: flex;
   transition: transform 0.5s ease;
   width: 100%; /* Pastikan lebar slider penuh */
-  gap: -10px;
+  gap: 0;
 }
 
 .image {
-  width: 600px; /* Ukuran gambar yang lebih besar agar tidak terpotong */
+  width: 20vw; /* Ukuran gambar yang lebih besar agar tidak terpotong */
   height: auto;
   transition: all 0.3s ease;
   flex-shrink: 0;
+  margin: 0;
+  padding: 0;
 }
 
 .image.right {
@@ -1024,6 +1027,10 @@ img {
     margin-left: 30px;
   }
 
+  .image {
+    width: 30vw;
+  }
+
   .container::before {
     /* display: none; */
     width: 400px;
@@ -1206,6 +1213,10 @@ img {
 
   .images {
     display: flexbox;
+  }
+
+  .image {
+    width: 30vw;
   }
 
   .container {

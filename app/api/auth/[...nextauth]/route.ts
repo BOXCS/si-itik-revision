@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import FacebookProvider from "next-auth/providers/facebook"; // Import FacebookProvider
+import FacebookProvider from "next-auth/providers/facebook";
 
 const authOptions = {
   providers: [
@@ -9,9 +9,10 @@ const authOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     }),
     FacebookProvider({
-      clientId: process.env.FACEBOOK_CLIENT_ID as string, // Tambahkan Facebook Provider
+      clientId: process.env.FACEBOOK_CLIENT_ID as string,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET as string,
     }),
+    // Tambahkan provider lainnya di sini
   ],
   secret: process.env.NEXTAUTH_SECRET,
 };
