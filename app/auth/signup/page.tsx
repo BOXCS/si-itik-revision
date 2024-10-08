@@ -24,6 +24,7 @@ import { useState } from "react";
 
 const SignUpPage = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null); // State untuk pesan error
 
   const form = useForm<z.infer<typeof SignupValidation>>({
     resolver: zodResolver(SignupValidation),
@@ -37,41 +38,46 @@ const SignUpPage = () => {
   // Fungsi untuk menangani form submit
   async function onSubmit(values: z.infer<typeof SignupValidation>) {
     setIsLoading(true);
+    setErrorMessage(null); // Reset pesan error sebelum mulai
+
     try {
       const { username, email, password } = values;
-  
+
       // Buat akun dengan email dan password
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-  
+
       // Perbarui profile pengguna dengan displayName
       await updateProfile(user, {
         displayName: username,
       });
-  
+
       console.log("User created successfully", user);
-  
+
       // Login menggunakan email dan password setelah signup berhasil
       const signInResponse = await signIn("credentials", {
         email,
         password,
         callbackUrl: "/dashboard", // Redirect ke halaman dashboard setelah berhasil
       });
-  
+
       if (signInResponse?.error) {
         throw new Error("Login failed");
       }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error("Error creating user:", error.message);
-        // Tampilkan pesan error di UI
+    } catch (error: any) {
+      console.error("Error creating user:", error.message);
+
+      // Tangani error berdasarkan kode dari Firebase
+      if (error.code === "auth/email-already-in-use") {
+        setErrorMessage("Email sudah terdaftar. Silakan gunakan email lain.");
       } else {
-        console.error("Unexpected error:", error);
+        setErrorMessage("Terjadi kesalahan. Mohon coba lagi.");
       }
     } finally {
       setIsLoading(false);
     }
   }
+
 
   return (
     <div className="w-full h-screen flex flex-1 justify-center items-center overflow-hidden">
@@ -190,6 +196,10 @@ const SignUpPage = () => {
                     </FormItem>
                   )}
                 />
+
+                {errorMessage && (
+                  <div className="text-red-500 mb-4">{errorMessage}</div> // Menampilkan pesan error
+                )}
 
                 <div className="flex justify-center mt-4">
                   <Button
