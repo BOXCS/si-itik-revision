@@ -54,39 +54,33 @@ const LoginPage = () => {
     setIsLoading(true);
     setErrorMessage(""); // Reset pesan error saat submit
     const { username, password } = values;
-
+  
     try {
-      // Proses login dengan Firebase Authentication
-      await signInWithEmailAndPassword(auth, username, password);
-
-      const user = await getUserFromEmail(username); // Ganti dengan logika untuk ambil username
-      const displayName = user.displayName || "User";
-
+      // Proses login dengan Firebase Authentication menggunakan email (username di sini adalah email)
+      const userCredential = await signInWithEmailAndPassword(auth, username, password);
+  
+      // Dapatkan user yang login dari userCredential
+      const user = userCredential.user;
+  
       // Redirect ke dashboard setelah login berhasil
-      router.push(`/dashboard?username=${username}`);
+      router.push(`/dashboard?username=${user.displayName || "User"}`);
     } catch (error: any) {
-      console.error("Login error:", error); // Tambahkan log untuk melihat detail error
-
+      console.error("Login error:", error);
+  
       // Custom pesan error berdasarkan kode error dari Firebase
       if (error.code) {
         switch (error.code) {
           case "auth/user-not-found":
-            setErrorMessage(
-              "Akun tidak ditemukan. Mohon periksa kembali email atau username."
-            );
+            setErrorMessage("Akun tidak ditemukan. Mohon periksa kembali email.");
             break;
-          case "auth/invalid-credential":
+          case "auth/wrong-password":
             setErrorMessage("Email atau Password salah. Mohon coba lagi.");
             break;
           case "auth/invalid-email":
-            setErrorMessage(
-              "Format email tidak valid. Mohon masukkan email yang benar."
-            );
+            setErrorMessage("Format email tidak valid. Mohon masukkan email yang benar.");
             break;
           case "auth/too-many-requests":
-            setErrorMessage(
-              "Terlalu banyak percobaan login. Silakan coba lagi nanti."
-            );
+            setErrorMessage("Terlalu banyak percobaan login. Silakan coba lagi nanti.");
             break;
           default:
             setErrorMessage(`Error: ${error.message}`); // Tampilkan pesan error default
@@ -97,7 +91,8 @@ const LoginPage = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  };  
+  
 
   return (
     <div className="w-full h-screen flex flex-1 justify-center items-center overflow-hidden">
@@ -112,7 +107,7 @@ const LoginPage = () => {
             Keunggulan SI-ITIK
           </h1>
           <div className="benefit-point grid text-2xl font-semibold gap-5">
-            <h2>
+            <h2 className="text-white">
               <img
                 src="/assets/point-benefit.svg"
                 alt="Point"
@@ -120,7 +115,7 @@ const LoginPage = () => {
               />
               Pengelolaan terintegrasi
             </h2>
-            <h2>
+            <h2 className="text-white">
               <img
                 src="/assets/point-benefit.svg"
                 alt="Point"
@@ -128,7 +123,7 @@ const LoginPage = () => {
               />
               User Friendly
             </h2>
-            <h2>
+            <h2 className="text-white">
               <img
                 src="/assets/point-benefit.svg"
                 alt="Point"
@@ -136,7 +131,7 @@ const LoginPage = () => {
               />
               Analisis mendalam
             </h2>
-            <h2>
+            <h2 className="text-white">
               <img
                 src="/assets/point-benefit.svg"
                 alt="Point"
@@ -144,7 +139,7 @@ const LoginPage = () => {
               />
               Data finansial akurat
             </h2>
-            <h2>
+            <h2 className="text-white">
               <img
                 src="/assets/point-benefit.svg"
                 alt="Point"
