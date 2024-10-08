@@ -73,7 +73,7 @@ const LoginPage = () => {
           case "auth/user-not-found":
             setErrorMessage("Akun tidak ditemukan. Mohon periksa kembali email.");
             break;
-          case "auth/wrong-password":
+          case "auth/invalid-credential":
             setErrorMessage("Email atau Password salah. Mohon coba lagi.");
             break;
           case "auth/invalid-email":
