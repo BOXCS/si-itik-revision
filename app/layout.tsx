@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google"; 
 import "./globals.css";
 import ClientProvider from "./ClientProvider";
+import { Toaster } from "@/components/ui/toaster";
 
 const fontSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -21,7 +22,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={fontSans.className}>
-        <ClientProvider>{children}</ClientProvider> {/* Bungkus dengan ClientProvider */}
+        <ClientProvider>
+          {children}</ClientProvider> {/* Bungkus dengan ClientProvider */}
+          <Toaster />
       </body>
     </html>
   );
