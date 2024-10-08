@@ -5,7 +5,13 @@ import { useUser } from "@/app/context/UserContext";
 import React, { useState, useEffect } from "react";
 import HorizontalTimeline from "@/components/HorizontalTimeline";
 import "@/app/analisis.css";
-import { addDoc, collection, Timestamp } from "firebase/firestore";
+import {
+  doc,
+  addDoc,
+  collection,
+  DocumentReference,
+  Timestamp,
+} from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 
@@ -27,6 +33,10 @@ const PenetasanPage = () => {
   const [selectedPeriod, setSelectedPeriod] = useState(periods[0]); // Default periode pertama
   const [periode, setPeriode] = useState(periods[0]);
   const { user } = useUser(); // Pindahkan di sini
+
+  // Tambahkan state untuk mengatur status analisis baru
+  const [isNewAnalysis, setIsNewAnalysis] = useState(false);
+  const [newAnalysisDocRef, setNewAnalysisDocRef] = useState<DocumentReference | null>(null);
 
   // State untuk form visibility
   const [currentForm, setCurrentForm] = useState("Penerimaan");
@@ -62,6 +72,41 @@ const PenetasanPage = () => {
   const [bepHasil, setBepHasil] = useState<number>(0);
   const [laba, setLaba] = useState<number>(0);
 
+  const handleNewAnalysis = async () => {
+    if (!user) {
+      toast({
+        title: "Gagal",
+        description: "User tidak terautentikasi.",
+        variant: "destructive",
+      });
+      return;
+    }
+  
+    try {
+      const newPeriod = `Periode ${periods.length + 1}`;
+      const docRef = await addDoc(collection(firestore, "detail_penetasan"), {
+        userId: user.email || user.username,
+        created_at: Timestamp.now(),
+      });
+  
+      setNewAnalysisDocRef(docRef); // Simpan referensi dokumen
+      localStorage.setItem("activeDocRef", docRef.id); // Simpan ID dokumen ke localStorage
+      setIsNewAnalysis(true);
+  
+      toast({
+        title: "Sukses",
+        description: "Analisis baru berhasil dibuat!",
+      });
+    } catch (error) {
+      console.error("Error adding new analysis: ", error);
+      toast({
+        title: "Gagal",
+        description: "Gagal menambahkan analisis baru!",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleSubmit = async () => {
     if (!user) {
       toast({
@@ -73,8 +118,8 @@ const PenetasanPage = () => {
     }
 
     try {
-      const dataToSubmit = {
-        userId: user.email || user.username,
+      // Siapkan data untuk periode
+      const periodeData = {
         periode: selectedPeriod,
         penerimaan: {
           jumlahTelurMenetas,
@@ -106,20 +151,33 @@ const PenetasanPage = () => {
           bepHasil,
           laba,
         },
-        created_at: Timestamp.now(), // Tambahkan timestamp untuk mencatat waktu submit
+        created_at: Timestamp.now(),
       };
 
-      await addDoc(collection(firestore, "detail_penetasan"), dataToSubmit);
-
-      // Tampilkan toast sukses
+      // Jika isNewAnalysis adalah true, simpan ke dokumen baru
+      if (newAnalysisDocRef) {
+        await addDoc(
+          collection(newAnalysisDocRef, "analisis_periode"),
+          periodeData
+        );
+      } else {
+        // Buat dokumen baru jika tidak ada referensi sebelumnya
+        const docRef = await addDoc(collection(firestore, "detail_penetasan"), {
+          userId: user.email || user.username,
+          created_at: Timestamp.now(),
+        });
+  
+        await addDoc(collection(docRef, "analisis_periode"), periodeData);
+        setNewAnalysisDocRef(docRef);
+        localStorage.setItem("activeDocRef", docRef.id);
+      }
+  
       toast({
         title: "Sukses",
         description: "Data berhasil disimpan!",
       });
     } catch (error) {
       console.error("Error adding document: ", error);
-
-      // Tampilkan toast error
       toast({
         title: "Gagal",
         description: "Gagal menambahkan data!",
@@ -127,6 +185,14 @@ const PenetasanPage = () => {
       });
     }
   };
+
+  useEffect(() => {
+    const storedDocRef = localStorage.getItem("activeDocRef");
+    if (storedDocRef) {
+      const docRef = doc(firestore, "detail_penetasan", storedDocRef);
+      setNewAnalysisDocRef(docRef);
+    }
+  }, []);
 
   // Rumus Penerimaan
   useEffect(() => {
@@ -221,21 +287,30 @@ const PenetasanPage = () => {
           </h1>
 
           {/* TabSelection */}
-          <div className="flex justify-center space-x-4 mb-10">
-            {periods.map((period, index) => (
-              <button
-                key={index}
-                onClick={() => {
-                  setPeriode(period); // Perbarui periode
-                  setSelectedPeriod(period); // Perbarui selectedPeriod
-                }}
-                className={`px-4 py-2 rounded-full text-white ${
-                  selectedPeriod === period ? "bg-orange-500" : "bg-gray-400"
-                }`}
-              >
-                {period}
-              </button>
-            ))}
+          <div className="flex flex-col items-center mb-10">
+            <div className="flex justify-center space-x-4 mb-4">
+              {periods.map((period, index) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    setPeriode(period); // Perbarui periode
+                    setSelectedPeriod(period); // Perbarui selectedPeriod
+                  }}
+                  className={`px-4 py-2 rounded-full text-white ${
+                    selectedPeriod === period ? "bg-orange-500" : "bg-gray-400"
+                  }`}
+                >
+                  {period}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={handleNewAnalysis}
+              className="px-4 py-2 rounded-full bg-green-500 text-white"
+            >
+              Analisis Baru
+            </button>
           </div>
 
           {/* Kontainer Form */}
@@ -592,7 +667,13 @@ const PenetasanPage = () => {
                           type="text"
                           value={biayaOvk ? formatNumber(biayaOvk) : ""}
                           onChange={handleInputChange(setBiayaOvk)}
-                          onBlur={(e) => setBiayaOvk(parseFloat(e.target.value.replace(/[^0-9]/g, "")) || 0)}
+                          onBlur={(e) =>
+                            setBiayaOvk(
+                              parseFloat(
+                                e.target.value.replace(/[^0-9]/g, "")
+                              ) || 0
+                            )
+                          }
                           className="border border-gray-300 p-2 rounded-md"
                           placeholder="Masukkan biaya OVK"
                         />
@@ -688,7 +769,12 @@ const PenetasanPage = () => {
                         type="text"
                         value={hargaTelur ? formatNumber(hargaTelur) : ""}
                         onChange={handleInputChange(setHargaTelur)}
-                        onBlur={(e) => setHargaTelur(parseFloat(e.target.value.replace(/[^0-9]/g, "")) || 0)}
+                        onBlur={(e) =>
+                          setHargaTelur(
+                            parseFloat(e.target.value.replace(/[^0-9]/g, "")) ||
+                              0
+                          )
+                        }
                         className="border border-gray-300 p-2 rounded-md"
                         placeholder="Masukkan Harga Telur"
                       />

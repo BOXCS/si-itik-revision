@@ -9,9 +9,6 @@ import RootLayout from "../layout";
 export default function Dashboard() {
   const searchParams = useSearchParams();
   const username = searchParams?.get("username") || "User"; 
-
-  // return <div>Selamat Datang {username}</div>;
-  // <a href="">analisis penetasan</a>
   return (
     <div>
       <SidebarDemo>
