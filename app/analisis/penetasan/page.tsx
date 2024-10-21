@@ -20,23 +20,20 @@ interface TabSelectionProps {
 }
 
 const PenetasanPage = () => {
-  const periods = [
-    "Periode 1",
-    "Periode 2",
-    "Periode 3",
-    "Periode 4",
-    "Periode 5",
-    "Periode 6",
-  ];
+  const initialPeriods = JSON.parse(
+    typeof window !== "undefined" && localStorage.getItem("periods") || '["Periode 1"]'
+  );
 
   const { toast } = useToast();
-  const [selectedPeriod, setSelectedPeriod] = useState(periods[0]); // Default periode pertama
+  const [periods, setPeriods] = useState(initialPeriods);
+  const [selectedPeriod, setSelectedPeriod] = useState(periods[0]);
   const [periode, setPeriode] = useState(periods[0]);
   const { user } = useUser(); // Pindahkan di sini
 
   // Tambahkan state untuk mengatur status analisis baru
   const [isNewAnalysis, setIsNewAnalysis] = useState(false);
-  const [newAnalysisDocRef, setNewAnalysisDocRef] = useState<DocumentReference | null>(null);
+  const [newAnalysisDocRef, setNewAnalysisDocRef] =
+    useState<DocumentReference | null>(null);
 
   // State untuk form visibility
   const [currentForm, setCurrentForm] = useState("Penerimaan");
@@ -72,6 +69,14 @@ const PenetasanPage = () => {
   const [bepHasil, setBepHasil] = useState<number>(0);
   const [laba, setLaba] = useState<number>(0);
 
+  const handleAddPeriod = () => {
+    const newPeriod = `Periode ${periods.length + 1}`;
+    const updatedPeriods = [...periods, newPeriod];
+    setPeriods(updatedPeriods);
+    setSelectedPeriod(newPeriod);
+    setPeriode(newPeriod);
+  };
+
   const handleNewAnalysis = async () => {
     if (!user) {
       toast({
@@ -81,18 +86,18 @@ const PenetasanPage = () => {
       });
       return;
     }
-  
+
     try {
       const newPeriod = `Periode ${periods.length + 1}`;
       const docRef = await addDoc(collection(firestore, "detail_penetasan"), {
         userId: user.email || user.username,
         created_at: Timestamp.now(),
       });
-  
+
       setNewAnalysisDocRef(docRef); // Simpan referensi dokumen
       localStorage.setItem("activeDocRef", docRef.id); // Simpan ID dokumen ke localStorage
       setIsNewAnalysis(true);
-  
+
       toast({
         title: "Sukses",
         description: "Analisis baru berhasil dibuat!",
@@ -166,12 +171,12 @@ const PenetasanPage = () => {
           userId: user.email || user.username,
           created_at: Timestamp.now(),
         });
-  
+
         await addDoc(collection(docRef, "analisis_periode"), periodeData);
         setNewAnalysisDocRef(docRef);
         localStorage.setItem("activeDocRef", docRef.id);
       }
-  
+
       toast({
         title: "Sukses",
         description: "Data berhasil disimpan!",
@@ -185,6 +190,11 @@ const PenetasanPage = () => {
       });
     }
   };
+
+  useEffect(() => {
+    // Simpan periode ke local storage setiap kali `periods` berubah
+    localStorage.setItem("periods", JSON.stringify(periods));
+  }, [periods]);
 
   useEffect(() => {
     const storedDocRef = localStorage.getItem("activeDocRef");
@@ -245,6 +255,32 @@ const PenetasanPage = () => {
     setTotalCost(totalCost);
   }, [totalVariableCost, totalFixedCost]);
 
+  // Rumus Hasil Analisis
+  useEffect(() => {
+    const bepHasil = totalFixedCost / (hargaDOD - (totalVariableCost / jumlahDOD));
+    setBepHasil(bepHasil);
+  }, [totalFixedCost, hargaDOD, totalVariableCost]);
+
+  useEffect(() => {
+    const bepHarga = totalFixedCost / ((totalVariableCost / jumlahDOD));
+    setBepHarga(bepHarga);
+  }, [totalFixedCost, totalVariableCost, hargaDOD]);
+
+  useEffect(() => {
+    const marginOfSafety = ((totalRevenue - bepHarga) / totalRevenue) * 100;
+    setMarginOfSafety(marginOfSafety);
+  }, [totalRevenue, bepHarga]);
+
+  useEffect(() => {
+    const rcRatio = totalRevenue / totalCost;
+    setRcRato(rcRatio);
+  }, [totalRevenue, totalCost]);
+
+  useEffect(() => {
+    const laba = totalRevenue - totalCost;
+    setLaba(laba);
+  }, [totalRevenue, totalCost]);
+
   // Fungsi untuk format angka ke Rupiah
   const formatNumber = (number: number) => {
     return new Intl.NumberFormat("id-ID", {
@@ -289,20 +325,27 @@ const PenetasanPage = () => {
           {/* TabSelection */}
           <div className="flex flex-col items-center mb-10">
             <div className="flex justify-center space-x-4 mb-4">
-              {periods.map((period, index) => (
+              {periods.map((period: string, index: number) => (
                 <button
                   key={index}
                   onClick={() => {
                     setPeriode(period); // Perbarui periode
                     setSelectedPeriod(period); // Perbarui selectedPeriod
                   }}
-                  className={`px-4 py-2 rounded-full text-white ${
-                    selectedPeriod === period ? "bg-orange-500" : "bg-gray-400"
+                  className={`px-4 py-2 rounded-full text-black ${
+                    selectedPeriod === period ? "bg-orange-500" : "bg-white"
                   }`}
                 >
                   {period}
                 </button>
               ))}
+
+              <button
+                onClick={handleAddPeriod}
+                className="px-4 py-2 rounded-full bg-blue-500 text-white"
+              >
+                Tambah Periode
+              </button>
             </div>
 
             <button
@@ -314,13 +357,13 @@ const PenetasanPage = () => {
           </div>
 
           {/* Kontainer Form */}
-          <div className="form-container bg-white overflow-scroll p-8 shadow-lg rounded-lg w-full max-w-7xl mr-14">
+          <div className="form-container bg-white overflow-scroll p-8 shadow-lg rounded-lg max-w-7xl w-fit h-screen sm:w-full ">
             <HorizontalTimeline progress={jumlahTelurMenetas > 0 ? 100 : 0} />
             {currentForm === "Penerimaan" && (
               <div>
                 <h2 className="text-xl font-extrabold mb-6">Data Penerimaan</h2>
                 {/* Penerimaan Form */}
-                <div className="flex items-center justify-center">
+                <div className="flex items-center justify-center flex-wrap">
                   <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
                     (
                   </span>
@@ -356,7 +399,7 @@ const PenetasanPage = () => {
                   <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
                     )
                   </span>
-                  <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
+                  <span className="mx-5 mt-5 flex flex-col items-center justify-center font-semibold text-2xl sm:flex-shrink">
                     ×
                   </span>
                   <div className="flex flex-col">

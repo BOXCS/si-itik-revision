@@ -21,10 +21,12 @@ import { signIn } from "next-auth/react";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const SignUpPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null); // State untuk pesan error
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof SignupValidation>>({
     resolver: zodResolver(SignupValidation),
@@ -54,16 +56,8 @@ const SignUpPage = () => {
 
       console.log("User created successfully", user);
 
-      // Login menggunakan email dan password setelah signup berhasil
-      const signInResponse = await signIn("credentials", {
-        email,
-        password,
-        callbackUrl: "/dashboard", // Redirect ke halaman dashboard setelah berhasil
-      });
-
-      if (signInResponse?.error) {
-        throw new Error("Login failed");
-      }
+      // Arahkan pengguna ke halaman login setelah berhasil signup
+      router.push("/auth/login");
     } catch (error: any) {
       console.error("Error creating user:", error.message);
 
