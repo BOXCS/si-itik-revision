@@ -46,7 +46,11 @@ const SignUpPage = () => {
       const { username, email, password } = values;
 
       // Buat akun dengan email dan password
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const user = userCredential.user;
 
       // Perbarui profile pengguna dengan displayName
@@ -141,7 +145,9 @@ const SignUpPage = () => {
       <div className="w-full h-full bg-[#fff] flex flex-col p-20 justify-between xl:w-2/5">
         <div className="w-full flex flex-col">
           <div className="w-full flex flex-col mb-10 items-center justify-center">
-            <h1 className="text-6xl text-[#060606] font-bold">Selamat Datang</h1>
+            <h1 className="text-6xl text-[#060606] font-bold">
+              Selamat Datang
+            </h1>
             <p className="text-2xl">Daftarkan Akunmu Sekarang</p>
           </div>
 

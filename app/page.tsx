@@ -9,8 +9,9 @@ import Dashboard from "./dashboard/page";
 import { UserProvider } from "./context/UserContext"; // Pastikan ini diimpor
 import PenetasanPage from "./analisis/penetasan/page";
 import { SidebarDemo } from "@/components/Sidebar";
+import ForgetPassPage from "./auth/forgetPass/page";
 
-const Home = () => {
+function Home() {
   const pathname = usePathname(); // Ambil pathname saat ini
 
   let content;
@@ -21,6 +22,9 @@ const Home = () => {
       break;
     case "/auth/login":
       content = <LoginPage />;
+      break;
+    case "/auth/forgetPass":
+      content = <ForgetPassPage />;
       break;
     case "/user":
       content = <UsersPage />;
@@ -36,10 +40,12 @@ const Home = () => {
   }
 
   return (
-    <UserProvider> {/* UserProvider membungkus seluruh aplikasi */}
-        {content}
+    <UserProvider>
+      {" "}
+      {/* UserProvider membungkus seluruh aplikasi */}
+      {content}
     </UserProvider>
   );
-};
+}
 
 export default Home;

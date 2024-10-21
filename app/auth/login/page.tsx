@@ -148,9 +148,13 @@ const LoginPage = () => {
               Fleksible
             </h2>
           </div>
-            <div className="absolute top-[45%] items-end justify-end">
-              <img src="/assets/itik-cartoon.svg" alt="Logo SI_ITIK" className="hidden xl:block ml-72" />
-            </div>
+          <div className="absolute top-[45%] items-end justify-end">
+            <img
+              src="/assets/itik-cartoon.svg"
+              alt="Logo SI_ITIK"
+              className="hidden xl:block ml-72"
+            />
+          </div>
         </div>
         <div className="bg-[#CF5804] w-full h-full object-cover"></div>
       </div>
@@ -207,7 +211,7 @@ const LoginPage = () => {
                     asChild
                     className="w-full mr-2 border rounded-lg border-black text-black bg-white hover:bg-gray-100"
                   >
-                    <Link href="/LupaPassword">Lupa Password?</Link>
+                    <Link href="/auth/forgetPass">Lupa Password?</Link>
                   </Button>
                   <Button
                     type="submit"
