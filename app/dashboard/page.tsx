@@ -30,7 +30,7 @@ export default function Dashboard() {
   return (
     <div>
       <SidebarDemo>
-        <h1>My Content Dashboard. Halo {username}</h1>
+        <h1>Beranda. Halo {username}</h1>
       </SidebarDemo>
     </div>
   );
