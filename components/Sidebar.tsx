@@ -26,7 +26,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "D:/Programmer/si-itik-revision/app/auth/Log_out/page";
+} from "@/app/auth/Log_out/page";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation"; // Import useRouter
 
