@@ -21,7 +21,8 @@ interface TabSelectionProps {
 
 const PenetasanPage = () => {
   const initialPeriods = JSON.parse(
-    typeof window !== "undefined" && localStorage.getItem("periods") || '["Periode 1"]'
+    (typeof window !== "undefined" && localStorage.getItem("periods")) ||
+      '["Periode 1"]'
   );
 
   const { toast } = useToast();
@@ -257,14 +258,16 @@ const PenetasanPage = () => {
 
   // Rumus Hasil Analisis
   useEffect(() => {
-    const bepHasil = totalFixedCost / (hargaDOD - (totalVariableCost / jumlahDOD));
+    const bepHasil =
+      totalFixedCost / (hargaDOD - totalVariableCost / jumlahDOD);
     setBepHasil(bepHasil);
   }, [totalFixedCost, hargaDOD, totalVariableCost]);
 
   useEffect(() => {
-    const bepHarga = totalFixedCost / ((totalVariableCost / jumlahDOD));
+    const bepHarga =
+      totalFixedCost / (1 - totalVariableCost / jumlahDOD / hargaDOD);
     setBepHarga(bepHarga);
-  }, [totalFixedCost, totalVariableCost, hargaDOD]);
+  }, [totalFixedCost, totalVariableCost, jumlahDOD, hargaDOD]);
 
   useEffect(() => {
     const marginOfSafety = ((totalRevenue - bepHarga) / totalRevenue) * 100;
@@ -974,13 +977,13 @@ const PenetasanPage = () => {
                       Margin Of Safety (MOS)
                     </label>
                     <div className="flex items-center border border-gray-300 rounded-md">
-                      <span className="p-2 bg-orange-200">Rp.</span>
                       <input
                         type="text"
-                        value={marginOfSafety.toFixed(2)}
+                        value={marginOfSafety}
                         // readOnly
                         className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
+                      <span className="p-2 bg-orange-200">%</span>
                     </div>
                   </div>
                   <div className="flex flex-col mx-5">
@@ -1011,13 +1014,13 @@ const PenetasanPage = () => {
                   <div className="flex flex-col mx-5">
                     <label className="font-semibold">BEP Hasil</label>
                     <div className="flex items-center border border-gray-300 rounded-md">
-                      <span className="p-2 bg-orange-200">Rp.</span>
                       <input
                         type="text"
-                        value={bepHasil.toFixed(2)}
+                        value={bepHasil}
                         // readOnly
                         className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
+                      <span className="p-2 bg-orange-200">Ekor</span>
                     </div>
                   </div>
                   <div className="flex flex-col">
