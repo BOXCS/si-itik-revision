@@ -11,6 +11,7 @@ import {
   ToastTitle,
   ToastViewport,
 } from "@/components/ui/toast";
+import { getAuth, sendPasswordResetEmail } from "firebase/auth"; // Tambahkan import ini
 
 interface ToastMessage {
   id: string;
@@ -27,6 +28,8 @@ const ForgetPasswordPage = () => {
   const [emailError, setEmailError] = useState("");
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
+  const auth = getAuth(); // Inisialisasi Firebase Auth
+
   const showToast = (toast: Omit<ToastMessage, "id">) => {
     const id = Math.random().toString(36).substr(2, 9);
     setToasts((prev) => [...prev, { ...toast, id }]);
@@ -35,7 +38,6 @@ const ForgetPasswordPage = () => {
     }, 5000);
   };
 
-  // Validasi email sederhana
   const validateEmail = (email: string) => {
     const re = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
     if (!email) {
@@ -47,7 +49,7 @@ const ForgetPasswordPage = () => {
     return "";
   };
 
-  // Simulasi pengiriman email reset password
+  // Modifikasi fungsi untuk menggunakan Firebase
   const sendResetPasswordEmail = async (
     email: string,
     isResend: boolean = false
@@ -55,8 +57,7 @@ const ForgetPasswordPage = () => {
     setIsLoading(true);
 
     try {
-      // Simulasi network delay
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await sendPasswordResetEmail(auth, email);
 
       setEmailSent(true);
       showToast({
@@ -68,10 +69,27 @@ const ForgetPasswordPage = () => {
       if (isResend) {
         startResendTimer();
       }
-    } catch (error) {
+    } catch (error: any) {
+      // Handle specific Firebase errors
+      let errorMessage =
+        "Terjadi kesalahan dalam mengirim email reset password.";
+
+      switch (error.code) {
+        case "auth/user-not-found":
+          errorMessage = "Email tidak terdaftar dalam sistem.";
+          break;
+        case "auth/invalid-email":
+          errorMessage = "Format email tidak valid.";
+          break;
+        case "auth/too-many-requests":
+          errorMessage = "Terlalu banyak permintaan. Silakan coba lagi nanti.";
+          break;
+        // Tambahkan case lain sesuai kebutuhan
+      }
+
       showToast({
         title: "Gagal",
-        description: "Terjadi kesalahan dalam mengirim email reset password.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -79,7 +97,6 @@ const ForgetPasswordPage = () => {
     }
   };
 
-  // Timer untuk fungsi kirim ulang
   const startResendTimer = () => {
     setResendTimer(60);
     const timer = setInterval(() => {
@@ -93,7 +110,6 @@ const ForgetPasswordPage = () => {
     }, 1000);
   };
 
-  // Handler untuk submit form
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const error = validateEmail(email);
@@ -105,7 +121,6 @@ const ForgetPasswordPage = () => {
     await sendResetPasswordEmail(email);
   };
 
-  // Handler untuk kirim ulang
   const handleResend = async () => {
     if (email && !resendTimer) {
       await sendResetPasswordEmail(email, true);
