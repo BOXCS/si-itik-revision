@@ -5,8 +5,10 @@ import { useUser } from "@/app/context/UserContext";
 import React, { useState, useEffect } from "react";
 import HorizontalTimeline from "@/components/HorizontalTimeline";
 import "@/app/analisis.css";
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, DocumentReference, Timestamp } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
+import { toast } from "@/hooks/use-toast";
+
 
 interface TabSelectionProps {
   setSelectedPeriod: (period: string) => void; // Mengatur tipe untuk setSelectedPeriod
@@ -25,69 +27,50 @@ const PenetasanPage = () => {
   const { user } = useUser(); // Pindahkan di sini
   const [selectedPeriod, setSelectedPeriod] = useState(periods[0]);
 
+  // Tambahkan state untuk mengatur status analisis baru
+  const [isNewAnalysis, setIsNewAnalysis] = useState(false);
+  const [newAnalysisDocRef, setNewAnalysisDocRef] = useState<DocumentReference | null>(null);
+
   // State untuk form visibility
   const [currentForm, setCurrentForm] = useState("Penerimaan");
 
   // States untuk Penerimaan form
-  const [jumlahTelurMenetas, setJumlahTelurMenetas] = useState<number>(0);
-  const [jumlahTelur, setJumlahTelur] = useState<number>(0);
-  const [persentase, setPersentase] = useState<number>(0);
-  const [hargaDOD, setHargaDOD] = useState<number>(0);
-  const [jumlahDOD, setJumlahDOD] = useState<number>(0);
+  const [jumlahTelurDihasilkan, setJumlahTelurDihasilkan] = useState<number>(0);
+  const [jumlahItikAwal, setJumlahItikAwal] = useState<number>(0);
+  const [jumlahIti, setJumlahIti] = useState<number>(0);
+  const [persentaseBertelur, setPersentaseBertelur] = useState<number>(0);
+  const [produksiTelurHarian, setProduksiTelurHarian] = useState<number>(0);
+  const [satuPeriode, setSatuPeriode] = useState<number>(0);
+  const [jumlahSatuPeriode, setJumlahSatuPeriode] = useState<number>(0);
+  const [hargaTelur, setHargaTelur] = useState<number>(0);
   const [totalRevenue, setTotalRevenue] = useState<number>(0);
+  const [jumlahTelurMenetas, setJumlahTelurMenetas] = useState<number>(0);
+  const [persentase, setPersentase] = useState<number>(0);
 
   // States untuk Pengeluaran form
   const [sewaKandang, setSewaKandang] = useState<number>(0);
-const [penyusutanPeralatan, setPenyusutanPeralatan] = useState<number>(0);
-const [totalBiaya, setTotalBiaya] = useState<number>(0);
-const [totalFixedCost, setTotalFixedCost] = useState<number>(0);  // Simpan ini hanya sekali
-const [biayaTenagaKerja, setBiayaTenagaKerja] = useState<number>(0);
-const [biayaListrik, setBiayaListrik] = useState<number>(0);
-const [biayaOvk, setBiayaOvk] = useState<number>(0);
-const [biayaOperasional, setBiayaOperasional] = useState<number>(0);
-const [totalBiayaOperasional, setTotalBiayaOperasional] = useState<number>(0);  // Simpan ini hanya sekali
-const [hargaTelur, setHargaTelur] = useState<number>(0);
-const [totalBiayaPembelianTelur, setTotalBiayaPembelianTelur] = useState<number>(0);
-const [totalVariableCost, setTotalVariableCost] = useState<number>(0);
-const [totalCost, setTotalCost] = useState<number>(0);
-const [standardPakan, setStandardPakan] = useState(0);
-const [jumlahHari, setJumlahHari] = useState(0);
-const [jumlahItik, setJumlahItik] = useState(0);
-const [hargaPakan, setHargaPakan] = useState(0);
+  const [penyusutanItik, setPenyusutanItik] = useState<number>(0);
+  const [totalBiaya, setTotalBiaya] = useState<number>(0);
+  const [jumlahHari, setJumlahHari] = useState(0);
+  const [totalFixedCost, setTotalFixedCost] = useState<number>(0);
+
+  const [biayaTenagaKerja, setBiayaTenagaKerja] = useState<number>(0);
+  const [biayaListrik, setBiayaListrik] = useState<number>(0);
+  const [biayaOvk, setBiayaOvk] = useState<number>(0);
+  const [biayaOperasional, setBiayaOperasional] = useState<number>(0);
+  const [totalBiayaOperasional, setTotalBiayaOperasional] = useState<number>(0);
+
+  const [standardPakanGram, setstandardPakanGram] = useState(0);
+  const [jumlahItik, setJumlahItik] = useState(0);
+  const [jumlahPakanKilogram, setjumlahPakanKilogram] = useState(0);
+  const [totalBiayaPakan, setTotalBiayaPakan] = useState<number>(0);
+  const [totalVariableCost, setTotalVariableCost] = useState<number>(0);
+  const [totalCost, setTotalCost] = useState<number>(0);
 
 
-  // const [sewaKandang, setSewaKandang] = useState<number>(0);
-  // const [penyusutanPeralatan, setPenyusutanPeralatan] = useState<number>(0);
-  // const [totalBiaya, setTotalBiaya] = useState<number>(0);
-  // const [totalFixedCost, setTotalFixedCost] = useState<number>(0);
-  // const [biayaTenagaKerja, setBiayaTenagaKerja] = useState<number>(0);
-  // const [biayaListrik, setBiayaListrik] = useState<number>(0);
-  // const [biayaOvk, setBiayaOvk] = useState<number>(0);
-  // const [biayaOperasional, setBiayaOperasional] = useState<number>(0);
-  // const [totalBiayaOperasional, setTotalBiayaOperasional] = useState<number>(0);
-  // const [hargaTelur, setHargaTelur] = useState<number>(0);
-  // const [totalBiayaPembelianTelur, setTotalBiayaPembelianTelur] =
-  //   useState<number>(0);
-  // const [totalVariableCost, setTotalVariableCost] = useState<number>(0);
-  // const [totalCost, setTotalCost] = useState<number>(0);
-  // const [standardPakan, setStandardPakan] = useState(0);
-  // const [jumlahHari, setJumlahHari] = useState(0);
-  // const [jumlahItik, setJumlahItik] = useState(0);
-  // const [hargaPakan, setHargaPakan] = useState(0);
-  // const [totalBiayaOperasional, setTotalBiayaOperasional] = useState(0);
-  // const [totalFixedCost, setTotalFixedCost] = useState(0);
-
-  // // Calculating total feed in kilograms
-  // const totalPakan = (standardPakan * jumlahHari * jumlahItik) / 1000;
-
-  // // Calculating total feed cost
-  // const totalBiayaPembelianPakan = totalPakan * hargaPakan;
-
-  // // Calculating total variable cost
-  // const totalVariableCost = totalBiayaOperasional + totalBiayaPembelianPakan;
-
-  // // Total Cost (Variable + Fixed)
-  // const totalCost = totalVariableCost + totalFixedCost;
+  const [totalBiayaPembelianTelur, setTotalBiayaPembelianTelur] = useState<number>(0);
+  const [standardPakan, setStandardPakan] = useState(0);
+  const [penyusutanPeralatan, setPenyusutanPeralatan] = useState<number>(0);
 
   // States untuk Hasil Analisis
   const [marginOfSafety, setMarginOfSafety] = useState<number>(0);
@@ -95,6 +78,46 @@ const [hargaPakan, setHargaPakan] = useState(0);
   const [bepHarga, setBepHarga] = useState<number>(0);
   const [bepHasil, setBepHasil] = useState<number>(0);
   const [laba, setLaba] = useState<number>(0);
+
+
+
+
+  const handleNewAnalysis = async () => {
+    if (!user) {
+      toast({
+        title: "Gagal",
+        description: "User tidak terautentikasi.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const newPeriod = `Periode ${periods.length + 1}`;
+      const docRef = await addDoc(collection(firestore, "detail_layer"), {
+        userId: user.email || user.username,
+        created_at: Timestamp.now(),
+      });
+
+      setNewAnalysisDocRef(docRef); // Simpan referensi dokumen
+      localStorage.setItem("activeDocRef", docRef.id); // Simpan ID dokumen ke localStorage
+      setIsNewAnalysis(true);
+
+      toast({
+        title: "Sukses",
+        description: "Analisis baru berhasil dibuat!",
+      });
+    } catch (error) {
+      console.error("Error adding new analysis: ", error);
+      toast({
+        title: "Gagal",
+        description: "Gagal menambahkan analisis baru!",
+        variant: "destructive",
+      });
+    }
+  };
+
+
 
   // States for Submit firestore
   const [periode, setPeriode] = useState("");
@@ -110,38 +133,43 @@ const [hargaPakan, setHargaPakan] = useState(0);
         userId: user.email || user.username,
         periode,
         penerimaan: {
-          jumlahTelurMenetas,
-          jumlahTelur,
+          jumlahTelurDihasilkan,
+          jumlahItikAwal,
           persentase: persentase.toFixed(2),
-          jumlahDOD,
-          hargaDOD,
-          totalRevenue: totalRevenue.toFixed(2),
+          persentaseBertelur,
+          produksiTelurHarian,
+          satuPeriode,
+          jumlahSatuPeriode,
+          hargaTelur,
         },
         pengeluaran: {
           sewaKandang,
-          penyusutanPeralatan,
+          penyusutanItik,
           totalBiaya,
+          jumlahHari,
           totalFixedCost,
           biayaTenagaKerja,
           biayaListrik,
           biayaOvk,
           biayaOperasional,
           totalBiayaOperasional,
-          hargaTelur,
-          totalBiayaPembelianTelur,
+          standardPakanGram,
+          jumlahItikAwal,
+          jumlahPakanKilogram,
+          totalBiayaPakan,
           totalVariableCost,
           totalCost: totalCost.toFixed(2),
         },
         hasilAnalisis: {
-          marginOfSafety,
-          rcRatio,
-          bepHarga,
-          bepHasil,
-          laba,
+          totalRevenue,
+          totalFixedCost,
+          totalBiayaOperasional,
+          totalVariableCost,
+          totalCost,
         },
       };
 
-      await addDoc(collection(firestore, "detail_penetasan"), dataToSubmit);
+      await addDoc(collection(firestore, "detail_layer"), dataToSubmit);
       alert("Data berhasil disubmit!");
     } catch (error) {
       console.error("Error adding document: ", error);
@@ -151,32 +179,38 @@ const [hargaPakan, setHargaPakan] = useState(0);
 
   // Rumus Penerimaan
   useEffect(() => {
-    if (jumlahTelur > 0) {
-      setPersentase((jumlahTelurMenetas * 100) / jumlahTelur);
+    if (jumlahTelurDihasilkan > 0 && jumlahItikAwal > 0) {
+      setPersentase((jumlahTelurDihasilkan * 100) / jumlahItikAwal);
     } else {
       setPersentase(0);
     }
-  }, [jumlahTelurMenetas, jumlahTelur]);
+  }, [jumlahTelurDihasilkan, jumlahItikAwal]);
 
   useEffect(() => {
-    const dod = jumlahTelur * (persentase / 100);
-    setJumlahDOD(dod);
-  }, [jumlahTelur, persentase]);
+    const produksiTelurHarian = jumlahItikAwal * (persentase / 100);
+    setProduksiTelurHarian(produksiTelurHarian);
+  }, [jumlahItikAwal, persentase]);
 
   useEffect(() => {
-    setTotalRevenue(jumlahDOD * hargaDOD);
-  }, [jumlahDOD, hargaDOD]);
+    const jumlahSatuPeriode = produksiTelurHarian * 180;
+    setJumlahSatuPeriode(jumlahSatuPeriode);
+  }, [produksiTelurHarian]);
+
+  useEffect(() => {
+    const total = jumlahSatuPeriode * hargaTelur;
+    setTotalRevenue(total); // Hitung total revenue
+  }, [jumlahSatuPeriode, hargaTelur]);
 
   // Rumus Pengeluaran
   useEffect(() => {
-    const totalBiaya = sewaKandang + penyusutanPeralatan;
+    const totalBiaya = sewaKandang + penyusutanItik;
     setTotalBiaya(totalBiaya);
-  }, [sewaKandang, penyusutanPeralatan]);
+  }, [sewaKandang, penyusutanItik]);
 
   useEffect(() => {
-    const totalFixedCost = totalBiaya * jumlahTelur * 60;
+    const totalFixedCost = totalBiaya * 180;
     setTotalFixedCost(totalFixedCost);
-  }, [totalBiaya, jumlahTelur]);
+  }, [totalBiaya]);
 
   useEffect(() => {
     const biayaOperasional = biayaTenagaKerja + biayaListrik + biayaOvk;
@@ -184,24 +218,32 @@ const [hargaPakan, setHargaPakan] = useState(0);
   }, [biayaTenagaKerja, biayaListrik, biayaOvk]);
 
   useEffect(() => {
-    const totalBiayaOperasional = biayaOperasional * jumlahTelur * 60;
+    const totalBiayaOperasional = biayaOperasional * 180;
     setTotalBiayaOperasional(totalBiayaOperasional);
-  }, [biayaOperasional, jumlahTelur]);
+  }, [biayaOperasional]);
+
+  // Menghitung jumlah pakan dalam kilogram
+  useEffect(() => {
+    // const jumlahpaka = standardPakanGram / 1000; // Konversi dari gram ke kilogram
+    const jumlahPakanKilogram = standardPakanGram * 180 * jumlahItikAwal / 1000;
+    setjumlahPakanKilogram(jumlahPakanKilogram);
+  }, [standardPakanGram, jumlahItikAwal]);
 
   useEffect(() => {
-    const totalBiayaPembelianTelur = jumlahTelur * hargaTelur;
-    setTotalBiayaPembelianTelur(totalBiayaPembelianTelur);
-  }, [jumlahTelur, hargaTelur]);
+    const totalBiayaPakan = jumlahPakanKilogram * 180;
+    setTotalBiayaPakan(totalBiayaPakan);
+  }, [totalBiayaPakan,jumlahPakanKilogram]);
 
+  // Menghitung total variable cost
   useEffect(() => {
-    const totalVariableCost = totalBiayaOperasional + totalBiayaPembelianTelur;
+    const totalVariableCost = totalBiayaOperasional + totalBiayaPakan;
     setTotalVariableCost(totalVariableCost);
-  }, [totalBiayaOperasional, totalBiayaPembelianTelur]);
+  }, [totalBiayaOperasional, totalBiayaPakan]);
 
   useEffect(() => {
-    const totalCost = totalVariableCost + totalFixedCost;
+    const totalCost = totalFixedCost + totalVariableCost;
     setTotalCost(totalCost);
-  }, [totalVariableCost, totalFixedCost]);
+  }, [totalCost, totalFixedCost,totalVariableCost]);
 
   const handleNextForm = () => {
     if (currentForm === "Penerimaan") {
@@ -211,6 +253,20 @@ const [hargaPakan, setHargaPakan] = useState(0);
     }
   };
 
+  // Fungsi untuk format angka ke Rupiah
+  const formatNumber = (number: number) => {
+    return new Intl.NumberFormat("id-ID", {
+      minimumFractionDigits: 0, // Menghilangkan desimal
+    }).format(number);
+  };
+
+  const handleInputChange =
+    (setter: React.Dispatch<React.SetStateAction<number>>) =>
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value.replace(/[^0-9]/g, ""); // Menghapus karakter non-angka
+        setter(value ? parseFloat(value) : 0); // Jika nilai ada, set sebagai angka
+      };
+
   const handleBackForm = () => {
     if (currentForm === "Pengeluaran") {
       setCurrentForm("Penerimaan");
@@ -218,6 +274,8 @@ const [hargaPakan, setHargaPakan] = useState(0);
       setCurrentForm("Pengeluaran");
     }
   };
+
+
 
   return (
     <div className="w-full min-h-screen bg-gray-100 flex">
@@ -231,22 +289,31 @@ const [hargaPakan, setHargaPakan] = useState(0);
           </h1>
 
           {/* TabSelection */}
-          <div className="flex justify-center space-x-4 mb-10">
-            {periods.map((period, index) => (
-              <button
-                key={index}
-                onClick={() => {
-                  setPeriode(period);
-                  setSelectedPeriod(period);
-                }}
-                className={`px-4 py-2 rounded-full text-white ${
-                  selectedPeriod === period ? "bg-orange-500" : "bg-gray-400"
-                }`}
-              >
-                {period}
-              </button>
-            ))}
+          <div className="flex flex-col items-center mb-10">
+            <div className="flex justify-center space-x-4 mb-4">
+              {periods.map((period, index) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    setPeriode(period); // Perbarui periode
+                    setSelectedPeriod(period); // Perbarui selectedPeriod
+                  }}
+                  className={`px-4 py-2 rounded-full text-white ${selectedPeriod === period ? "bg-orange-500" : "bg-gray-400"
+                    }`}
+                >
+                  {period}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={handleNewAnalysis}
+              className="px-4 py-2 rounded-full bg-green-500 text-white"
+            >
+              Analisis Baru
+            </button>
           </div>
+
 
           {/* Kontainer Form */}
           <div className="form-container bg-white overflow-scroll p-8 shadow-lg rounded-lg w-full max-w-7xl mr-14">
@@ -256,20 +323,23 @@ const [hargaPakan, setHargaPakan] = useState(0);
                 <h2 className="text-xl font-extrabold mb-6">Data Penerimaan</h2>
                 {/* Penerimaan Form */}
                 <div className="flex items-center justify-center">
+                  <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
+                    (
+                  </span>
                   <div className="flex flex-col">
                     <label className="font-semibold">
                       Jumlah Telur yang Dihasilkan
                     </label>
                     <input
                       type="number"
-                      value={jumlahTelurMenetas}
+                      value={formatNumber(jumlahTelurDihasilkan)}
                       onChange={(e) =>
-                        setJumlahTelurMenetas(parseFloat(e.target.value))
+                        setJumlahTelurDihasilkan(parseFloat(e.target.value))
                       }
                       className="border border-gray-300 p-2 rounded-md"
                     />
                   </div>
-                  <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                  <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
                     /
                   </span>
                   <div className="flex flex-col">
@@ -278,13 +348,16 @@ const [hargaPakan, setHargaPakan] = useState(0);
                     </label>
                     <input
                       type="number"
-                      value={jumlahTelur}
+                      value={formatNumber(jumlahItikAwal)}
                       onChange={(e) =>
-                        setJumlahTelur(parseFloat(e.target.value))
+                        setJumlahItikAwal(parseFloat(e.target.value))
                       }
                       className="border border-gray-300 p-2 rounded-md"
                     />
                   </div>
+                  <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
+                    )
+                  </span>
                   <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
                     ×
                   </span>
@@ -304,22 +377,22 @@ const [hargaPakan, setHargaPakan] = useState(0);
                     <label className="font-semibold">Persentase Bertelur</label>
                     <input
                       type="text"
-                      value={`${persentase.toFixed(2)}%`}
+                      value={`${persentase.toFixed(0)}%`}
                       readOnly
                       className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
                     />
                   </div>
                 </div>
 
-                {/* Perhitungan mencari Jumlah DOD */}
+                {/* Perhitungan mencari Jumlah produksi telur harian */}
                 <div className="flex items-center mt-10 justify-center">
                   <div className="flex flex-col">
                     <label className="font-semibold">
-                      Jumlah Itik Awal (Ekor)
+                      Jumlah Itik
                     </label>
                     <input
-                      type="text"
-                      value={jumlahTelur}
+                      type="number"
+                      value={formatNumber(jumlahItikAwal)}
                       readOnly
                       className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
                     />
@@ -331,7 +404,7 @@ const [hargaPakan, setHargaPakan] = useState(0);
                     <label className="font-semibold">Persentase Bertelur</label>
                     <input
                       type="text"
-                      value={`${persentase.toFixed(2)}%`}
+                      value={`${persentase.toFixed(0)}%`}
                       readOnly
                       className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
                     />
@@ -340,10 +413,47 @@ const [hargaPakan, setHargaPakan] = useState(0);
                     =
                   </span>
                   <div className="flex flex-col">
-                    <label className="font-semibold">Jumlah Telur(1 Periode)</label>
+                    <label className="font-semibold">Produksi telur harian</label>
                     <input
                       type="text"
-                      value={jumlahDOD.toFixed(2)}
+                      value={formatNumber(produksiTelurHarian)}
+                      readOnly
+                      className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                    />
+                  </div>
+                </div>
+
+                {/* Perhitungan mencari Jumlah telur 1 periode */}
+                <div className="flex items-center mt-10 justify-center">
+                  <div className="flex flex-col">
+                    <label className="font-semibold">Produksi telur harian</label>
+                    <input
+                      type="text"
+                      value={formatNumber(produksiTelurHarian)}
+                      readOnly
+                      className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                    />
+                  </div>
+
+                  <span className="mx-5 flex items-center justify-center font-semibold text-2xl">×</span>
+
+                  <div className="flex flex-col">
+                    <label className="font-semibold">Satu periode (180 hari)</label>
+                    <input
+                      type="text"
+                      value={`${(180).toFixed()} hari`}
+                      readOnly
+                      className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                    />
+                  </div>
+
+                  <span className="mx-5 flex items-center justify-center font-semibold text-2xl">=</span>
+
+                  <div className="flex flex-col">
+                    <label className="font-semibold">Jumlah Telur (1 Periode)</label>
+                    <input
+                      type="text"
+                      value={formatNumber(jumlahSatuPeriode)}
                       readOnly
                       className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
                     />
@@ -356,7 +466,7 @@ const [hargaPakan, setHargaPakan] = useState(0);
                     <label className="font-semibold">Jumlah Telur (1 Periode)</label>
                     <input
                       type="text"
-                      value={jumlahDOD}
+                      value={formatNumber(jumlahSatuPeriode)}
                       readOnly
                       className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
                     />
@@ -370,27 +480,33 @@ const [hargaPakan, setHargaPakan] = useState(0);
                       <span className="p-2 bg-gray-100">Rp.</span>
                       <input
                         type="number"
-                        value={hargaDOD}
-                        onChange={(e) =>
-                          setHargaDOD(parseFloat(e.target.value))
+                        value={hargaTelur ? formatNumber(hargaTelur) : ""}  // Gunakan nilai asli tanpa formatNumber
+                        onChange={(e) => setHargaTelur(parseFloat(e.target.value) || 0)} // Tetap terima input sebagai angka
+                        onBlur={(e) =>
+                          setHargaTelur(
+                            parseFloat(e.target.value.replace(/[^0-9]/g, "")) ||
+                            0
+                          )
                         }
-                        className="border-0 p-2 rounded-md flex-1" // border-0 untuk menghapus border input
-                        placeholder="Masukkan harga DOD"
+                        className="border-0 p-2 rounded-md flex-1"
+                        placeholder="Masukkan harga Telur"
                       />
                     </div>
                   </div>
+
                   <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
                     =
                   </span>
+
                   <div className="flex flex-col">
                     <label className="font-semibold">Total Revenue</label>
                     <div className="flex items-center border border-gray-300 rounded-md">
                       <span className="p-2 bg-orange-200">Rp.</span>
                       <input
                         type="text"
-                        value={totalRevenue.toFixed(2)}
+                        value={formatNumber(totalRevenue)} // Format saat menampilkan hasil
                         readOnly
-                        className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-orange-100" // border-0 untuk menghapus border input
+                        className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-orange-100"
                       />
                     </div>
                   </div>
@@ -419,22 +535,30 @@ const [hargaPakan, setHargaPakan] = useState(0);
                 </div>
                 <div className="flex items-center justify-center">
                   <div className="flex flex-col">
-                    <label className="font-semibold">Sewa Kandang</label>
+                    <label className="font-semibold">
+                      Sewa Kandang
+                    </label>
                     <div className="flex items-center border border-gray-300 rounded-md">
                       <span className="p-2 bg-gray-100">Rp.</span>
                       <input
-                        type="number"
-                        value={sewaKandang}
-                        onChange={(e) =>
-                          setSewaKandang(parseFloat(e.target.value))
-                        }
+                        type="text"
+                        value={sewaKandang ? formatNumber(sewaKandang) : ""} // Format angka saat render
+                        onChange={handleInputChange(setSewaKandang)} // Panggil setter dinamis
+                        onBlur={(e) =>
+                          setSewaKandang(
+                            parseFloat(e.target.value.replace(/[^0-9]/g, "")) ||
+                            0
+                          )
+                        } // Set angka mentah saat blur
                         className="border border-gray-300 p-2 rounded-md"
+                        placeholder="Masukkan harga sewa kandang"
                       />
                     </div>
                   </div>
-                  <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                  <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
                     +
                   </span>
+
                   <div className="flex flex-col">
                     <label className="font-semibold">
                       Penyusutan Itik
@@ -443,11 +567,17 @@ const [hargaPakan, setHargaPakan] = useState(0);
                       <span className="p-2 bg-gray-100">Rp.</span>
                       <input
                         type="number"
-                        value={penyusutanPeralatan}
-                        onChange={(e) =>
-                          setPenyusutanPeralatan(parseFloat(e.target.value))
-                        }
+                        value={penyusutanItik ? formatNumber(penyusutanItik) : ""} // Format angka saat render
+                        onChange={handleInputChange(setPenyusutanItik)} // Panggil setter dinamis
+                        onBlur={(e) =>
+                          setPenyusutanItik(
+                            parseFloat(e.target.value.replace(/[^0-9]/g, "")) ||
+                            0
+                          )
+                        }// Set angka mentah saat blur
                         className="border border-gray-300 p-2 rounded-md"
+                        placeholder="Masukkan jumlah penyusutan itik"
+
                       />
                     </div>
                   </div>
@@ -455,12 +585,14 @@ const [hargaPakan, setHargaPakan] = useState(0);
                     =
                   </span>
                   <div className="flex flex-col">
-                    <label className="font-semibold">Total Biaya</label>
+                    <label className="font-semibold">
+                      Total Biaya
+                    </label>
                     <div className="flex items-center border border-gray-300 rounded-md">
                       <span className="p-2 bg-gray-100">Rp.</span>
                       <input
-                        type="text"
-                        value={totalBiaya.toFixed(2)}
+                        type="number"
+                        value={formatNumber(totalBiaya)}
                         readOnly
                         className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
                       />
@@ -475,7 +607,7 @@ const [hargaPakan, setHargaPakan] = useState(0);
                         <span className="p-2 bg-gray-100">Rp.</span>
                         <input
                           type="text"
-                          value={totalBiaya.toFixed(2)}
+                          value={formatNumber(totalBiaya)}
                           readOnly
                           className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
                         />
@@ -485,24 +617,10 @@ const [hargaPakan, setHargaPakan] = useState(0);
                       ×
                     </span>
                     <div className="flex flex-col">
-                      <label className="font-semibold">
-                        Jumlah Itik
-                      </label>
-                      <input
-                        type="text"
-                        value={jumlahTelur}
-                        readOnly
-                        className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
-                      />
-                    </div>
-                    <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
-                      ×
-                    </span>
-                    <div className="flex flex-col">
                       <label className="font-semibold">Jumlah hari</label>
                       <input
                         type="text"
-                        value={"60 Hari"}
+                        value={"180 Hari"}
                         readOnly
                         className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
                       />
@@ -516,7 +634,7 @@ const [hargaPakan, setHargaPakan] = useState(0);
                         <span className="p-2 bg-gray-100">Rp.</span>
                         <input
                           type="text"
-                          value={totalFixedCost.toFixed(2)}
+                          value={formatNumber(totalFixedCost)}
                           readOnly
                           className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
                         />
@@ -541,11 +659,17 @@ const [hargaPakan, setHargaPakan] = useState(0);
                         <span className="p-2 bg-gray-100">Rp.</span>
                         <input
                           type="number"
-                          value={biayaTenagaKerja}
-                          onChange={(e) =>
-                            setBiayaTenagaKerja(parseFloat(e.target.value))
-                          }
+                          value={biayaTenagaKerja ? formatNumber(biayaTenagaKerja) : ""} // Format angka saat render
+                          onChange={handleInputChange(setBiayaTenagaKerja)} // Panggil setter dinamis
+                          onBlur={(e) =>
+                            setBiayaTenagaKerja(
+                              parseFloat(e.target.value.replace(/[^0-9]/g, "")) ||
+                              0
+                            )
+                          }// Set angka mentah saat blur
                           className="border border-gray-300 p-2 rounded-md"
+                          placeholder="Masukkan biaya tenaga kerja"
+
                         />
                       </div>
                     </div>
@@ -558,11 +682,16 @@ const [hargaPakan, setHargaPakan] = useState(0);
                         <span className="p-2 bg-gray-100">Rp.</span>
                         <input
                           type="number"
-                          value={biayaListrik}
-                          onChange={(e) =>
-                            setBiayaListrik(parseFloat(e.target.value))
-                          }
+                          value={biayaListrik ? formatNumber(biayaListrik) : ""} // Format angka saat render
+                          onChange={handleInputChange(setBiayaListrik)} // Panggil setter dinamis
+                          onBlur={(e) =>
+                            setBiayaListrik(
+                              parseFloat(e.target.value.replace(/[^0-9]/g, "")) ||
+                              0
+                            )
+                          }// Set angka mentah saat blur
                           className="border border-gray-300 p-2 rounded-md"
+                          placeholder="Masukkan biaya listrik"
                         />
                       </div>
                     </div>
@@ -575,11 +704,16 @@ const [hargaPakan, setHargaPakan] = useState(0);
                         <span className="p-2 bg-gray-100">Rp.</span>
                         <input
                           type="number"
-                          value={biayaOvk}
-                          onChange={(e) =>
-                            setBiayaOvk(parseFloat(e.target.value))
-                          }
+                          value={biayaOvk ? formatNumber(biayaOvk) : ""} // Format angka saat render
+                          onChange={handleInputChange(setBiayaOvk)} // Panggil setter dinamis
+                          onBlur={(e) =>
+                            setBiayaOvk(
+                              parseFloat(e.target.value.replace(/[^0-9]/g, "")) ||
+                              0
+                            )
+                          }// Set angka mentah saat blur
                           className="border border-gray-300 p-2 rounded-md"
+                          placeholder="Masukkan Biaya OVK"
                         />
                       </div>
                     </div>
@@ -592,7 +726,7 @@ const [hargaPakan, setHargaPakan] = useState(0);
                         <span className="p-2 bg-gray-100">Rp.</span>
                         <input
                           type="text"
-                          value={biayaOperasional.toFixed(2)}
+                          value={formatNumber(biayaOperasional)}
                           readOnly
                           className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
                         />
@@ -606,7 +740,7 @@ const [hargaPakan, setHargaPakan] = useState(0);
                         <span className="p-2 bg-gray-100">Rp.</span>
                         <input
                           type="text"
-                          value={biayaOperasional.toFixed(2)}
+                          value={formatNumber(biayaOperasional)}
                           readOnly
                           className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
                         />
@@ -616,24 +750,10 @@ const [hargaPakan, setHargaPakan] = useState(0);
                       ×
                     </span>
                     <div className="flex flex-col">
-                      <label className="font-semibold">
-                        Jumlah Itik
-                      </label>
-                      <input
-                        type="text"
-                        value={jumlahTelur}
-                        readOnly
-                        className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
-                      />
-                    </div>
-                    <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
-                      ×
-                    </span>
-                    <div className="flex flex-col">
                       <label className="font-semibold">Jumlah hari</label>
                       <input
                         type="text"
-                        value={"60 Hari"}
+                        value={"180 Hari"}
                         readOnly
                         className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
                       />
@@ -649,7 +769,7 @@ const [hargaPakan, setHargaPakan] = useState(0);
                         <span className="p-2 bg-gray-100">Rp.</span>
                         <input
                           type="text"
-                          value={totalBiayaOperasional.toFixed(2)}
+                          value={formatNumber(totalBiayaOperasional)}
                           readOnly
                           className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
                         />
@@ -658,127 +778,223 @@ const [hargaPakan, setHargaPakan] = useState(0);
                   </div>
                 </div>
 
-                {/* Bagian Jumlah Pembelian Pakan */}
+                {/* Bagian jumlah Pembelian pakan */}
+                <div className="flex justify-center">
+                  <h3 className="font-extrabold text-3xl mb-4 mt-10">
+                    Jumlah Pembelian pakan
+                  </h3>
+                </div>
                 <div>
-      <div className="flex justify-center mt-10">
-        <h3 className="font-extrabold text-3xl mb-4">Jumlah Pembelian Pakan</h3>
-      </div>
-
-      <div className="flex items-center justify-center">
-        {/* Input Standard Pakan */}
-        <div className="flex flex-col">
-          <label className="font-semibold">Standard Pakan (Gram)</label>
-          <input
-            type="number"
-            value={standardPakan}
-            onChange={(e) => setStandardPakan(parseFloat(e.target.value))}
-            className="border border-gray-300 p-2 rounded-md"
-          />
-        </div>
-
-        <span className="mx-5 flex items-center justify-center font-semibold text-2xl">×</span>
-
-        {/* Input Jumlah Hari */}
-        <div className="flex flex-col">
-          <label className="font-semibold">Jumlah Hari</label>
-          <input
-            type="number"
-            value={jumlahHari}
-            onChange={(e) => setJumlahHari(parseFloat(e.target.value))}
-            className="border border-gray-300 p-2 rounded-md"
-          />
-        </div>
-
-        <span className="mx-5 flex items-center justify-center font-semibold text-2xl">×</span>
-
-        {/* Input Jumlah Itik */}
-        <div className="flex flex-col">
-          <label className="font-semibold">Jumlah Itik</label>
-          <input
-            type="number"
-            value={jumlahItik}
-            onChange={(e) => setJumlahItik(parseFloat(e.target.value))}
-            className="border border-gray-300 p-2 rounded-md"
-          />
-        </div>
-
-        <span className="mx-5 flex items-center justify-center font-semibold text-2xl">=</span>
-
-        {/* Output Jumlah Pakan (KG) */}
-        {/* <div className="flex flex-col">
-                    <label className="font-semibold">Jumlah Pakan (Kilogram)</label>
+                  <div className="flex items-center justify-center">
+                    <div className="flex flex-col">
+                      <label className="font-semibold">
+                        Standart pakan (Gram)
+                        </label>
+                      <div className="flex items-center border border-gray-300 rounded-md">
+                        <span className="p-0 bg-gray-100"></span>
+                        <input
+                          type="number"
+                          value={standardPakanGram ? formatNumber(standardPakanGram) : ""}
+                          onChange={handleInputChange(setstandardPakanGram)}
+                          onBlur={(e) =>
+                            setstandardPakanGram(
+                              parseFloat(e.target.value.replace(/[^0-9]/g, "")) || 0
+                            )
+                          }
+                          className="border border-gray-300 p-2 rounded-md"
+                          placeholder="Masukkan jumlah Standart Pakan"
+                        />
+                      </div>
+                    </div>
+                    <span className="mx-5 flex items-center justify-center font-semibold text-2xl">×</span>
+                    <div className="flex flex-col">
+                      <label className="font-semibold">Jumlah hari</label>
+                      <input
+                        type="text"
+                        value={"180 Hari"}
+                        readOnly
+                        className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                      />
+                    </div>
+                    <span className="mx-5 flex items-center justify-center font-semibold text-2xl">×</span>
+                    {/* <div className="flex items-center mt-8 justify-center"> */}
+                      <div className="flex flex-col">
+                        <label className="font-semibold">
+                          Jumlah Itik
+                        </label>
+                        <input
+                          type="number"
+                          value={formatNumber(jumlahItikAwal)}
+                          readOnly
+                          className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                        />
+                      </div>
+                    {/* </div> */}
+                    <span className="mx-5 flex items-center justify-center font-semibold text-2xl">=</span>
+                    <div className="flex flex-col">
+                      <label className="font-semibold">
+                        Jumlah pakan (Kilogram)
+                        </label>
+                      <div className="flex items-center border border-gray-300 rounded-md">
+                        <span className="p-0 bg-gray-100"></span>
+                        <input
+                          type="text"
+                          value={formatNumber(jumlahPakanKilogram)}
+                          readOnly
+                          className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-center mt-10">
+                    <div className="flex flex-col">
+                      <label className="font-semibold">Jumlah Pakan (Kilogram)</label>
+                      <div className="flex items-center border border-gray-300 rounded-md">
+                        <span className="p-0 bg-gray-100"></span>
+                        <input
+                          type="text"
+                          value={formatNumber(jumlahPakanKilogram)}
+                          readOnly
+                          className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
+                        />
+                      </div>
+                    </div>
+                    <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                      ×
+                    </span>
+                    <div className="flex flex-col">
+                      <label className="font-semibold">Jumlah hari</label>
+                      <input
+                        type="text"
+                        value={"180 Hari"}
+                        readOnly
+                        className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                      />
+                    </div>
+                    <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                      =
+                    </span>
+                    <div className="flex flex-col">
+                      <label className="font-semibold">
+                        Total Biaya Pakan
+                      </label>
+                      <div className="flex items-center border border-gray-300 rounded-md">
+                        <span className="p-2 bg-gray-100">Rp.</span>
+                        <input
+                          type="text"
+                          value={formatNumber(totalBiayaPakan)}
+                          readOnly
+                          className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-center mt-10">
+                    <div className="flex flex-col">
+                      <label className="font-semibold">Total biaya Operasional</label>
+                      <div className="flex items-center border border-gray-300 rounded-md">
+                        <span className="p-2 bg-gray-100">Rp.</span>
+                        <input
+                          type="text"
+                          value={formatNumber(totalBiayaOperasional)}
+                          readOnly
+                          className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
+                        />
+                      </div>
+                    </div>
+                    <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                      ×
+                    </span>
+                    <div className="flex flex-col">
+                      <label className="font-semibold">
+                        Total Biaya Pakan
+                      </label>
+                      <div className="flex items-center border border-gray-300 rounded-md">
+                        <span className="p-2 bg-gray-100">Rp.</span>
+                        <input
+                          type="text"
+                          value={formatNumber(totalBiayaPakan)}
+                          readOnly
+                          className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
+                        />
+                      </div>
+                    </div>
+                    <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                      =
+                    </span>
+                    <div className="flex flex-col">
+                      <label className="font-semibold">
+                        Total Variable Cost
+                      </label>
+                      <div className="flex items-center border border-gray-300 rounded-md">
+                        <span className="p-2 bg-gray-100">Rp.</span>
+                        <input
+                          type="text"
+                          value={formatNumber(totalVariableCost)}
+                          readOnly
+                          className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* Bagian jumlah Total Cost */}
+                <div className="flex justify-center">
+                  <h3 className="font-extrabold text-3xl mb-4 mt-10">
+                    Total Cost
+                  </h3>
+                </div>
+                {/* masih sampe sini */}
+                <div className="flex items-center justify-center mt-2">
+                  <div className="flex flex-col">
+                    <label className="font-semibold">Total fixed Cost</label>
                     <div className="flex items-center border border-gray-300 rounded-md">
                       <span className="p-2 bg-gray-100">Rp.</span>
                       <input
                         type="text"
-                        value={((standardPakan * jumlahHari * jumlahItik) / 1000).toFixed(2)}
+                        value={formatNumber(totalFixedCost)}
                         readOnly
-                        className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                        className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
+                      />
+                    </div>
+                  </div>
+                  <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                    +
+                  </span>
+                  <div className="flex flex-col">
+                    <label className="font-semibold">
+                      Total Variable Cost
+                    </label>
+                    <div className="flex items-center border border-gray-300 rounded-md">
+                      <span className="p-2 bg-gray-100">Rp.</span>
+                      <input
+                        type="text"
+                        value={formatNumber(totalVariableCost)}
+                        readOnly
+                        className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
+                      />
+                    </div>
+                  </div>
+                  <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                    =
+                  </span>
+                  <div className="flex flex-col">
+                    <label className="font-semibold">
+                      Total Cost
+                    </label>
+                    <div className="flex items-center border border-gray-300 rounded-md">
+                      <span className="p-2 bg-gray-100">Rp.</span>
+                      <input
+                        type="text"
+                        value={formatNumber(totalCost)}
+                        readOnly
+                        className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
                       />
                     </div>
                   </div>
                 </div>
                 <div>
-                  <div className="flex items-center justify-center mt-10">
-                    <div className="flex flex-col">
-                      <label className="font-semibold">Jumlah Pakan (Kilogram)</label>
-                      <div className="flex items-center border border-gray-300 rounded-md">
-                        <span className="p-2 bg-gray-100">Rp.</span>
-                        <input
-                          type="text"
-                          value={((standardPakan * jumlahHari * jumlahItik) / 1000).toFixed(2)}
-                          readOnly
-                          className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
-                        />
-                      </div>
-                    </div> */}
-        <div className="flex flex-col">
-          <label className="font-semibold">Jumlah Pakan (Kilogram)</label>
-          <input
-            type="text"
-            value={((standardPakan * jumlahHari * jumlahItik) / 1000).toFixed(2)}
-            readOnly
-            className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"  
-          />
-        </div>
-      </div>
-      <div className="flex flex-col"> 
-      <label className="font-semibold">Jumlah Pakan (Kilogram)</label>
-          <input
-            type="text"
-            value={((standardPakan * jumlahHari * jumlahItik) / 1000).toFixed(2)}
-            readOnly
-            className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
-          />
-      </div>
-
-      {/* Harga Pakan dan Total Biaya Pakan */}
-      <div className="flex items-center justify-center mt-6">
-        {/* Input Harga Pakan */}
-        <div className="flex flex-col">
-          <label className="font-semibold">Harga Pakan (Per Kilogram)</label>
-          <input
-            type="number"
-            value={hargaPakan}
-            onChange={(e) => setHargaPakan(parseFloat(e.target.value))}
-            className="border border-gray-300 p-2 rounded-md"
-          />
-        </div>
-
-        <span className="mx-5 flex items-center justify-center font-semibold text-2xl">=</span>
-
-        {/* Output Total Biaya Pakan */}
-        <div className="flex flex-col">
-          <label className="font-semibold">Total Biaya Pakan</label>
-          <input
-            type="text"
-            value={((standardPakan * jumlahHari * jumlahItik * hargaPakan) / 1000).toFixed(2)}
-            readOnly
-            className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
-          />
-        </div>
-      </div>
-    </div>
+                </div>
                 {/* Tombol Kembali dan Selanjutnya */}
                 <div className="flex justify-between mt-14">
                   <button
@@ -807,64 +1023,64 @@ const [hargaPakan, setHargaPakan] = useState(0);
                 <div className="flex items-center justify-center">
                   <div className="flex flex-col">
                     <label className="font-semibold">
-                      Margin Of Safety (MOS)
+                      Total Revenue
                     </label>
                     <div className="flex items-center border border-gray-300 rounded-md">
-                      <span className="p-2 bg-gray-100">Rp.</span>
+                      <span className="p-2 bg-orange-200">Rp.</span>
                       <input
                         type="text"
-                        value={marginOfSafety.toFixed(2)}
+                        value={formatNumber(totalRevenue)}
                         // readOnly
-                        className="border-0 p-2 rounded-md flex-1 bg-gray-100" // border-0 untuk menghapus border input
+                        className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
                     </div>
                   </div>
                   <div className="flex flex-col mx-5">
-                    <label className="font-semibold">R/C Ratio</label>
+                    <label className="font-semibold">Total Fixed Cost</label>
                     <div className="flex items-center border border-gray-300 rounded-md">
                       <input
                         type="text"
-                        value={rcRatio.toFixed(2)}
+                        value={formatNumber(totalFixedCost)}
                         // readOnly
-                        className="border-0 p-2 rounded-md flex-1 bg-gray-100" // border-0 untuk menghapus border input
+                        className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
                     </div>
                   </div>
                   <div className="flex flex-col">
-                    <label className="font-semibold">BEP Harga</label>
+                    <label className="font-semibold">Total Biaya Operrasional</label>
                     <div className="flex items-center border border-gray-300 rounded-md">
-                      <span className="p-2 bg-gray-100">Rp.</span>
+                      <span className="p-2 bg-orange-200">Rp.</span>
                       <input
                         type="text"
-                        value={bepHarga.toFixed(2)}
+                        value={formatNumber(totalBiayaOperasional)}
                         // readOnly
-                        className="border-0 p-2 rounded-md flex-1 bg-gray-100" // border-0 untuk menghapus border input
+                        className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center justify-center mt-10">
                   <div className="flex flex-col mx-5">
-                    <label className="font-semibold">BEP Hasil</label>
+                    <label className="font-semibold">Total Variable Cost</label>
                     <div className="flex items-center border border-gray-300 rounded-md">
-                      <span className="p-2 bg-gray-100">Rp.</span>
+                      <span className="p-2 bg-orange-200">Rp.</span>
                       <input
                         type="text"
-                        value={bepHasil.toFixed(2)}
+                        value={formatNumber(totalVariableCost)}
                         // readOnly
-                        className="border-0 p-2 rounded-md flex-1 bg-gray-100" // border-0 untuk menghapus border input
+                        className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
                     </div>
                   </div>
                   <div className="flex flex-col">
-                    <label className="font-semibold">Laba</label>
+                    <label className="font-semibold">Total Cost</label>
                     <div className="flex items-center border border-gray-300 rounded-md">
-                      <span className="p-2 bg-gray-100">Rp.</span>
+                      <span className="p-2 bg-orange-200">Rp.</span>
                       <input
                         type="text"
-                        value={laba.toFixed(2)}
+                        value={formatNumber(totalCost)}
                         // readOnly
-                        className="border-0 p-2 rounded-md flex-1 bg-gray-100" // border-0 untuk menghapus border input
+                        className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
                     </div>
                   </div>
