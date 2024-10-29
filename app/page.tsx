@@ -9,6 +9,7 @@ import Dashboard from "./dashboard/page";
 import { UserProvider } from "./context/UserContext"; // Pastikan ini diimpor
 import PenetasanPage from "./analisis/penetasan/page";
 import { SidebarDemo } from "@/components/Sidebar";
+import SettingPage from "./user_setting/page"; // Perbaiki nama komponen
 
 const Home = () => {
   const pathname = usePathname(); // Ambil pathname saat ini
@@ -30,6 +31,9 @@ const Home = () => {
       break;
     case "/analisis/penetasan":
       content = <PenetasanPage />; // Pastikan ini berada dalam UserProvider
+      break;
+    case "/user_setting":
+      content = <SettingPage />; // Perbaiki penggunaan komponen
       break;
     default:
       content = <LandingPage />;
