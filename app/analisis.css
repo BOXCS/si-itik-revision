@@ -18,12 +18,12 @@
     font-weight: 900;
   }
 
-  .form-container {
+  /* .form-container {
     margin-left: 150px;
     justify-items: center;
     justify-content: center;
 
-  }
+  } */
 
   .btn-selanjutnya {
     justify-content: end;
@@ -31,7 +31,7 @@
     width: 200px;
   }
 
-  @media (max-width: 1440px) {
+  /* @media (max-width: 1440px) {
     .tab-container {
         margin-left: -200px;
     }
@@ -69,4 +69,4 @@
     .tab-container {
         margin-left: -280px;
     }
-}
+} */

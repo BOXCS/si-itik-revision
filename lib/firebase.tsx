@@ -3,7 +3,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
 
 // Ganti ini dengan konfigurasi proyek Firebase Anda
 const firebaseConfig = {
@@ -18,7 +17,7 @@ const firebaseConfig = {
 
 // Inisialisasi Firebase
 export const app = initializeApp(firebaseConfig);
-export const storage = getStorage(app);
+
 // Ekspor instance auth dan firestore
 export const auth = getAuth(app);
 export const firestore = getFirestore(app);

@@ -336,7 +336,7 @@ export default function LandingPage() {
       </section>
 
       {/* Section Testimoni */}
-      <section className="testimoni py-20" id="testimoniPeternak">
+      <section className="testimoni py-20 overflow-hidden" id="testimoniPeternak">
         <h2>Testimoni</h2>
         <h3>Ulasan Peternak Lain</h3>
         <div className="flex flex-col items-center max-lg:mt-10">
