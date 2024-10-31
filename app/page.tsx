@@ -10,6 +10,7 @@ import { UserProvider } from "./context/UserContext"; // Pastikan ini diimpor
 import PenetasanPage from "./analisis/penetasan/page";
 import { SidebarDemo } from "@/components/Sidebar";
 import ForgetPassPage from "./auth/forgetPass/page";
+import SettingPage from "./user_setting/page";
 
 function Home() {
   const pathname = usePathname(); // Ambil pathname saat ini

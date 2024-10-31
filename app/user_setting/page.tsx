@@ -7,8 +7,12 @@ import { useEffect, useState } from "react";
 import { auth, storage } from "@/lib/firebase"; // Impor storage dari firebase.js
 import { updateProfile } from "firebase/auth";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Impor fungsi untuk Firebase Storage
+import { useToast } from "@/hooks/use-toast";
 
 export default function SettingPage() {
+
+  const { toast } = useToast();
+
   return (
     <div className="w-full min-h-screen bg-gray-100 flex">
       <SidebarDemo>
@@ -22,9 +26,9 @@ export default function SettingPage() {
 }
 
 function CardContainer() {
+  const { toast } = useToast();
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
   const [photoAdded, setPhotoAdded] = useState<boolean>(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
 
@@ -39,23 +43,46 @@ function CardContainer() {
   }, []);
 
   // Fungsi untuk mengubah foto profil
-  const handleChangePhoto = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangePhoto = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const storageRef = ref(storage, `profile_pictures/${auth.currentUser?.uid}`);
-      await uploadBytes(storageRef, file);
-      const newPhotoURL = await getDownloadURL(storageRef);
-      setUserPhoto(newPhotoURL);
-      await updateProfile(auth.currentUser!, { photoURL: newPhotoURL });
-      setPhotoAdded(true);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setUserPhoto(base64String);
+        localStorage.setItem("userPhoto", base64String);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
   const handleRemovePhoto = async () => {
-    await updateProfile(auth.currentUser!, { photoURL: null });
-    setUserPhoto(null);
-    setPhotoAdded(false);
+    try {
+      // Setel URL gambar menjadi null di Firebase Auth
+      await updateProfile(auth.currentUser!, { photoURL: null });
+
+      // Hapus URL gambar dari state komponen dan local storage
+      setUserPhoto(null);
+      localStorage.removeItem("userPhoto");
+    } catch (error) {
+      console.error("Error removing photo: ", error);
+    }
   };
+
+  useEffect(() => {
+    const savedPhoto = localStorage.getItem("userPhoto");
+    if (savedPhoto) {
+      setUserPhoto(savedPhoto);
+    }
+  }, []);
+
+  // Mengambil huruf pertama dari nama pengguna
+  const getInitials = (name: string | null) => {
+    if (!name) return "";
+    return name.split(" ").map(word => word.charAt(0)).join("").toUpperCase();
+  };
+
+
 
   return (
     <div className="w-full p-4">
@@ -64,7 +91,13 @@ function CardContainer() {
           <div className="absolute inset-0 rounded-3xl bg-white opacity-50 blur-xl -z-10" style={{ boxShadow: '0 0 40px 20px rgba(255, 255, 255, 0.5)' }} />
 
           <div className="flex justify-center items-center mb-4">
-            <UserAvatar photoURL={userPhoto} />
+            {userPhoto ? (
+              <img src={userPhoto} alt="User Avatar" className="rounded-full w-40 h-40" />
+            ) : (
+              <div className="bg-blue-500 rounded-full w-40 h-40 flex items-center justify-center text-white text-5xl">
+                {getInitials(userName) || "U"} {/* Tampilkan huruf depan dari nama */}
+              </div>
+            )}
           </div>
 
           <div className="flex justify-center space-x-4 mb-4">
@@ -83,8 +116,8 @@ function CardContainer() {
             </label>
             <button
               onClick={handleRemovePhoto}
-              disabled={!photoAdded}
-              className={`px-4 py-2 ${photoAdded ? 'bg-red-500' : 'bg-gray-300'} text-white rounded-md hover:${photoAdded ? 'bg-red-600' : 'bg-gray-400'}`}
+              disabled={!userPhoto}
+              className={`px-4 py-2 ${userPhoto ? "bg-red-500" : "bg-gray-300"} text-white rounded-md hover:${userPhoto ? "bg-red-600" : "bg-gray-400"}`}
             >
               Hapus Foto Profil
             </button>
@@ -145,7 +178,19 @@ function CardContainer() {
           </div>
 
 
+          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 mb-4">
+            <h2 className="text-center text-gray-500">
+              si-itikpolije2024.com
+            </h2>
+          </div>
+
+
+
+
+
           <div className="absolute inset-100 rounded-5xl shadow-5xl" style={{ zIndex: -1 }} />
+
+
         </div>
       </div>
     </div>
