@@ -1,145 +1,28 @@
 "use client";
 
-// import React, { useState } from 'react';
-
-// interface AnalysisData {
-//   waktu: string;
-//   tanggal: string;
-//   jumlah: string;
-//   deskripsi: string;
-// }
-
-// interface PopupProps {
-//   open: boolean;
-//   onClose: () => void;
-//   data: AnalysisData | null;
-// }
-
-// function AnalysisPopup({ open, onClose, data }: PopupProps) {
-//   if (!open || !data) return null;
-
-//   return (
-//     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-//       <div className="bg-white rounded-lg p-6 w-full max-w-md">
-//         <div className="flex justify-between items-center mb-4">
-//           <h2 className="text-xl font-bold">Detail Analisis</h2>
-//           <button
-//             onClick={onClose}
-//             className="text-gray-500 hover:text-gray-700"
-//           >
-//             ✕
-//           </button>
-//         </div>
-        
-//         <div className="space-y-4">
-//           <div>
-//             <h3 className="text-lg font-semibold">{data.waktu}</h3>
-//             <p className="text-sm text-gray-500">{data.tanggal}</p>
-//           </div>
-//           <div>
-//             <p className="text-xl font-bold">{data.jumlah}</p>
-//             <p className="text-sm text-gray-500">{data.deskripsi}</p>
-//           </div>
-//         </div>
-        
-//         <div className="mt-6 flex justify-end">
-//           <button
-//             onClick={onClose}
-//             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-//           >
-//             Tutup
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default function Dashboard() {
-//   const [openPopup, setOpenPopup] = useState<boolean>(false);
-//   const [selectedData, setSelectedData] = useState<AnalysisData | null>(null);
-//   const [analysisData, setAnalysisData] = useState<AnalysisData[]>([
-//     { waktu: '15:45', tanggal: '01/10/2024', jumlah: 'Rp. 200.000', deskripsi: 'periode 1' },
-//     { waktu: '15:45', tanggal: '01/10/2024', jumlah: 'Rp. 200.000', deskripsi: 'periode 2' },
-//     { waktu: '15:45', tanggal: '03/11/2024', jumlah: 'Rp. 200.000', deskripsi: 'Detail Penetasan' },
-//   ]);
-
-//   const handleCardClick = (data: AnalysisData) => {
-//     setSelectedData(data);
-//     setOpenPopup(true);
-//   };
-
-//   const addNewAnalysis = (newData: AnalysisData) => {
-//     setAnalysisData(prevData => [...prevData, newData]);
-//   };
-
-//   return (
-//     <div className="min-h-screen bg-gradient-to-b from-orange-200 to-orange-300 p-6">
-//       <div className="max-w-6xl mx-auto">
-//         <h1 className="text-2xl font-bold text-gray-800 mb-6">Beranda</h1>
-        
-//         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-//           {/* Riwayat Analisis */}
-//           <div>
-//             <h2 className="text-xl font-semibold text-gray-800 mb-4">Riwayat Analisis</h2>
-//             <div className="space-y-4">
-//               {analysisData.map((data, index) => (
-//                 <div 
-//                   key={index}
-//                   className="bg-white rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow cursor-pointer"
-//                   onClick={() => handleCardClick(data)}
-//                 >
-//                   <div className="space-y-2">
-//                     <h3 className="text-lg font-semibold">{data.waktu}</h3>
-//                     <p className="text-sm text-gray-500">{data.tanggal}</p>
-//                     <p className="text-xl font-bold">{data.jumlah}</p>
-//                     <p className="text-sm text-gray-500">{data.deskripsi}</p>
-//                   </div>
-//                 </div>
-//               ))}
-//             </div>
-//           </div>
-
-//           {/* Penetasan */}
-//           <div>
-//             <h2 className="text-xl font-semibold text-gray-800 mb-4">Penetasan</h2>
-//             <div className="bg-white rounded-lg p-4 shadow-md">
-//               <div className="flex items-center justify-center min-h-[100px]">
-//                 <p className="text-gray-500">Konten belum tersedia.</p>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-
-//         <AnalysisPopup 
-//           open={openPopup}
-//           onClose={() => setOpenPopup(false)}
-//           data={selectedData}
-//         />
-//       </div>
-//     </div>
-//   );
-// }
-// "use client";
-
 import React, { useState, useEffect } from 'react';
+import { collection, getDocs, query, where, Timestamp } from 'firebase/firestore';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { firestore, auth } from "@/lib/firebase";  // Pastikan firestore dan auth sudah diekspor dari konfigurasi firebase Anda
 import { SidebarDemo } from '@/components/Sidebar';
 import { Grid, Card, CardContent, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
 
-interface AnalysisData {
-  waktu: string;
-  tanggal: string;
-  jumlah: string;
-  deskripsi: string;
+interface AnalysisPeriodData {
+  id: string;
+  created_at: Timestamp;
+  bepHarga: number;
+  bepHasil: number;
+  laba: number;
+  marginOfSafety: number;
+  rcRatio: number;
 }
 
 interface PopupProps {
   open: boolean;
   onClose: () => void;
-  data: AnalysisData | null;
+  data: AnalysisPeriodData | null;
 }
+
 
 const styles = {
   pageContainer: {
@@ -218,10 +101,10 @@ function Popup({ open, onClose, data }: PopupProps) {
     >
       <DialogTitle style={styles.popupTitle}>Detail Analisis</DialogTitle>
       <DialogContent style={styles.popupContent}>
-        <Typography variant="h6" style={styles.time}>{data.waktu}</Typography>
-        <Typography variant="body2" style={styles.date}>{data.tanggal}</Typography>
-        <Typography variant="body1" style={styles.amount}>{data.jumlah}</Typography>
-        <Typography variant="body2" style={styles.description}>{data.deskripsi}</Typography>
+        <Typography variant="h6" style={styles.time}>{data.created_at.toDate().toLocaleTimeString()}</Typography>
+        <Typography variant="body2" style={styles.date}>{data.created_at.toDate().toLocaleDateString()}</Typography>
+        <Typography variant="body1" style={styles.amount}>Rp. {data.bepHarga}</Typography>
+        <Typography variant="body2" style={styles.description}>{data.marginOfSafety}</Typography>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} color="primary">
@@ -235,7 +118,102 @@ function Popup({ open, onClose, data }: PopupProps) {
 export default function Dashboard() {
   const [username, setUsername] = useState<string>('User');
   const [openPopup, setOpenPopup] = useState<boolean>(false);
-  const [selectedData, setSelectedData] = useState<AnalysisData | null>(null);
+  const [selectedData, setSelectedData] = useState<AnalysisPeriodData | null>(null);
+  const [dataAnalisis, setDataAnalisis] = useState<AnalysisPeriodData[]>([]);
+
+  
+  const GetDataPage = () => {
+    const [data, setData] = useState<AnalysisPeriodData[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [userEmail, setUserEmail] = useState<string | null>(null);
+  
+    useEffect(() => {
+      const auth = getAuth();
+      // Memeriksa status login menggunakan onAuthStateChanged
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (user) {
+          setUserEmail(user.email!); // Ambil email pengguna
+        } else {
+          console.error("Pengguna tidak login!");
+        }
+      });
+      return () => unsubscribe(); // Bersihkan listener saat komponen di-unmount
+    }, []);
+  
+    useEffect(() => {
+      if (!userEmail) return;
+  
+      const fetchData = async () => {
+        try {
+          console.log("Mencari dokumen dengan email:", userEmail);
+  
+          // Query untuk mencari dokumen berdasarkan userId (email)
+          const detailLayerQuery = query(
+            collection(firestore, "detail_layer"),
+            where("userId", "==", userEmail)
+          );
+  
+          const querySnapshot = await getDocs(detailLayerQuery);
+  
+          if (!querySnapshot.empty) {
+            const userDocRef = querySnapshot.docs[0].ref; // Ambil referensi dokumen pertama
+            const subCollectionRef = collection(userDocRef, "analisis_periode");
+            const subCollectionSnapshot = await getDocs(subCollectionRef);
+  
+            // Log untuk memeriksa subCollectionSnapshot
+            console.log("SubCollection Snapshot:", subCollectionSnapshot.docs);
+  
+            const fetchedData: AnalysisPeriodData[] = subCollectionSnapshot.docs.map((doc) => {
+              const docData = doc.data();
+              console.log("Data Dokumen:", docData);
+  
+              // Ambil data dari objek hasilAnalisis
+              const hasilAnalisis = docData.hasilAnalisis || {};
+  
+              return {
+                id: doc.id,
+                created_at: docData.created_at || Timestamp.now(),
+                bepHarga: hasilAnalisis.bepHarga ?? 0, // Mengakses dari objek hasilAnalisis
+                bepHasil: hasilAnalisis.bepHasil ?? 0,
+                laba: hasilAnalisis.laba ?? 0,
+                marginOfSafety: hasilAnalisis.marginOfSafety ?? 0,
+                rcRatio: hasilAnalisis.rcRatio ?? 0,
+              } as AnalysisPeriodData;
+            });
+  
+            setData(fetchedData);
+            console.log("Data yang di-set:", fetchedData);
+          } else {
+            console.error("Dokumen tidak ditemukan untuk email yang diberikan!");
+          }
+        } catch (error) {
+          console.error("Error mengambil data: ", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchData();
+    }, [userEmail]);
+  
+    if (loading) {
+      return <p>Loading...</p>;
+    }
+  
+    return (
+      <div>
+        <h3>Data Page</h3>
+        <ul>
+          {data.map((item) => (
+            <li key={item.id}>
+              {/* Tampilkan data sesuai dengan field yang ada di koleksi Firestore */}
+              BEP Harga: {item.bepHarga}, BEP Hasil: {item.bepHasil}, Laba: {item.laba}, email: {userEmail}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -247,13 +225,32 @@ export default function Dashboard() {
     return () => unsubscribe();
   }, []);
 
-  const analysisData: AnalysisData[] = [
-    { waktu: '15:45', tanggal: '01/10/2024', jumlah: 'Rp. 200.000', deskripsi: 'periode 1' },
-    { waktu: '15:45', tanggal: '01/10/2024', jumlah: 'Rp. 200.000', deskripsi: 'periode 2' },
-    { waktu: '15:45', tanggal: '03/11/2024', jumlah: 'Rp. 200.000', deskripsi: 'Detail Penetasan' },
-  ];
+  useEffect(() => {
+    const fetchDataAnalisis = async () => {
+      try {
+        const q = query(collection(firestore, 'periodeAnalisis')); // Sesuaikan dengan nama koleksi Anda
+        const querySnapshot = await getDocs(q);
+        
+        const data: AnalysisPeriodData[] = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          created_at: doc.data().created_at,
+          bepHarga: doc.data().bepHarga,
+          bepHasil: doc.data().bepHasil,
+          laba: doc.data().laba,
+          marginOfSafety: doc.data().marginOfSafety,
+          rcRatio: doc.data().rcRatio,
+        }));
 
-  const handleCardClick = (data: AnalysisData) => {
+        setDataAnalisis(data);
+      } catch (error) {
+        console.error("Error saat mengambil data analisis: ", error);
+      }
+    };
+
+    fetchDataAnalisis();
+  }, []);
+
+  const handleCardClick = (data: AnalysisPeriodData) => {
     setSelectedData(data);
     setOpenPopup(true);
   };
@@ -262,20 +259,20 @@ export default function Dashboard() {
     <div style={styles.pageContainer}>
       <SidebarDemo>
         <div style={styles.contentContainer}>
-          <h1 style={styles.title}>Beranda. Halo {username}</h1>
+          <h1 style={styles.title}> </h1>
           <Grid container spacing={3}>
             {/* Riwayat Analisis */}
             <Grid item xs={12} md={6}>
               <Typography variant="h5" style={styles.sectionTitle}>Riwayat Analisis</Typography>
               <Grid container spacing={3}>
-                {analysisData.map((data, index) => (
+                {dataAnalisis.map((data, index) => (
                   <Grid item xs={12} key={index}>
                     <Card style={styles.card} onClick={() => handleCardClick(data)}>
                       <CardContent>
-                        <Typography variant="h6" style={styles.time}>{data.waktu}</Typography>
-                        <Typography variant="body2" style={styles.date}>{data.tanggal}</Typography>
-                        <Typography variant="body1" style={styles.amount}>{data.jumlah}</Typography>
-                        <Typography variant="body2" style={styles.description}>{data.deskripsi}</Typography>
+                        <Typography variant="h6" style={styles.time}>{data.created_at.toDate().toLocaleTimeString()}</Typography>
+                        <Typography variant="body2" style={styles.date}>{data.created_at.toDate().toLocaleDateString()}</Typography>
+                        <Typography variant="body1" style={styles.amount}>Rp. {data.bepHarga}</Typography>
+                        <Typography variant="body2" style={styles.description}>{data.marginOfSafety}</Typography>
                       </CardContent>
                     </Card>
                   </Grid>

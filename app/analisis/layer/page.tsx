@@ -335,7 +335,7 @@ const handleInputChange =
       <div className="flex-1 flex flex-col items-center p-10">
         {/* Header */}
         <h1 className="text-3xl font-bold text-black mb-8">
-          Analisis Penggemukan
+          Analisis Layer
         </h1>
 
         {/* TabSelection */}
@@ -1167,6 +1167,5 @@ const handleInputChange =
     </div>
   );
 };
-
 
 export default LayerPage;
