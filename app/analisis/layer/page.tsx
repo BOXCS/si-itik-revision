@@ -1,52 +1,55 @@
 "use client";
 
 import { SidebarDemo } from "@/components/Sidebar";
-import { useUser } from "@/app/context/UserContext";
-import React, { useState, useEffect } from "react";
-import HorizontalTimeline from "@/components/HorizontalTimeline";
+import React, { useEffect, useState } from "react";
 import "@/app/analisis.css";
-import { addDoc, collection, DocumentReference, Timestamp } from "firebase/firestore";
+import HorizontalTimeline from "@/components/HorizontalTimeline";
+import { useToast } from "@/hooks/use-toast";
+import {
+  doc,
+  addDoc,
+  collection,
+  DocumentReference,
+  Timestamp,
+} from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
-import { toast } from "@/hooks/use-toast";
+import { useUser } from "@/app/context/UserContext";
 
+// interface TabSelectionProps
 
-interface TabSelectionProps {
-  setSelectedPeriod: (period: string) => void; // Mengatur tipe untuk setSelectedPeriod
-}
+const LayerPage = () => {
+  const initialPeriods = JSON.parse(
+    (typeof window !== "undefined" && localStorage.getItem("periods")) ||
+      '["Periode 1"]'
+  );
 
-const PenetasanPage = () => {
-  const periods = [
-    "Periode 1",
-    "Periode 2",
-    "Periode 3",
-    "Periode 4",
-    "Periode 5",
-    "Periode 6",
-  ];
-
-  const { user } = useUser(); // Pindahkan di sini
+  const { toast } = useToast();
+  const [periods, setPeriods] = useState(initialPeriods);
   const [selectedPeriod, setSelectedPeriod] = useState(periods[0]);
+  const [periode, setPeriode] = useState(periods[0]);
+  const { user } = useUser(); // Pindahkan di sini
 
-  // Tambahkan state untuk mengatur status analisis baru
-  const [isNewAnalysis, setIsNewAnalysis] = useState(false);
-  const [newAnalysisDocRef, setNewAnalysisDocRef] = useState<DocumentReference | null>(null);
-
-  // State untuk form visibility
-  const [currentForm, setCurrentForm] = useState("Penerimaan");
+   // Tambahkan state untuk mengatur status analisis baru
+   const [isNewAnalysis, setIsNewAnalysis] = useState(false);
+   const [newAnalysisDocRef, setNewAnalysisDocRef] =
+     useState<DocumentReference | null>(null);
+ 
+   const [currentForm, setCurrentForm] = useState("Penerimaan");
 
   // States untuk Penerimaan form
   const [jumlahTelurDihasilkan, setJumlahTelurDihasilkan] = useState<number>(0);
   const [jumlahItikAwal, setJumlahItikAwal] = useState<number>(0);
-  const [jumlahIti, setJumlahIti] = useState<number>(0);
+  const [persentase, setPersentase] = useState<number>(0);
   const [persentaseBertelur, setPersentaseBertelur] = useState<number>(0);
   const [produksiTelurHarian, setProduksiTelurHarian] = useState<number>(0);
   const [satuPeriode, setSatuPeriode] = useState<number>(0);
   const [jumlahSatuPeriode, setJumlahSatuPeriode] = useState<number>(0);
   const [hargaTelur, setHargaTelur] = useState<number>(0);
   const [totalRevenue, setTotalRevenue] = useState<number>(0);
+  
   const [jumlahTelurMenetas, setJumlahTelurMenetas] = useState<number>(0);
-  const [persentase, setPersentase] = useState<number>(0);
 
+  
   // States untuk Pengeluaran form
   const [sewaKandang, setSewaKandang] = useState<number>(0);
   const [penyusutanItik, setPenyusutanItik] = useState<number>(0);
@@ -67,11 +70,6 @@ const PenetasanPage = () => {
   const [totalVariableCost, setTotalVariableCost] = useState<number>(0);
   const [totalCost, setTotalCost] = useState<number>(0);
 
-
-  const [totalBiayaPembelianTelur, setTotalBiayaPembelianTelur] = useState<number>(0);
-  const [standardPakan, setStandardPakan] = useState(0);
-  const [penyusutanPeralatan, setPenyusutanPeralatan] = useState<number>(0);
-
   // States untuk Hasil Analisis
   const [marginOfSafety, setMarginOfSafety] = useState<number>(0);
   const [rcRatio, setRcRato] = useState<number>(0);
@@ -79,8 +77,13 @@ const PenetasanPage = () => {
   const [bepHasil, setBepHasil] = useState<number>(0);
   const [laba, setLaba] = useState<number>(0);
 
-
-
+  const handleAddPeriod = () => {
+    const newPeriod = `Periode ${periods.length + 1}`;
+    const updatedPeriods = [...periods, newPeriod];
+    setPeriods(updatedPeriods);
+    setSelectedPeriod(newPeriod);
+    setPeriode(newPeriod);
+  };
 
   const handleNewAnalysis = async () => {
     if (!user) {
@@ -117,21 +120,19 @@ const PenetasanPage = () => {
     }
   };
 
-
-
-  // States for Submit firestore
-  const [periode, setPeriode] = useState("");
-
   const handleSubmit = async () => {
     if (!user) {
-      alert("User tidak terautentikasi.");
+      toast({
+        title: "Gagal",
+        description: "User tidak terautentikasi.",
+        variant: "destructive",
+      });
       return; // Hentikan eksekusi jika user tidak ada
     }
 
     try {
-      const dataToSubmit = {
-        userId: user.email || user.username,
-        periode,
+      const periodeData = {
+        periode: selectedPeriod,
         penerimaan: {
           jumlahTelurDihasilkan,
           jumlahItikAwal,
@@ -161,20 +162,73 @@ const PenetasanPage = () => {
           totalCost: totalCost.toFixed(2),
         },
         hasilAnalisis: {
-          totalRevenue,
-          totalFixedCost,
-          totalBiayaOperasional,
-          totalVariableCost,
-          totalCost,
+          marginOfSafety,
+          rcRatio,
+          bepHarga,
+          bepHasil,
+          laba,
         },
       };
+ // Jika isNewAnalysis adalah true, simpan ke dokumen baru
+ if (newAnalysisDocRef) {
+  await addDoc(
+    collection(newAnalysisDocRef, "analisis_periode"),
+    periodeData
+  );
+} else {
+  // Buat dokumen baru jika tidak ada referensi sebelumnya
+  const docRef = await addDoc(collection(firestore, "detail_layer"), {
+    userId: user.email || user.username,
+    created_at: Timestamp.now(),
+  });
 
-      await addDoc(collection(firestore, "detail_layer"), dataToSubmit);
-      alert("Data berhasil disubmit!");
-    } catch (error) {
-      console.error("Error adding document: ", error);
-      alert("Gagal menambahkan data!");
-    }
+  await addDoc(collection(docRef, "analisis_periode"), periodeData);
+  setNewAnalysisDocRef(docRef);
+  localStorage.setItem("activeDocRef", docRef.id);
+}
+
+toast({
+  title: "Sukses",
+  description: "Data berhasil disimpan!",
+});
+} catch (error) {
+console.error("Error adding document: ", error);
+toast({
+  title: "Gagal",
+  description: "Gagal menambahkan data!",
+  variant: "destructive",
+});
+}
+};
+
+const handleNextForm = () => {
+  if (currentForm === "Penerimaan") {
+    setCurrentForm("Pengeluaran");
+  } else if (currentForm === "Pengeluaran") {
+    setCurrentForm("HasilAnalisis");
+  }
+};
+
+const handleBackForm = () => {
+  if (currentForm === "Pengeluaran") {
+    setCurrentForm("Penerimaan");
+  } else if (currentForm === "HasilAnalisis") {
+    setCurrentForm("Pengeluaran");
+  }
+};
+
+// Fungsi untuk format angka ke Rupiah
+const formatNumber = (number: number) => {
+  return new Intl.NumberFormat("id-ID", {
+    minimumFractionDigits: 0, // Menghilangkan desimal
+  }).format(number);
+};
+
+const handleInputChange =
+  (setter: React.Dispatch<React.SetStateAction<number>>) =>
+  (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/[^0-9]/g, ""); // Menghapus karakter non-angka
+    setter(value ? parseFloat(value) : 0); // Jika nilai ada, set sebagai angka
   };
 
   // Rumus Penerimaan
@@ -222,9 +276,7 @@ const PenetasanPage = () => {
     setTotalBiayaOperasional(totalBiayaOperasional);
   }, [biayaOperasional]);
 
-  // Menghitung jumlah pakan dalam kilogram
   useEffect(() => {
-    // const jumlahpaka = standardPakanGram / 1000; // Konversi dari gram ke kilogram
     const jumlahPakanKilogram = standardPakanGram * 180 * jumlahItikAwal / 1000;
     setjumlahPakanKilogram(jumlahPakanKilogram);
   }, [standardPakanGram, jumlahItikAwal]);
@@ -234,7 +286,6 @@ const PenetasanPage = () => {
     setTotalBiayaPakan(totalBiayaPakan);
   }, [totalBiayaPakan,jumlahPakanKilogram]);
 
-  // Menghitung total variable cost
   useEffect(() => {
     const totalVariableCost = totalBiayaOperasional + totalBiayaPakan;
     setTotalVariableCost(totalVariableCost);
@@ -245,74 +296,81 @@ const PenetasanPage = () => {
     setTotalCost(totalCost);
   }, [totalCost, totalFixedCost,totalVariableCost]);
 
-  const handleNextForm = () => {
-    if (currentForm === "Penerimaan") {
-      setCurrentForm("Pengeluaran");
-    } else if (currentForm === "Pengeluaran") {
-      setCurrentForm("HasilAnalisis");
-    }
-  };
+  //Rumus Hasil Analisis
+  useEffect(() => {
+    const bepHasil =
+      totalFixedCost / (hargaTelur - totalVariableCost / jumlahSatuPeriode);
+    setBepHasil(bepHasil);
+  }, [totalFixedCost, totalFixedCost, totalVariableCost,hargaTelur, jumlahSatuPeriode]);
 
-  // Fungsi untuk format angka ke Rupiah
-  const formatNumber = (number: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      minimumFractionDigits: 0, // Menghilangkan desimal
-    }).format(number);
-  };
+  useEffect(() => {
+    const bepHarga =
+      totalFixedCost / (1 - totalVariableCost / totalVariableCost / hargaTelur);
+    setBepHarga(bepHarga);
+  }, [totalFixedCost, totalVariableCost, hargaTelur]);
 
-  const handleInputChange =
-    (setter: React.Dispatch<React.SetStateAction<number>>) =>
-      (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value.replace(/[^0-9]/g, ""); // Menghapus karakter non-angka
-        setter(value ? parseFloat(value) : 0); // Jika nilai ada, set sebagai angka
-      };
+  useEffect(() => {
+    const marginOfSafety = ((totalRevenue - bepHarga) / totalRevenue) * 100;
+    setMarginOfSafety(marginOfSafety);
+  }, [totalRevenue, bepHarga]);
 
-  const handleBackForm = () => {
-    if (currentForm === "Pengeluaran") {
-      setCurrentForm("Penerimaan");
-    } else if (currentForm === "HasilAnalisis") {
-      setCurrentForm("Pengeluaran");
-    }
-  };
+  useEffect(() => {
+    const rcRatio = totalRevenue / totalCost;
+    setRcRato(rcRatio);
+  }, [totalRevenue, totalCost]);
+
+  useEffect(() => {
+    const laba = totalRevenue - totalCost;
+    setLaba(laba);
+  }, [totalRevenue, totalCost]);
+
 
 
 
   return (
     <div className="w-full min-h-screen bg-gray-100 flex">
-      {/* Sidebar */}
-      <SidebarDemo>
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col items-center p-10">
-          {/* Header */}
-          <h1 className="text-3xl font-bold text-black mb-8">
-            Analisis Layer
-          </h1>
+    {/* Sidebar */}
+    <SidebarDemo>
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col items-center p-10">
+        {/* Header */}
+        <h1 className="text-3xl font-bold text-black mb-8">
+          Analisis Penggemukan
+        </h1>
 
-          {/* TabSelection */}
-          <div className="flex flex-col items-center mb-10">
-            <div className="flex justify-center space-x-4 mb-4">
-              {periods.map((period, index) => (
-                <button
-                  key={index}
-                  onClick={() => {
-                    setPeriode(period); // Perbarui periode
-                    setSelectedPeriod(period); // Perbarui selectedPeriod
-                  }}
-                  className={`px-4 py-2 rounded-full text-white ${selectedPeriod === period ? "bg-orange-500" : "bg-gray-400"
-                    }`}
-                >
-                  {period}
-                </button>
-              ))}
-            </div>
+        {/* TabSelection */}
+        <div className="flex flex-col items-center mb-10">
+          <div className="flex justify-center space-x-4 mb-4">
+            {periods.map((period: string, index: number) => (
+              <button
+                key={index}
+                onClick={() => {
+                  setPeriode(period); // Perbarui periode
+                  setSelectedPeriod(period); // Perbarui selectedPeriod
+                }}
+                className={`px-4 py-2 rounded-full text-black ${
+                  selectedPeriod === period ? "bg-orange-500" : "bg-white"
+                }`}
+              >
+                {period}
+              </button>
+            ))}
 
             <button
-              onClick={handleNewAnalysis}
-              className="px-4 py-2 rounded-full bg-green-500 text-white"
+              onClick={handleAddPeriod}
+              className="px-4 py-2 rounded-full bg-blue-500 text-white"
             >
-              Analisis Baru
+              Tambah Periode
             </button>
           </div>
+
+          <button
+            onClick={handleNewAnalysis}
+            className="px-4 py-2 rounded-full bg-green-500 text-white"
+          >
+            Analisis Baru
+          </button>
+        </div>
 
 
           {/* Kontainer Form */}
@@ -1023,36 +1081,36 @@ const PenetasanPage = () => {
                 <div className="flex items-center justify-center">
                   <div className="flex flex-col">
                     <label className="font-semibold">
-                      Total Revenue
+                      Margin Of Safety(MOS)
                     </label>
                     <div className="flex items-center border border-gray-300 rounded-md">
                       <span className="p-2 bg-orange-200">Rp.</span>
                       <input
                         type="text"
-                        value={formatNumber(totalRevenue)}
+                        value={formatNumber(marginOfSafety)}
                         // readOnly
                         className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
                     </div>
                   </div>
                   <div className="flex flex-col mx-5">
-                    <label className="font-semibold">Total Fixed Cost</label>
+                    <label className="font-semibold">R/C Ratio</label>
                     <div className="flex items-center border border-gray-300 rounded-md">
                       <input
                         type="text"
-                        value={formatNumber(totalFixedCost)}
+                        value={formatNumber(rcRatio)}
                         // readOnly
                         className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
                     </div>
                   </div>
                   <div className="flex flex-col">
-                    <label className="font-semibold">Total Biaya Operrasional</label>
+                    <label className="font-semibold">BEP Harga</label>
                     <div className="flex items-center border border-gray-300 rounded-md">
                       <span className="p-2 bg-orange-200">Rp.</span>
                       <input
                         type="text"
-                        value={formatNumber(totalBiayaOperasional)}
+                        value={formatNumber(bepHarga)}
                         // readOnly
                         className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
@@ -1061,24 +1119,24 @@ const PenetasanPage = () => {
                 </div>
                 <div className="flex items-center justify-center mt-10">
                   <div className="flex flex-col mx-5">
-                    <label className="font-semibold">Total Variable Cost</label>
+                    <label className="font-semibold">BEP Unit</label>
                     <div className="flex items-center border border-gray-300 rounded-md">
-                      <span className="p-2 bg-orange-200">Rp.</span>
+                      <span className="p-2 bg-orange-200">Telur</span>
                       <input
                         type="text"
-                        value={formatNumber(totalVariableCost)}
+                        value={formatNumber(bepHasil)}
                         // readOnly
                         className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
                     </div>
                   </div>
                   <div className="flex flex-col">
-                    <label className="font-semibold">Total Cost</label>
+                    <label className="font-semibold">Laba</label>
                     <div className="flex items-center border border-gray-300 rounded-md">
                       <span className="p-2 bg-orange-200">Rp.</span>
                       <input
                         type="text"
-                        value={formatNumber(totalCost)}
+                        value={formatNumber(laba)}
                         // readOnly
                         className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
@@ -1111,4 +1169,4 @@ const PenetasanPage = () => {
 };
 
 
-export default PenetasanPage;
+export default LayerPage;
