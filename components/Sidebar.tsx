@@ -63,6 +63,7 @@ export function SidebarDemo({
         { label: "Penetasan", href: `/analisis/penetasan?username=${username}`, icon: <IconAnalyzeFilled className="h-7 w-7 ml-3" /> },
         { label: "Penggemukan", href: `/analisis/penggemukan?username=${username}`, icon: <IconAnalyzeFilled className="h-7 w-7 ml-3" /> },
         { label: "Layer", href: `/analisis/layer?username=${username}`, icon: <IconAnalyzeFilled className="h-7 w-7 ml-3" /> },
+        { label: "test Data", href: `/analisis/test?username=${username}`, icon: <IconAnalyzeFilled className="h-7 w-7 ml-3" /> },
       ],
     },
     
@@ -136,17 +137,17 @@ export function SidebarDemo({
               }}
             />
             </DialogTrigger>
-            <DialogContent className="sm:max-w-lg">
+            <DialogContent className="lg:max-w-lg">
             <DialogHeader>
                   <DialogTitle className="text-center">Konfirmasi Logout</DialogTitle>
-                  <DialogDescription className="text-center mt-1 text-sm leading-6">
+                  <DialogDescription className="text-center mt-1 text-lg leading-6">
                     Apakah kamu yakin ingin Logout.
                   </DialogDescription>
                 </DialogHeader>
                 <DialogFooter className="mt-6">
                   <DialogClose asChild>
                     <Button
-                      className="mt-2 w-full sm:mt-0 sm:w-fit bg-[#E4E4E4] hover:bg-[#C9C8C8]"
+                      className="mt-2 w-full lg:mt-0 lg:w-fit bg-[#E4E4E4] hover:bg-[#C9C8C8]"
                       variant="secondary"
                       onClick={() => setIsDialogOpen(false)} // Close dialog without logging out
                     >
@@ -155,7 +156,7 @@ export function SidebarDemo({
                   </DialogClose>
                   <DialogClose asChild>
                   <Link href="/auth/login">
-                      <Button className="w-full sm:w-fit bg-orange-500 text-white hover:bg-orange-600">Logout!</Button>
+                      <Button className="w-full lg:w-fit bg-orange-500 text-white hover:bg-orange-600">Logout!</Button>
                     </Link>
                   </DialogClose>
                 </DialogFooter>
