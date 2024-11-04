@@ -14,6 +14,7 @@ import {
 } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import { useUser } from "@/app/context/UserContext";
+import { useNavigate } from 'react-router-dom';
 
 // interface TabSelectionProps
 
@@ -200,6 +201,19 @@ toast({
 });
 }
 };
+
+useEffect(() => {
+// Simpan periode ke local storage setiap kali `periods` berubah
+localStorage.setItem("periods", JSON.stringify(periods));
+}, [periods]);
+
+useEffect(() => {
+const storedDocRef = localStorage.getItem("activeDocRef");
+if (storedDocRef) {
+const docRef = doc(firestore, "detail_layer", storedDocRef);
+setNewAnalysisDocRef(docRef);
+}
+}, []);
 
 const handleNextForm = () => {
   if (currentForm === "Penerimaan") {
