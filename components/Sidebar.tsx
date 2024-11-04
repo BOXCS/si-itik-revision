@@ -74,7 +74,7 @@ export function SidebarDemo({
     },
     {
       label: "Pengaturan",
-      href: `/pengaturan?username=${username}`, // Tambahkan username ke pengaturan
+      href: `/user_setting?username=${username}`, // Tambahkan username ke pengaturan
       icon: <IconSettings2 className="text-neutral-700 dark:text-neutral-200 h-7 w-7 flex-shrink-0" />,
     },
   ]; 
