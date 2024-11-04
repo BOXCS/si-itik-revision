@@ -36,6 +36,8 @@ function Home() {
     case "/analisis/penetasan":
       content = <PenetasanPage />; // Pastikan ini berada dalam UserProvider
       break;
+    case "/user_setting":
+      content = <SettingPage />; // Perbaiki penggunaan komponen
     case "/analisis/test":
       content = <GetDataPage />; // Pastikan ini berada dalam UserProvider
       break;
