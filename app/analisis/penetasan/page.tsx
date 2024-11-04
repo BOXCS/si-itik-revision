@@ -31,6 +31,7 @@ const PenetasanPage = () => {
   const [selectedPeriod, setSelectedPeriod] = useState(periods[0]);
   const [periode, setPeriode] = useState(periods[0]);
   const { user } = useUser(); // Pindahkan di sini
+  const [disabledPeriods, setDisabledPeriods] = useState<string[]>([]);
 
   // Tambahkan state untuk mengatur status analisis baru
   const [isOpen, setIsOpen] = useState(false);
@@ -100,6 +101,10 @@ const PenetasanPage = () => {
       setNewAnalysisDocRef(docRef); // Simpan referensi dokumen
       localStorage.setItem("activeDocRef", docRef.id); // Simpan ID dokumen ke localStorage
       setIsNewAnalysis(true);
+
+      // Atur periode kembali ke "Periode 1"
+      setPeriode("Periode 1");
+      setSelectedPeriod("Periode 1");
 
       toast({
         title: "Sukses",
@@ -179,6 +184,9 @@ const PenetasanPage = () => {
         setNewAnalysisDocRef(docRef);
         localStorage.setItem("activeDocRef", docRef.id);
       }
+
+      // Tambahkan periode ke dalam disabledPeriods
+      setDisabledPeriods((prev) => [...prev, selectedPeriod]);
 
       toast({
         title: "Sukses",
@@ -290,6 +298,7 @@ const PenetasanPage = () => {
   const formatNumber = (number: number) => {
     return new Intl.NumberFormat("id-ID", {
       minimumFractionDigits: 0, // Menghilangkan desimal
+      maximumFractionDigits: 0, // Pastikan tidak ada desimal
     }).format(number);
   };
 
@@ -354,20 +363,27 @@ const PenetasanPage = () => {
                     <IconX size={24} />
                   </button>
                 </div>
-                
+
                 {/* Daftar Periode */}
                 <div className="flex flex-col space-y-2 mb-4">
                   {periods.map((period: string, index: number) => (
                     <button
                       key={index}
                       onClick={() => {
-                        setPeriode(period); // Perbarui periode
-                        setSelectedPeriod(period); // Perbarui selectedPeriod
-                        setIsOpen(false); // Menutup modal setelah periode dipilih
+                        if (!disabledPeriods.includes(period)) {
+                          setPeriode(period); // Perbarui periode
+                          setSelectedPeriod(period); // Perbarui selectedPeriod
+                          setIsOpen(false); // Menutup modal setelah periode dipilih
+                        }
                       }}
                       className={`p-2 rounded-md text-left ${
-                        selectedPeriod === period ? "bg-orange-500 text-white" : "bg-gray-200"
+                        disabledPeriods.includes(period)
+                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                          : selectedPeriod === period
+                          ? "bg-orange-500 text-white"
+                          : "bg-gray-200"
                       }`}
+                      disabled={disabledPeriods.includes(period)}
                     >
                       {period}
                     </button>
@@ -400,12 +416,19 @@ const PenetasanPage = () => {
                 <button
                   key={index}
                   onClick={() => {
-                    setPeriode(period); // Perbarui periode
-                    setSelectedPeriod(period); // Perbarui selectedPeriod
+                    if (!disabledPeriods.includes(period)) {
+                      setPeriode(period); // Perbarui periode
+                      setSelectedPeriod(period); // Perbarui selectedPeriod
+                    }
                   }}
                   className={`px-4 py-2 rounded-full text-black ${
-                    selectedPeriod === period ? "bg-orange-500" : "bg-white"
+                    disabledPeriods.includes(period)
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : selectedPeriod === period
+                      ? "bg-orange-500"
+                      : "bg-white"
                   }`}
+                  disabled={disabledPeriods.includes(period)}
                 >
                   {period}
                 </button>
@@ -431,7 +454,17 @@ const PenetasanPage = () => {
           <div className="form-container bg-white overflow-y-auto overflow-x-hidden p-8 shadow-lg rounded-lg max-w-7xl w-full h-full sm:h-auto sm:w-full flex flex-col">
             {/* Horizontal Timeline */}
             <div className="w-full flex justify-center mb-6">
-              <HorizontalTimeline progress={jumlahTelurMenetas > 0 ? 100 : 0} />
+              <HorizontalTimeline
+                progress={
+                  currentForm === "Penerimaan"
+                    ? 0
+                    : currentForm === "Pengeluaran"
+                    ? 50
+                    : currentForm === "HasilAnalisis"
+                    ? 100
+                    : 0
+                }
+              />
             </div>
             {currentForm === "Penerimaan" && (
               <div className="flex flex-col w-full">
@@ -510,7 +543,7 @@ const PenetasanPage = () => {
                 </div>
 
                 {/* Perhitungan mencari Jumlah DOD */}
-                <div className="flex flex-wrap items-center space-x-2 justify-center gap-7 mt-10">
+                <div className="flex flex-wrap items-center space-x-8 justify-center mt-10">
                   <div className="flex flex-col w-full md:w-auto">
                     <label className="font-semibold mb-2">
                       Jumlah Telur (Butir)
@@ -557,7 +590,7 @@ const PenetasanPage = () => {
                 </div>
 
                 {/* Perhitungan mencari Total Revenue */}
-                <div className="flex flex-wrap items-center space-x-2 justify-center gap-7 mt-10">
+                <div className="flex flex-wrap items-center space-x-8 justify-center mt-10">
                   <div className="flex flex-col w-full md:w-auto">
                     <label className="font-semibold mb-2">Jumlah DOD</label>
                     <input
@@ -625,10 +658,10 @@ const PenetasanPage = () => {
 
             {/* Render Pengeluaran Form */}
             {currentForm === "Pengeluaran" && (
-              <div className="flex flex-col w-full">
+              <div className="flex flex-col w-full md:w-auto">
                 <h2 className="text-xl font-semibold mb-6">Data Pengeluaran</h2>
                 {/* Bagian Fixed Cost */}
-                <div className="flex justify-center">
+                <div className="flex flex-wrap justify-center">
                   <h3 className="font-extrabold justify-center text-3xl mb-4">
                     Fixed Cost
                   </h3>
@@ -694,8 +727,8 @@ const PenetasanPage = () => {
                   </div>
                 </div>
                 <div>
-                <div className="flex flex-wrap items-center space-x-2 justify-center gap-7 mt-10">
-                <div className="flex flex-col w-full md:w-auto">
+                  <div className="flex flex-wrap items-center space-x-2 justify-center gap-7 mt-10">
+                    <div className="flex flex-col w-full md:w-auto">
                       <label className="font-semibold">Total Biaya</label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <span className="p-2 bg-gray-100">Rp.</span>
@@ -707,10 +740,11 @@ const PenetasanPage = () => {
                         />
                       </div>
                     </div>
-                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                      ×
-                    </span>
-                    <div className="flex flex-col">
+                    <div className="flex items-center font-semibold text-2xl mt-8">
+                      {" "}
+                      ×{" "}
+                    </div>
+                    <div className="flex flex-col w-full md:w-auto">
                       <label className="font-semibold">Jumlah hari</label>
                       <input
                         type="text"
@@ -719,10 +753,11 @@ const PenetasanPage = () => {
                         className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
                       />
                     </div>
-                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                      =
-                    </span>
-                    <div className="flex flex-col">
+                    <div className="flex items-center font-semibold text-2xl mt-8">
+                      {" "}
+                      ={" "}
+                    </div>
+                    <div className="flex flex-col w-full md:w-auto">
                       <label className="font-semibold">Total Fixed Cost</label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <span className="p-2 bg-gray-100">Rp.</span>
@@ -738,14 +773,14 @@ const PenetasanPage = () => {
                 </div>
 
                 {/* Bagian Biaya Operasional */}
-                <div className="flex justify-center">
+                <div className="flex flex-wrap justify-center space-y-6">
                   <h3 className="font-extrabold text-3xl mb-4 mt-10">
                     Jumlah Biaya Operasional
                   </h3>
                 </div>
-                <div>
-                  <div className="flex items-center justify-center">
-                    <div className="flex flex-col">
+                <div className="space-y-8">
+                  <div className="flex flex-wrap items-center space-x-8 justify-center">
+                    <div className="flex flex-col w-full md:w-auto">
                       <label className="font-semibold">
                         Biaya Tenaga Kerja
                       </label>
@@ -771,10 +806,11 @@ const PenetasanPage = () => {
                         />
                       </div>
                     </div>
-                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                      +
-                    </span>
-                    <div className="flex flex-col">
+                    <div className="flex items-center font-semibold text-2xl mt-8">
+                      {" "}
+                      +{" "}
+                    </div>
+                    <div className="flex flex-col w-full md:w-auto">
                       <label className="font-semibold">Biaya Listrik</label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <span className="p-2 bg-gray-100">Rp.</span>
@@ -794,10 +830,11 @@ const PenetasanPage = () => {
                         />
                       </div>
                     </div>
-                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                      +
-                    </span>
-                    <div className="flex flex-col">
+                    <div className="flex items-center font-semibold text-2xl mt-8">
+                      {" "}
+                      +{" "}
+                    </div>
+                    <div className="flex flex-col w-full md:w-auto">
                       <label className="font-semibold">Biaya OVK</label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <span className="p-2 bg-gray-100">Rp.</span>
@@ -817,10 +854,11 @@ const PenetasanPage = () => {
                         />
                       </div>
                     </div>
-                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                      =
-                    </span>
-                    <div className="flex flex-col">
+                    <div className="flex items-center font-semibold text-2xl mt-8">
+                      {" "}
+                      ={" "}
+                    </div>
+                    <div className="flex flex-col w-full md:w-auto">
                       <label className="font-semibold">Biaya Operasional</label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <span className="p-2 bg-gray-100">Rp.</span>
@@ -833,8 +871,8 @@ const PenetasanPage = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center justify-center mt-10">
-                    <div className="flex flex-col">
+                  <div className="flex flex-wrap items-center space-x-8 justify-center">
+                    <div className="flex flex-col w-full md:w-auto">
                       <label className="font-semibold">Biaya Operasional</label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <span className="p-2 bg-gray-100">Rp.</span>
@@ -846,10 +884,11 @@ const PenetasanPage = () => {
                         />
                       </div>
                     </div>
-                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                      ×
-                    </span>
-                    <div className="flex flex-col">
+                    <div className="flex items-center font-semibold text-2xl mt-8">
+                      {" "}
+                      ×{" "}
+                    </div>
+                    <div className="flex flex-col w-full md:w-auto">
                       <label className="font-semibold">Jumlah hari</label>
                       <input
                         type="text"
@@ -858,10 +897,11 @@ const PenetasanPage = () => {
                         className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
                       />
                     </div>
-                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                      =
-                    </span>
-                    <div className="flex flex-col">
+                    <div className="flex items-center font-semibold text-2xl mt-8">
+                      {" "}
+                      ={" "}
+                    </div>
+                    <div className="flex flex-col w-full md:w-auto">
                       <label className="font-semibold">
                         Total Biaya Operasional
                       </label>
@@ -879,13 +919,13 @@ const PenetasanPage = () => {
                 </div>
 
                 {/* Bagian Jumlah Pembelian Telur */}
-                <div className="flex justify-center mt-10">
+                <div className="flex flex-wrap justify-center mt-10">
                   <h3 className="font-extrabold text-3xl mb-4">
                     Jumlah Pembelian Telur
                   </h3>
                 </div>
-                <div className="flex items-center justify-center">
-                  <div className="flex flex-col">
+                <div className="flex flex-wrap items-center space-x-8 justify-center">
+                  <div className="flex flex-col w-full md:w-auto">
                     <label className="font-semibold">
                       Jumlah Telur (Butir)
                     </label>
@@ -896,10 +936,11 @@ const PenetasanPage = () => {
                       className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
                     />
                   </div>
-                  <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                    ×
-                  </span>
-                  <div className="flex flex-col">
+                  <div className="flex items-center font-semibold text-2xl mt-8">
+                    {" "}
+                    ×{" "}
+                  </div>
+                  <div className="flex flex-col w-full md:w-auto">
                     <label className="font-semibold">Harga Telur</label>
                     <div className="flex items-center border border-gray-300 rounded-md">
                       <span className="p-2 bg-gray-100">Rp.</span>
@@ -918,10 +959,11 @@ const PenetasanPage = () => {
                       />
                     </div>
                   </div>
-                  <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                    =
-                  </span>
-                  <div className="flex flex-col">
+                  <div className="flex items-center font-semibold text-2xl mt-8">
+                    {" "}
+                    ={" "}
+                  </div>
+                  <div className="flex flex-col w-full md:w-auto">
                     <label className="font-semibold">
                       Total Biaya Pembelian Telur
                     </label>
@@ -936,13 +978,13 @@ const PenetasanPage = () => {
                     </div>
                   </div>
                 </div>
-                <div className="flex justify-center mt-10">
+                <div className="flex flex-wrap justify-center mt-10">
                   <h3 className="font-extrabold text-3xl mb-4">
                     Variable Cost
                   </h3>
                 </div>
-                <div className="flex items-center justify-center">
-                  <div className="flex flex-col">
+                <div className="flex flex-wrap items-center space-x-8 justify-center">
+                  <div className="flex flex-col w-full md:w-auto">
                     <label className="font-semibold">
                       Total Biaya Operasional
                     </label>
@@ -956,10 +998,11 @@ const PenetasanPage = () => {
                       />
                     </div>
                   </div>
-                  <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                    +
-                  </span>
-                  <div className="flex flex-col">
+                  <div className="flex items-center font-semibold text-2xl mt-8">
+                    {" "}
+                    +{" "}
+                  </div>
+                  <div className="flex flex-col w-full md:w-auto">
                     <label className="font-semibold">
                       Total Biaya Pembelian Telur
                     </label>
@@ -973,10 +1016,11 @@ const PenetasanPage = () => {
                       />
                     </div>
                   </div>
-                  <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                    =
-                  </span>
-                  <div className="flex flex-col">
+                  <div className="flex items-center font-semibold text-2xl mt-8">
+                    {" "}
+                    ={" "}
+                  </div>
+                  <div className="flex flex-col w-full md:w-auto">
                     <label className="font-semibold">Total Variable Cost</label>
                     <div className="flex items-center border border-gray-300 rounded-md">
                       <span className="p-2 bg-gray-100">Rp.</span>
@@ -989,13 +1033,13 @@ const PenetasanPage = () => {
                     </div>
                   </div>
                 </div>
-                <div className="flex justify-center mt-10">
+                <div className="flex flex-wrap justify-center mt-10">
                   <h3 className="font-extrabold text-3xl mb-4">
                     Data Pengeluaran
                   </h3>
                 </div>
-                <div className="flex items-center justify-center">
-                  <div className="flex flex-col">
+                <div className="flex flex-wrap items-center space-x-8 justify-center">
+                  <div className="flex flex-col w-full md:w-auto">
                     <label className="font-semibold">Total Variable Cost</label>
                     <div className="flex items-center border border-gray-300 rounded-md">
                       <span className="p-2 bg-gray-100">Rp.</span>
@@ -1007,10 +1051,11 @@ const PenetasanPage = () => {
                       />
                     </div>
                   </div>
-                  <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                    +
-                  </span>
-                  <div className="flex flex-col">
+                  <div className="flex items-center font-semibold text-2xl mt-8">
+                    {" "}
+                    +{" "}
+                  </div>
+                  <div className="flex flex-col w-full md:w-auto">
                     <label className="font-semibold">Total Fixed Cost</label>
                     <div className="flex items-center border border-gray-300 rounded-md">
                       <span className="p-2 bg-gray-100">Rp.</span>
@@ -1022,10 +1067,11 @@ const PenetasanPage = () => {
                       />
                     </div>
                   </div>
-                  <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                    =
-                  </span>
-                  <div className="flex flex-col">
+                  <div className="flex items-center font-semibold text-2xl mt-8">
+                    {" "}
+                    ={" "}
+                  </div>
+                  <div className="flex flex-col w-full md:w-auto">
                     <label className="font-semibold">Total Cost</label>
                     <div className="flex items-center border border-gray-300 rounded-md">
                       <span className="p-2 bg-orange-200">Rp.</span>
@@ -1071,7 +1117,7 @@ const PenetasanPage = () => {
                     <div className="flex items-center border border-gray-300 rounded-md">
                       <input
                         type="text"
-                        value={marginOfSafety.toFixed(2)}
+                        value={formatNumber(marginOfSafety)}
                         // readOnly
                         className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
@@ -1095,7 +1141,7 @@ const PenetasanPage = () => {
                       <span className="p-2 bg-orange-200">Rp.</span>
                       <input
                         type="text"
-                        value={bepHarga.toFixed(2)}
+                        value={formatNumber(bepHarga)}
                         // readOnly
                         className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
@@ -1104,11 +1150,11 @@ const PenetasanPage = () => {
                 </div>
                 <div className="flex items-center justify-center mt-10">
                   <div className="flex flex-col mx-5">
-                    <label className="font-semibold">BEP Hasil</label>
+                    <label className="font-semibold">BEP Unit</label>
                     <div className="flex items-center border border-gray-300 rounded-md">
                       <input
                         type="text"
-                        value={bepHasil}
+                        value={formatNumber(bepHasil)}
                         // readOnly
                         className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
@@ -1121,7 +1167,7 @@ const PenetasanPage = () => {
                       <span className="p-2 bg-orange-200">Rp.</span>
                       <input
                         type="text"
-                        value={laba.toFixed(2)}
+                        value={formatNumber(laba)}
                         // readOnly
                         className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />

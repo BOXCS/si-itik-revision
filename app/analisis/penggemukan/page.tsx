@@ -28,6 +28,7 @@ const PenggemukanPage = () => {
   const [selectedPeriod, setSelectedPeriod] = useState(periods[0]);
   const [periode, setPeriode] = useState(periods[0]);
   const { user } = useUser(); // Pindahkan di sini
+  const [disabledPeriods, setDisabledPeriods] = useState<string[]>([]);
 
   // Tambahkan state untuk mengatur status analisis baru
   const [isNewAnalysis, setIsNewAnalysis] = useState(false);
@@ -87,18 +88,22 @@ const PenggemukanPage = () => {
       });
       return;
     }
-
+  
     try {
       const newPeriod = `Periode ${periods.length + 1}`;
       const docRef = await addDoc(collection(firestore, "detail_penggemukan"), {
         userId: user.email || user.username,
         created_at: Timestamp.now(),
       });
-
+  
       setNewAnalysisDocRef(docRef); // Simpan referensi dokumen
       localStorage.setItem("activeDocRef", docRef.id); // Simpan ID dokumen ke localStorage
       setIsNewAnalysis(true);
-
+  
+      // Atur periode kembali ke "Periode 1"
+      setPeriode("Periode 1");
+      setSelectedPeriod("Periode 1");
+  
       toast({
         title: "Sukses",
         description: "Analisis baru berhasil dibuat!",
@@ -112,6 +117,7 @@ const PenggemukanPage = () => {
       });
     }
   };
+  
 
   const handleSubmit = async () => {
     if (!user) {
@@ -171,15 +177,21 @@ const PenggemukanPage = () => {
         );
       } else {
         // Buat dokumen baru jika tidak ada referensi sebelumnya
-        const docRef = await addDoc(collection(firestore, "detail_penggemukan"), {
-          userId: user.email || user.username,
-          created_at: Timestamp.now(),
-        });
+        const docRef = await addDoc(
+          collection(firestore, "detail_penggemukan"),
+          {
+            userId: user.email || user.username,
+            created_at: Timestamp.now(),
+          }
+        );
 
         await addDoc(collection(docRef, "analisis_periode"), periodeData);
         setNewAnalysisDocRef(docRef);
         localStorage.setItem("activeDocRef", docRef.id);
       }
+
+      // Tambahkan periode ke dalam disabledPeriods
+      setDisabledPeriods((prev) => [...prev, selectedPeriod]);
 
       toast({
         title: "Sukses",
@@ -215,6 +227,7 @@ const PenggemukanPage = () => {
   const formatNumber = (number: number) => {
     return new Intl.NumberFormat("id-ID", {
       minimumFractionDigits: 0, // Menghilangkan desimal
+      maximumFractionDigits: 0, // Pastikan tidak ada desimal
     }).format(number);
   };
 
@@ -260,14 +273,15 @@ const PenggemukanPage = () => {
 
   useEffect(() => {
     const totalBiayaOperasional = biayaOperasional * 60;
-    setTotalBiayaOperasional(totalBiayaOperasional);  
+    setTotalBiayaOperasional(totalBiayaOperasional);
   }, [biayaOperasional]);
 
   useEffect(() => {
-    const jumlahPakan = (standardPakan * 60 * jumlahItikSetelahMortalitas) / 1000;
+    const jumlahPakan =
+      (standardPakan * 60 * jumlahItikSetelahMortalitas) / 1000;
     setJumlahPakan(jumlahPakan);
   }, [standardPakan, jumlahItikSetelahMortalitas]);
-  
+
   useEffect(() => {
     const totalHargaPakan = jumlahPakan * hargaPakan;
     setTotalHargaPakan(totalHargaPakan);
@@ -286,15 +300,22 @@ const PenggemukanPage = () => {
   // Rumus Hasil Analisis
   useEffect(() => {
     const bepHasil =
-      totalFixedCost / (hargaItik - totalVariableCost / jumlahItikSetelahMortalitas);
+      totalFixedCost /
+      (hargaItik - totalVariableCost / jumlahItikSetelahMortalitas);
     setBepHasil(bepHasil);
   }, [totalFixedCost, hargaItik, totalVariableCost]);
 
   useEffect(() => {
     const bepHarga =
-      totalFixedCost / (1 - totalVariableCost / jumlahItikSetelahMortalitas / hargaItik);
+      totalFixedCost /
+      (1 - totalVariableCost / jumlahItikSetelahMortalitas / hargaItik);
     setBepHarga(bepHarga);
-  }, [totalFixedCost, totalVariableCost, jumlahItikSetelahMortalitas, hargaItik]);
+  }, [
+    totalFixedCost,
+    totalVariableCost,
+    jumlahItikSetelahMortalitas,
+    hargaItik,
+  ]);
 
   useEffect(() => {
     const marginOfSafety = ((totalRevenue - bepHarga) / totalRevenue) * 100;
@@ -329,12 +350,19 @@ const PenggemukanPage = () => {
                 <button
                   key={index}
                   onClick={() => {
-                    setPeriode(period); // Perbarui periode
-                    setSelectedPeriod(period); // Perbarui selectedPeriod
+                    if (!disabledPeriods.includes(period)) {
+                      setPeriode(period);
+                      setSelectedPeriod(period);
+                    }
                   }}
                   className={`px-4 py-2 rounded-full text-black ${
-                    selectedPeriod === period ? "bg-orange-500" : "bg-white"
+                    selectedPeriod === period
+                      ? "bg-orange-500"
+                      : disabledPeriods.includes(period)
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-white"
                   }`}
+                  disabled={disabledPeriods.includes(period)}
                 >
                   {period}
                 </button>
@@ -547,7 +575,9 @@ const PenggemukanPage = () => {
                 <h2 className="text-xl font-semibold mb-6">Data Pengeluaran</h2>
                 {/* Bagian Fixed Cost */}
                 <div className="flex justify-center">
-                  <h3 className="font-extrabold text-3xl mb-4">Fixed Cost</h3>
+                  <h3 className="font-extrabold text-sm mb-4 md:text-3xl">
+                    Fixed Cost
+                  </h3>
                 </div>
                 <div className="flex items-center justify-center">
                   <div className="flex flex-col">
@@ -851,9 +881,7 @@ const PenggemukanPage = () => {
                       =
                     </span>
                     <div className="flex flex-col">
-                      <label className="font-semibold">
-                        jumlah Pakan
-                      </label>
+                      <label className="font-semibold">jumlah Pakan</label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <input
                           type="text"
@@ -867,9 +895,7 @@ const PenggemukanPage = () => {
                   </div>
                   <div className="flex items-center justify-center mt-10">
                     <div className="flex flex-col">
-                      <label className="font-semibold">
-                      jumlah Pakan
-                      </label>
+                      <label className="font-semibold">jumlah Pakan</label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <input
                           type="text"
@@ -884,7 +910,9 @@ const PenggemukanPage = () => {
                       ×
                     </span>
                     <div className="flex flex-col">
-                      <label className="font-semibold">Harga Pakan Per Kg</label>
+                      <label className="font-semibold">
+                        Harga Pakan Per Kg
+                      </label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <span className="p-2 bg-gray-100">Rp.</span>
                         <input
@@ -928,7 +956,9 @@ const PenggemukanPage = () => {
                 </div>
                 <div className="flex items-center justify-center">
                   <div className="flex flex-col">
-                    <label className="font-semibold">Total Biaya Operasional</label>
+                    <label className="font-semibold">
+                      Total Biaya Operasional
+                    </label>
                     <div className="flex items-center border border-gray-300 rounded-md">
                       <span className="p-2 bg-gray-100">Rp.</span>
                       <input
@@ -1053,7 +1083,7 @@ const PenggemukanPage = () => {
                     <div className="flex items-center border border-gray-300 rounded-md">
                       <input
                         type="text"
-                        value={marginOfSafety}
+                        value={formatNumber(marginOfSafety)}
                         // readOnly
                         className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
@@ -1077,7 +1107,7 @@ const PenggemukanPage = () => {
                       <span className="p-2 bg-orange-200">Rp.</span>
                       <input
                         type="text"
-                        value={bepHarga.toFixed(2)}
+                        value={formatNumber(bepHarga)}
                         // readOnly
                         className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
@@ -1086,11 +1116,11 @@ const PenggemukanPage = () => {
                 </div>
                 <div className="flex items-center justify-center mt-10">
                   <div className="flex flex-col mx-5">
-                    <label className="font-semibold">BEP Hasil</label>
+                    <label className="font-semibold">BEP Unit</label>
                     <div className="flex items-center border border-gray-300 rounded-md">
                       <input
                         type="text"
-                        value={bepHasil}
+                        value={formatNumber(bepHasil)}
                         // readOnly
                         className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
@@ -1103,7 +1133,7 @@ const PenggemukanPage = () => {
                       <span className="p-2 bg-orange-200">Rp.</span>
                       <input
                         type="text"
-                        value={laba.toFixed(2)}
+                        value={formatNumber(laba)}
                         // readOnly
                         className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
