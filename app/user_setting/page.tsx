@@ -4,9 +4,9 @@
 import { SidebarDemo } from "@/components/Sidebar";
 import UserAvatar from "@/components/ui/avatar";
 import { useEffect, useState } from "react";
-import { auth, storage } from "@/lib/firebase"; // Impor storage dari firebase.js
 import { updateProfile } from "firebase/auth";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Impor fungsi untuk Firebase Storage
+import { auth, storage } from "@/lib/firebase";
 
 export default function SettingPage() {
   return (
@@ -24,19 +24,42 @@ export default function SettingPage() {
 function CardContainer() {
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
   const [photoAdded, setPhotoAdded] = useState<boolean>(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [userName, setUserName] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      // Kode ini hanya dijalankan di client-side
+      return localStorage.getItem('userName') || null;
+    }
+    return null;
+  });
+  
 
   // Mengatur email dan nama pengguna saat komponen dimuat
   useEffect(() => {
     const currentUser = auth.currentUser;
     if (currentUser) {
-      setUserEmail(currentUser.email);
-      setUserName(currentUser.displayName);
-      setUserPhoto(currentUser.photoURL);
+      setUserEmail(currentUser.email || '');
+      setUserName(currentUser.displayName || '');
+      setUserPhoto(currentUser.photoURL || null);
+    } else {
+      // Coba fetch user kembali jika currentUser awalnya null
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          setUserEmail(user.email || '');
+          setUserName(user.displayName || '');
+          setUserPhoto(user.photoURL || null);
+        }
+      });
     }
   }, []);
+  
+
+  // Simpan userName ke localStorage setiap kali berubah
+  useEffect(() => {
+    if (userName !== null) {
+      localStorage.setItem('userName', userName);
+    }
+  }, [userName]);
 
   // Fungsi untuk mengubah foto profil
   const handleChangePhoto = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,6 +78,10 @@ function CardContainer() {
     await updateProfile(auth.currentUser!, { photoURL: null });
     setUserPhoto(null);
     setPhotoAdded(false);
+  };
+
+  const handleChangeName = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUserName(e.target.value);
   };
 
   return (
@@ -97,7 +124,7 @@ function CardContainer() {
                 className="border border-gray-300 p-2 rounded-md flex-grow"
                 placeholder="Masukkan Nama"
                 value={userName || ''} // Set nilai nama di sini
-                onChange={(e) => setUserName(e.target.value)} // Tambahkan handler onChange jika ingin pengguna dapat mengubah
+                onChange={handleChangeName} // Tambahkan handler onChange untuk mengubah
               />
               <button className="p-2 bg-gray-100 flex-shrink-0 rounded-md w-24">Edit</button>
             </div>
@@ -143,7 +170,6 @@ function CardContainer() {
             </div>
             <button className="p-2 bg-gray-100 flex-shrink-0 rounded-md w-28 transition duration-300 hover:bg-[#ff1414]">Hapus Akun</button>
           </div>
-
 
           <div className="absolute inset-100 rounded-5xl shadow-5xl" style={{ zIndex: -1 }} />
         </div>

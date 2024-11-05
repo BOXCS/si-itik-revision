@@ -33,7 +33,7 @@ export default function UserAvatar({ photoURL }: UserAvatarProps) {
   }, []);
 
   return (
-    <Avatar className="w-16 h-16 rounded-full">
+    <Avatar className="w-24 h-24 rounded-full">
       {/* Menampilkan foto profil jika ada, atau default fallback */}
       <AvatarImage 
         src={photoURL || user?.photoURL || undefined} // Gunakan photoURL dari props atau user
@@ -42,7 +42,7 @@ export default function UserAvatar({ photoURL }: UserAvatarProps) {
       />
       {/* Fallback ke huruf pertama dari nama pengguna dengan background warna random */}
       <AvatarFallback 
-        className="flex items-center justify-center text-white font-bold rounded-full w-full h-full" 
+        className="flex items-center justify-center text-white font-bold rounded-full w-full h-full text-5xl" 
         style={{ backgroundColor: getRandomColor() }} // Warna background acak
       >
         {user?.displayName?.[0] || "U"}
