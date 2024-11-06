@@ -162,7 +162,7 @@ export default function Dashboard() {
 
         if (!querySnapshot.empty) {
           const userDocRef = querySnapshot.docs[0].ref;
-          const subCollectionRef = collection(userDocRef, "analisis_periode");
+          const subCollectionRef = collection(userDocRef, "detail_layer");
           const subCollectionSnapshot = await getDocs(subCollectionRef);
 
           const userData: AnalysisPeriodData[] = subCollectionSnapshot.docs.map((doc) => ({
