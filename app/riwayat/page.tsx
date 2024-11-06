@@ -25,6 +25,7 @@ import {
 
 interface AnalysisPeriodData {
   id: string;
+  analysisId: string;
   created_at: Timestamp;
   bepHarga: number;
   bepHasil: number;
@@ -145,19 +146,20 @@ export default function RiwayatAnalisis() {
   }, []);
 
   // Fetch User-Specific Data
-  // Fetch User-Specific Data
   useEffect(() => {
     const fetchUserSpecificData = async () => {
       const auth = getAuth();
       const user = auth.currentUser;
-
+  
       if (!user) {
         console.error("Pengguna tidak terautentikasi!");
         return;
       }
-
+  
       try {
         const userEmail = user.email;
+        console.log("Email pengguna:", userEmail);
+  
         const detailQueries = [
           query(
             collection(firestore, "detail_penetasan"),
@@ -172,70 +174,84 @@ export default function RiwayatAnalisis() {
             where("userId", "==", userEmail)
           ),
         ];
-
+  
         const userData = await Promise.all(
           detailQueries.map(async (q, index) => {
             const querySnapshot = await getDocs(q);
+            console.log(`Snapshot untuk query ${index}:`, querySnapshot);
+  
             if (!querySnapshot.empty) {
-              const userDocRef = querySnapshot.docs[0].ref;
-              const subCollectionRef = collection(
-                userDocRef,
-                "analisis_periode"
-              );
-              const subCollectionSnapshot = await getDocs(subCollectionRef);
-
-              // Tentukan nama analisis berdasarkan index
-              const analysisNames = [
-                "Detail Penetasan",
-                "Detail Penggemukan",
-                "Detail Layer",
-              ];
-              const analysisName = analysisNames[index];
-
-              return subCollectionSnapshot.docs.map((doc) => ({
-                id: doc.id,
-                created_at: doc.data().created_at || Timestamp.now(),
-                bepHarga: doc.data().hasilAnalisis?.bepHarga || 0,
-                bepHasil: doc.data().hasilAnalisis?.bepHasil || 0,
-                laba: doc.data().hasilAnalisis?.laba || 0,
-                marginOfSafety: doc.data().hasilAnalisis?.marginOfSafety || 0,
-                rcRatio: doc.data().hasilAnalisis?.rcRatio || 0,
-                analysisName: analysisName, // Menyimpan nama analisis
-              }));
+              const subCollectionData: AnalysisPeriodData[] = [];
+              for (const userDoc of querySnapshot.docs) {
+                const userDocRef = userDoc.ref;
+                const subCollectionRef = collection(
+                  userDocRef,
+                  "analisis_periode"
+                );
+                const subCollectionSnapshot = await getDocs(subCollectionRef);
+  
+                console.log(
+                  `Subcollection snapshot untuk ${index}:`,
+                  subCollectionSnapshot
+                );
+  
+                const analysisNames = [
+                  "Detail Penetasan",
+                  "Detail Penggemukan",
+                  "Detail Layer",
+                ];
+                const analysisName = analysisNames[index];
+  
+                subCollectionSnapshot.docs.forEach((doc) => {
+                  const docData = {
+                    id: doc.id,
+                    analysisId: userDoc.id,
+                    created_at: doc.data().created_at || Timestamp.now(),
+                    bepHarga: doc.data().hasilAnalisis?.bepHarga || 0,
+                    bepHasil: doc.data().hasilAnalisis?.bepHasil || 0,
+                    laba: doc.data().hasilAnalisis?.laba || 0,
+                    marginOfSafety:
+                      doc.data().hasilAnalisis?.marginOfSafety || 0,
+                    rcRatio: doc.data().hasilAnalisis?.rcRatio || 0,
+                    analysisName: analysisName,
+                  };
+                  subCollectionData.push(docData);
+                });
+              }
+              return subCollectionData;
             }
             return [];
           })
         );
-
-        // Menggabungkan data berdasarkan analysisName
+  
+        // Gabungkan data berdasarkan `analysisId` alih-alih `analysisName`
         const aggregatedData: { [key: string]: AnalysisPeriodData } = {};
-
+  
         userData.flat().forEach((data) => {
-          const key = data.analysisName; // Gunakan analysisName sebagai kunci untuk pengelompokan
+          const key = data.analysisId; // Gunakan `analysisId` sebagai kunci untuk penggabungan
           if (aggregatedData[key]) {
-            // Jika kunci sudah ada, tambahkan laba dan lainnya
             aggregatedData[key].laba += data.laba;
-            aggregatedData[key].bepHarga += data.bepHarga; // Jika ingin menjumlahkan ini juga
-            aggregatedData[key].bepHasil += data.bepHasil; // Demikian juga untuk ini
-            // Pertahankan created_at yang paling awal
+            aggregatedData[key].bepHarga += data.bepHarga;
+            aggregatedData[key].bepHasil += data.bepHasil;
             if (data.created_at < aggregatedData[key].created_at) {
               aggregatedData[key].created_at = data.created_at;
             }
           } else {
-            // Jika kunci belum ada, buat entri baru
             aggregatedData[key] = { ...data };
           }
         });
-
-        // Convert the aggregated data back to an array and update state
+  
+        console.log("Data yang sudah digabungkan:", aggregatedData);
+  
         setDataAnalisis(Object.values(aggregatedData));
       } catch (error) {
         console.error("Error mengambil data: ", error);
       }
     };
-
+  
     fetchUserSpecificData();
   }, []);
+  
 
   const handleCardClick = (data: AnalysisPeriodData) => {
     setSelectedData(data);
@@ -249,78 +265,83 @@ export default function RiwayatAnalisis() {
           <h1 style={styles.title}>Halo, {username}</h1>
           <Grid container spacing={3}>
             {dataAnalisis.map((data, index) => (
-              <Grid item xs={12} key={index}>
-                <Card style={styles.card} onClick={() => handleCardClick(data)}>
-                <CardContent
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      height: "180px",
-                    }}
+                <Grid item xs={12} key={data.id}>
+                  <Card
+                    style={styles.card}
+                    onClick={() => handleCardClick(data)}
                   >
-                    {/* Display Time and Date */}
-                    <Grid container justifyContent="space-between">
-                      <Typography variant="body2" style={styles.time}>
-                        {data.created_at.toDate().toLocaleTimeString()}
-                      </Typography>
-                      <Typography variant="body2" style={styles.date}>
-                        {data.created_at.toDate().toLocaleDateString()}
-                      </Typography>
-                    </Grid>
-
-                    {/* Display Profit */}
-                    {/* <Typography variant="h6" style={styles.amount}>
-                      Rp. {data.laba.toLocaleString("id-ID")}
-                    </Typography> */}
-
-                    <div
+                    <CardContent
                       style={{
-                        flexGrow: 1,
                         display: "flex",
-                        alignItems: "center",
+                        flexDirection: "column",
+                        height: "180px",
                       }}
                     >
-                      {data.laba !== undefined &&
-                      data.laba !== null &&
-                      !isNaN(data.laba) ? (
-                        <Typography
-                          variant="h6"
-                          style={{ ...styles.amount, textAlign: "center" }}
-                        >
-                          Rp. {data.laba.toLocaleString("id-ID")}
+                      {/* Display Time and Date */}
+                      <Grid container justifyContent="space-between">
+                        <Typography variant="body2" style={styles.time}>
+                          {data.created_at.toDate().toLocaleTimeString()}
                         </Typography>
-                      ) : (
-                        <Typography
-                          variant="h6"
-                          style={{
-                            ...styles.amount,
-                            textAlign: "center",
-                            color: "red",
-                          }}
-                        >
-                          Laba tidak tersedia
+                        <Typography variant="body2" style={styles.date}>
+                          {data.created_at.toDate().toLocaleDateString()}
                         </Typography>
-                      )}
-                    </div>
+                      </Grid>
 
-                    {/* Display Analysis Name */}
-                    <Typography
-                      variant="body1"
-                      style={{
-                        backgroundColor: "#FFD580",
-                        padding: "5px 10px",
-                        borderRadius: "9999px",
-                        textAlign: "center",
-                        display: "inline-block",
-                        marginTop: "10px",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {data.analysisName} {/* Menampilkan nama analisis */}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
+                      {/* Display Profit */}
+                      <div
+                        style={{
+                          flexGrow: 1,
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                      >
+                        {data.laba !== undefined &&
+                        data.laba !== null &&
+                        !isNaN(data.laba) ? (
+                          <Typography
+                            variant="h6"
+                            style={{ ...styles.amount, textAlign: "center" }}
+                          >
+                            Rp. {data.laba.toLocaleString("id-ID")}
+                          </Typography>
+                        ) : (
+                          <Typography
+                            variant="h6"
+                            style={{
+                              ...styles.amount,
+                              textAlign: "center",
+                              color: "red",
+                            }}
+                          >
+                            Laba tidak tersedia
+                          </Typography>
+                        )}
+                      </div>
+
+                      {/* Display Analysis Name */}
+                      <Typography
+                        variant="body1"
+                        style={{
+                          backgroundColor: "#FFD580",
+                          padding: "5px 10px",
+                          borderRadius: "9999px",
+                          textAlign: "center",
+                          display: "inline-block",
+                          marginTop: "10px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {data.analysisName} {/* Menampilkan nama analisis */}
+                      </Typography>
+
+                      {/* Display Analysis ID */}
+                      <Typography variant="body2" style={styles.description}>
+                        ID Analisis: {data.analysisId}{" "}
+                        {/* Menampilkan ID analisis */}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
             ))}
           </Grid>
 

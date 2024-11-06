@@ -1118,7 +1118,7 @@ const PenetasanPage = () => {
                       <input
                         type="text"
                         value={formatNumber(marginOfSafety)}
-                        // readOnly
+                        readOnly
                         className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
                       <span className="p-2 bg-orange-200">%</span>
@@ -1130,7 +1130,7 @@ const PenetasanPage = () => {
                       <input
                         type="text"
                         value={rcRatio.toFixed(2)}
-                        // readOnly
+                        readOnly
                         className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
                     </div>
@@ -1142,7 +1142,7 @@ const PenetasanPage = () => {
                       <input
                         type="text"
                         value={formatNumber(bepHarga)}
-                        // readOnly
+                        readOnly
                         className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
                     </div>
@@ -1155,7 +1155,7 @@ const PenetasanPage = () => {
                       <input
                         type="text"
                         value={formatNumber(bepHasil)}
-                        // readOnly
+                        readOnly
                         className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
                       <span className="p-2 bg-orange-200">Ekor</span>
@@ -1168,7 +1168,7 @@ const PenetasanPage = () => {
                       <input
                         type="text"
                         value={formatNumber(laba)}
-                        // readOnly
+                        readOnly
                         className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
                     </div>
