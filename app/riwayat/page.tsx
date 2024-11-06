@@ -264,86 +264,84 @@ export default function RiwayatAnalisis() {
         <div style={styles.contentContainer}>
           <h1 style={styles.title}>Halo, {username}</h1>
           <Grid container spacing={3}>
-            {dataAnalisis.map((data, index) => (
-                <Grid item xs={12} key={data.id}>
-                  <Card
-                    style={styles.card}
-                    onClick={() => handleCardClick(data)}
-                  >
-                    <CardContent
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        height: "180px",
-                      }}
-                    >
-                      {/* Display Time and Date */}
-                      <Grid container justifyContent="space-between">
-                        <Typography variant="body2" style={styles.time}>
-                          {data.created_at.toDate().toLocaleTimeString()}
-                        </Typography>
-                        <Typography variant="body2" style={styles.date}>
-                          {data.created_at.toDate().toLocaleDateString()}
-                        </Typography>
-                      </Grid>
-
-                      {/* Display Profit */}
-                      <div
-                        style={{
-                          flexGrow: 1,
-                          display: "flex",
-                          alignItems: "center",
-                        }}
-                      >
-                        {data.laba !== undefined &&
-                        data.laba !== null &&
-                        !isNaN(data.laba) ? (
-                          <Typography
-                            variant="h6"
-                            style={{ ...styles.amount, textAlign: "center" }}
-                          >
-                            Rp. {data.laba.toLocaleString("id-ID")}
-                          </Typography>
-                        ) : (
-                          <Typography
-                            variant="h6"
-                            style={{
-                              ...styles.amount,
-                              textAlign: "center",
-                              color: "red",
-                            }}
-                          >
-                            Laba tidak tersedia
-                          </Typography>
-                        )}
-                      </div>
-
-                      {/* Display Analysis Name */}
-                      <Typography
-                        variant="body1"
-                        style={{
-                          backgroundColor: "#FFD580",
-                          padding: "5px 10px",
-                          borderRadius: "9999px",
-                          textAlign: "center",
-                          display: "inline-block",
-                          marginTop: "10px",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {data.analysisName} {/* Menampilkan nama analisis */}
-                      </Typography>
-
-                      {/* Display Analysis ID */}
-                      <Typography variant="body2" style={styles.description}>
-                        ID Analisis: {data.analysisId}{" "}
-                        {/* Menampilkan ID analisis */}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-            ))}
+  {dataAnalisis.map((data, index) => (
+    <Grid item xs={12} sm={6} md={4} key={data.id}>
+      <Card
+        style={{ ...styles.card, width: "100%" }} // Pastikan width penuh
+        onClick={() => handleCardClick(data)}
+      >
+        <CardContent
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            height: "180px",
+          }}
+        >
+          {/* Display Time and Date */}
+          <Grid container justifyContent="space-between">
+            <Typography variant="body2" style={styles.time}>
+              {data.created_at.toDate().toLocaleTimeString()}
+            </Typography>
+            <Typography variant="body2" style={styles.date}>
+              {data.created_at.toDate().toLocaleDateString()}
+            </Typography>
           </Grid>
+
+          {/* Display Profit */}
+          <div
+            style={{
+              flexGrow: 1,
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            {data.laba !== undefined && data.laba !== null && !isNaN(data.laba) ? (
+              <Typography
+                variant="h6"
+                style={{ ...styles.amount, textAlign: "center" }}
+              >
+                Rp. {data.laba.toLocaleString("id-ID")}
+              </Typography>
+            ) : (
+              <Typography
+                variant="h6"
+                style={{
+                  ...styles.amount,
+                  textAlign: "center",
+                  color: "red",
+                }}
+              >
+                Laba tidak tersedia
+              </Typography>
+            )}
+          </div>
+
+          {/* Display Analysis Name */}
+          <Typography
+            variant="body1"
+            style={{
+              backgroundColor: "#FFD580",
+              padding: "5px 10px",
+              borderRadius: "9999px",
+              textAlign: "center",
+              display: "inline-block",
+              marginTop: "10px",
+              fontWeight: "bold",
+            }}
+          >
+            {data.analysisName}
+          </Typography>
+
+          {/* Display Analysis ID */}
+          <Typography variant="body2" style={styles.description}>
+            ID Analisis: {data.analysisId}
+          </Typography>
+        </CardContent>
+      </Card>
+    </Grid>
+  ))}
+</Grid>
+
 
           <Popup
             open={openPopup}
