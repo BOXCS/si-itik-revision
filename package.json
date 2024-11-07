@@ -12,7 +12,7 @@
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@hookform/resolvers": "^3.9.0",
-    "@mui/material": "^6.1.5",
+    "@mui/material": "^6.1.6",
     "@next/swc-win32-x64-msvc": "^14.2.13",
     "@radix-ui/react-avatar": "^1.1.1",
     "@radix-ui/react-dialog": "^1.1.2",
