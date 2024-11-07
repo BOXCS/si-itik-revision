@@ -19,9 +19,9 @@ import Loader from "@/components/shared/Loader";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { auth } from "@/lib/firebase";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { auth } from "@/lib/firebase";
 
 const SignUpPage = () => {
   const [isLoading, setIsLoading] = useState(false);
