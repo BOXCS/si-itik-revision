@@ -2,11 +2,13 @@
 
 // Komponen SettingPage
 import { SidebarDemo } from "@/components/Sidebar";
-import UserAvatar from "@/components/ui/avatar";
 import { useEffect, useState } from "react";
 import { updateProfile } from "firebase/auth";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Impor fungsi untuk Firebase Storage
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { auth, storage } from "@/lib/firebase";
+import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
+import UserAvatar from "@/components/ui/avatar";
+
 
 export default function SettingPage() {
   return (

@@ -42,7 +42,7 @@
     "react-dom": "^18",
     "react-hook-form": "^7.53.0",
     "react-router-dom": "^6.27.0",
-    "recharts": "^2.13.0",
+    "recharts": "^2.13.3",
     "remixicon": "^4.3.0",
     "remixicon-react": "^1.0.0",
     "styled-components": "^6.1.13",
