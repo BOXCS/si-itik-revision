@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ChangeEvent } from "react";
 import {
   collection,
   getDocs,
@@ -22,6 +22,11 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+  SelectChangeEvent,
 } from "@mui/material";
 
 interface AnalysisPeriodData {
@@ -55,9 +60,18 @@ const styles = {
   contentContainer: {
     padding: "20px",
   },
+  titleContainer: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "20px",
+  },
   title: {
     color: "#333",
     marginBottom: "20px",
+  },
+  sortControl: {
+    minWidth: "150px",
   },
   sectionTitle: {
     color: "#333",
@@ -278,6 +292,7 @@ export default function RiwayatAnalisis() {
     null
   );
   const [dataAnalisis, setDataAnalisis] = useState<AnalysisPeriodData[]>([]);
+  const [sortCriteria, setSortCriteria] = useState<string>("terbaru");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -293,16 +308,16 @@ export default function RiwayatAnalisis() {
     const fetchUserSpecificData = async () => {
       const auth = getAuth();
       const user = auth.currentUser;
-  
+
       if (!user) {
         console.error("Pengguna tidak terautentikasi!");
         return;
       }
-  
+
       try {
         const userEmail = user.email;
         console.log("Email pengguna:", userEmail);
-  
+
         const detailQueries = [
           query(
             collection(firestore, "detail_penetasan"),
@@ -317,12 +332,12 @@ export default function RiwayatAnalisis() {
             where("userId", "==", userEmail)
           ),
         ];
-  
+
         const userData = await Promise.all(
           detailQueries.map(async (q, index) => {
             const querySnapshot = await getDocs(q);
             console.log(`Snapshot untuk query ${index}:`, querySnapshot);
-  
+
             if (!querySnapshot.empty) {
               const subCollectionData: AnalysisPeriodData[] = [];
               for (const userDoc of querySnapshot.docs) {
@@ -332,19 +347,19 @@ export default function RiwayatAnalisis() {
                   "analisis_periode"
                 );
                 const subCollectionSnapshot = await getDocs(subCollectionRef);
-  
+
                 console.log(
                   `Subcollection snapshot untuk ${index}:`,
                   subCollectionSnapshot
                 );
-  
+
                 const analysisNames = [
                   "Detail Penetasan",
                   "Detail Penggemukan",
                   "Detail Layer",
                 ];
                 const analysisName = analysisNames[index];
-  
+
                 subCollectionSnapshot.docs.forEach((doc) => {
                   const docData = {
                     id: doc.id,
@@ -366,10 +381,10 @@ export default function RiwayatAnalisis() {
             return [];
           })
         );
-  
+
         // Gabungkan data berdasarkan `analysisId` alih-alih `analysisName`
         const aggregatedData: { [key: string]: AnalysisPeriodData } = {};
-  
+
         userData.flat().forEach((data) => {
           const key = data.analysisId; // Gunakan `analysisId` sebagai kunci untuk penggabungan
           if (aggregatedData[key]) {
@@ -383,109 +398,143 @@ export default function RiwayatAnalisis() {
             aggregatedData[key] = { ...data };
           }
         });
-  
+
         console.log("Data yang sudah digabungkan:", aggregatedData);
-  
+
         setDataAnalisis(Object.values(aggregatedData));
       } catch (error) {
         console.error("Error mengambil data: ", error);
       }
     };
-  
+
     fetchUserSpecificData();
   }, []);
-  
 
   const handleCardClick = (data: AnalysisPeriodData) => {
     setSelectedData(data);
     setOpenPopup(true);
   };
 
-  
+  const handleSortChange = (event: SelectChangeEvent<string>) => {
+    const criteria = event.target.value;
+    setSortCriteria(criteria);
+
+    let sortedData = [...dataAnalisis];
+    if (criteria === "terbaru") {
+      sortedData.sort((a, b) => b.created_at.seconds - a.created_at.seconds);
+    } else if (criteria === "terlama") {
+      sortedData.sort((a, b) => a.created_at.seconds - b.created_at.seconds);
+    } else if (criteria === "laba") {
+      sortedData.sort((a, b) => b.laba - a.laba);
+    } else if (criteria === "tipe") {
+      sortedData.sort((a, b) => a.analysisName.localeCompare(b.analysisName));
+    }
+
+    setDataAnalisis(sortedData);
+  };
+
   return (
     <div style={styles.pageContainer}>
       <SidebarDemo>
         <div style={styles.contentContainer}>
-          <h1 style={styles.title}>Halo, {username}</h1>
-          <Grid container spacing={3}>
-  {dataAnalisis.map((data, index) => (
-    <Grid item xs={12} sm={6} md={4} key={data.id}>
-      <Card
-        style={{ ...styles.card, width: "100%" }} // Pastikan width penuh
-        onClick={() => handleCardClick(data)}
-      >
-        <CardContent
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            height: "180px",
-          }}
-        >
-          {/* Display Time and Date */}
-          <Grid container justifyContent="space-between">
-            <Typography variant="body2" style={styles.time}>
-              {data.created_at.toDate().toLocaleTimeString()}
-            </Typography>
-            <Typography variant="body2" style={styles.date}>
-              {data.created_at.toDate().toLocaleDateString()}
-            </Typography>
-          </Grid>
-
-          {/* Display Profit */}
-          <div
-            style={{
-              flexGrow: 1,
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            {data.laba !== undefined && data.laba !== null && !isNaN(data.laba) ? (
-              <Typography
-                variant="h6"
-                style={{ ...styles.amount, textAlign: "center" }}
+          <div style={styles.titleContainer}>
+            <h1 style={styles.title}>Halo, {username}</h1>
+            <FormControl variant="outlined" style={styles.sortControl}>
+              <InputLabel id="sort-label">Sort By</InputLabel>
+              <Select
+                labelId="sort-label"
+                value={sortCriteria}
+                onChange={handleSortChange}
+                label="Sort By"
               >
-                Rp. {data.laba.toLocaleString("id-ID")}
-              </Typography>
-            ) : (
-              <Typography
-                variant="h6"
-                style={{
-                  ...styles.amount,
-                  textAlign: "center",
-                  color: "red",
-                }}
-              >
-                Laba tidak tersedia
-              </Typography>
-            )}
+                <MenuItem value="terbaru">Terbaru</MenuItem>
+                <MenuItem value="terlama">Terlama</MenuItem>
+                <MenuItem value="laba">Laba Terbanyak</MenuItem>
+                <MenuItem value="tipe">Tipe Analisis</MenuItem>
+              </Select>
+            </FormControl>
           </div>
 
-          {/* Display Analysis Name */}
-          <Typography
-            variant="body1"
-            style={{
-              backgroundColor: "#FFD580",
-              padding: "5px 10px",
-              borderRadius: "9999px",
-              textAlign: "center",
-              display: "inline-block",
-              marginTop: "10px",
-              fontWeight: "bold",
-            }}
-          >
-            {data.analysisName}
-          </Typography>
+          <Grid container spacing={3}>
+            {dataAnalisis.map((data, index) => (
+              <Grid item xs={12} sm={6} md={4} key={data.id}>
+                <Card
+                  style={{
+                    ...styles.card,
+                    width: "300px", // Ukuran lebar tetap untuk desktop
+                    height: "200px", // Ukuran tinggi tetap untuk desktop
+                  }}
+                  onClick={() => handleCardClick(data)}
+                >
+                  <CardContent
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      height: "180px",
+                    }}
+                  >
+                    <Grid container justifyContent="space-between">
+                      <Typography variant="body2" style={styles.time}>
+                        {data.created_at.toDate().toLocaleTimeString()}
+                      </Typography>
+                      <Typography variant="body2" style={styles.date}>
+                        {data.created_at.toDate().toLocaleDateString()}
+                      </Typography>
+                    </Grid>
 
-          {/* Display Analysis ID */}
-          <Typography variant="body2" style={styles.description}>
-            ID Analisis: {data.analysisId}
-          </Typography>
-        </CardContent>
-      </Card>
-    </Grid>
-  ))}
-</Grid>
+                    <div
+                      style={{
+                        flexGrow: 1,
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      {data.laba !== undefined &&
+                      data.laba !== null &&
+                      !isNaN(data.laba) ? (
+                        <Typography
+                          variant="h6"
+                          style={{ ...styles.amount, textAlign: "center" }}
+                        >
+                          Rp. {data.laba.toLocaleString("id-ID")}
+                        </Typography>
+                      ) : (
+                        <Typography
+                          variant="h6"
+                          style={{
+                            ...styles.amount,
+                            textAlign: "center",
+                            color: "red",
+                          }}
+                        >
+                          Laba tidak tersedia
+                        </Typography>
+                      )}
+                    </div>
 
+                    <Typography
+                      variant="body1"
+                      style={{
+                        backgroundColor: "#FFD580",
+                        padding: "5px 10px",
+                        borderRadius: "9999px",
+                        textAlign: "center",
+                        display: "inline-block",
+                        marginTop: "10px",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {data.analysisName}
+                    </Typography>
+
+                    {/* <Typography variant="body2" style={styles.description}>
+                      ID Analisis: {data.analysisId}
+                    </Typography> */}
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
 
           <Popup
             open={openPopup}
