@@ -3,13 +3,17 @@
 // Komponen SettingPage
 import { useRouter } from "next/navigation";
 import { SidebarDemo } from "@/components/Sidebar";
-import UserAvatar from "@/components/ui/avatar";
 import { useEffect, useState } from "react";
 import { deleteUser, updateProfile } from "firebase/auth";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Impor fungsi untuk Firebase Storage
 import { auth, storage } from "@/lib/firebase";
 import { getAuth, reauthenticateWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { useToast } from "@/hooks/use-toast";
+import { updateProfile } from "firebase/auth";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { auth, storage } from "@/lib/firebase";
+import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
+import UserAvatar from "@/components/ui/avatar";
 
 function Modal({ isOpen, onClose, onSave, children }: { isOpen: boolean; onClose: () => void; onSave: () => void; children: React.ReactNode }) {
   if (!isOpen) return null;

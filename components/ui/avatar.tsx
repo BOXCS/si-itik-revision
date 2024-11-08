@@ -3,7 +3,7 @@
 import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, User } from "firebase/auth"; 
-import { auth } from "@/lib/firebase"; 
+import { auth } from "@/lib/firebase";
 
 // Generate a random color
 function getRandomColor() {
@@ -12,7 +12,7 @@ function getRandomColor() {
 }
 
 interface UserAvatarProps {
-  photoURL?: string | null; 
+  photoURL?: string | null;
 }
 
 export default function UserAvatar({ photoURL }: UserAvatarProps) {
