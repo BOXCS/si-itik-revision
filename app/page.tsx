@@ -8,9 +8,9 @@ import UsersPage from "./users";
 import Dashboard from "./dashboard/page";
 import { UserProvider } from "./context/UserContext"; // Pastikan ini diimpor
 import PenetasanPage from "./analisis/penetasan/page";
-import { SidebarDemo } from "@/components/Sidebar";
 import ForgetPassPage from "./auth/forgetPass/page";
 import GetDataPage from "./analisis/test/page";
+import SettingPage from "./user_setting/page";
 
 function Home() {
   const pathname = usePathname(); // Ambil pathname saat ini
@@ -36,6 +36,8 @@ function Home() {
     case "/analisis/penetasan":
       content = <PenetasanPage />; // Pastikan ini berada dalam UserProvider
       break;
+    case "/user_setting":
+      content = <SettingPage />; // Perbaiki penggunaan komponen
     case "/analisis/test":
       content = <GetDataPage />; // Pastikan ini berada dalam UserProvider
       break;
