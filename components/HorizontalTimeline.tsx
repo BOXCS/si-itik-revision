@@ -13,7 +13,7 @@ const HorizontalTimeline: React.FC<HorizontalTimelineProps> = ({ progress }) => 
   return (
     <div className="flex flex-col items-center justify-center w-full">
       {/* Label atas */}
-      <div className="flex justify-between w-full max-w-lg mb-2">
+      <div className="flex justify-between text-sm w-full max-w-lg mb-2 md:text-xl">
         <span>Penerimaan</span>
         <span>Pengeluaran</span>
         <span>Hasil Analisis</span>
