@@ -525,7 +525,7 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
       enableLegendSlider = false,
       tickGap = 5,
       xAxisLabel,
-      yAxisLabel,
+      yAxisLabel, 
       type = "default",
       legendPosition = "right",
       fill = "gradient",
@@ -677,7 +677,7 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
               padding={{ left: paddingValue, right: paddingValue }}
               hide={!showXAxis}
               dataKey={index}
-              interval={startEndOnly ? "preserveStartEnd" : intervalType}
+              interval={0}
               tick={{ transform: "translate(0, 6)" }}
               ticks={
                 startEndOnly
@@ -700,7 +700,7 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
                 <Label
                   position="insideBottom"
                   offset={-20}
-                  className="fill-gray-800 text-sm font-medium dark:fill-gray-200"
+                  className="fill-gray-500 text-sm font-medium dark:fill-gray-500"
                 >
                   {xAxisLabel}
                 </Label>
@@ -733,7 +733,7 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
                   style={{ textAnchor: "middle" }}
                   angle={-90}
                   offset={-15}
-                  className="fill-gray-800 text-sm font-medium dark:fill-gray-200"
+                  className="fill-gray-500 text-sm font-medium dark:fill-gray-500"
                 >
                   {yAxisLabel}
                 </Label>
