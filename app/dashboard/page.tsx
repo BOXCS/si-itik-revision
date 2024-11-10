@@ -117,7 +117,7 @@ export default function Dashboard() {
       padding: "20px 0",
     },
   };
-  
+
   // Memeriksa login
   useEffect(() => {
     const auth = getAuth();
@@ -285,7 +285,7 @@ export default function Dashboard() {
   //       } else {
   //         console.error("Dokumen tidak ditemukan untuk email yang diberikan");
   //       }
-        
+
 
   //     } catch (error) {
   //       console.error("Error mengambil Data: ", error);
@@ -299,7 +299,7 @@ export default function Dashboard() {
   //   return <p>Loading...</p>
   // }
 
-useEffect(() => {
+  useEffect(() => {
     const fetchUserSpecificData = async () => {
       const auth = getAuth();
       const user = auth.currentUser;
@@ -347,54 +347,54 @@ useEffect(() => {
               ];
 
               const [penetasanData, penggemukanData, layerData] = await Promise.all(
-        detailQueries.map(async (q, index) => {
-          const querySnapshot = await getDocs(q);
-          if (!querySnapshot.empty) {
-            const userDocRef = querySnapshot.docs[0].ref;
-            const subCollectionRef = collection(
-              userDocRef,
-              "analisis_periode"
-            );
-            const subCollectionSnapshot = await getDocs(subCollectionRef);
+                detailQueries.map(async (q, index) => {
+                  const querySnapshot = await getDocs(q);
+                  if (!querySnapshot.empty) {
+                    const userDocRef = querySnapshot.docs[0].ref;
+                    const subCollectionRef = query(
+                                collection(userDocRef, "analisis_periode"),
+                                orderBy("created_at", "asc") // Mengurutkan berdasarkan `created_at`
+                              );
+                    const subCollectionSnapshot = await getDocs(subCollectionRef);
 
-            return subCollectionSnapshot.docs.map((doc) => ({
-              id: doc.id,
-              created_at: doc.data().created_at || Timestamp.now(),
-              bepHarga: doc.data().hasilAnalisis?.bepHarga || 0,
-              bepHasil: doc.data().hasilAnalisis?.bepHasil || 0,
-              laba: doc.data().hasilAnalisis?.laba || 0,
-              periode: doc.data().periode ??0,
-            revenue: doc.data().penerimaan?.totalrevenue || 0,
-            cost: doc.data().pengeluaran?.totalCost || 0,
-              marginOfSafety: doc.data().hasilAnalisis?.marginOfSafety || 0,
-              rcRatio: doc.data().hasilAnalisis?.rcRatio || 0,
-              analysisName: analysisNames[index],
-            }));
-          }
-          return [];
-        })
-      );
+                    return subCollectionSnapshot.docs.map((doc) => ({
+                      id: doc.id,
+                      created_at: doc.data().created_at || Timestamp.now(),
+                      bepHarga: doc.data().hasilAnalisis?.bepHarga || 0,
+                      bepHasil: doc.data().hasilAnalisis?.bepHasil || 0,
+                      laba: doc.data().hasilAnalisis?.laba || 0,
+                      periode: doc.data().periode ?? 0,
+                      revenue: doc.data().penerimaan?.totalRevenue || 0,
+                      cost: doc.data().pengeluaran?.totalCost || 0,
+                      marginOfSafety: doc.data().hasilAnalisis?.marginOfSafety || 0,
+                      rcRatio: doc.data().hasilAnalisis?.rcRatio || 0,
+                      analysisName: analysisNames[index],
+                    }));
+                  }
+                  return [];
+                })
+              );
 
-      setChartDataPenetasan(penetasanData.map(item => ({
-        Prd: item.periode,
-        Revenue: item.revenue,
-        Cost: item.cost,
-        Laba: item.laba,
-      })));
+              setChartDataPenetasan(penetasanData.map(item => ({
+                Prd: item.periode,
+                Revenue: item.revenue,
+                Cost: item.cost,
+                Laba: item.laba,
+              })));
 
-      setChartDataPenggemukan(penggemukanData.map(item => ({
-        Prd: item.periode,
-        Revenue: item.revenue,
-        Cost: item.cost,
-        Laba: item.laba,
-      })));
+              setChartDataPenggemukan(penggemukanData.map(item => ({
+                Prd: item.periode,
+                Revenue: item.revenue,
+                Cost: item.cost,
+                Laba: item.laba,
+              })));
 
-      setChartDataLayer(layerData.map(item => ({
-        Prd: item.periode,
-        Revenue: item.revenue,
-        Cost: item.cost,
-        Laba: item.laba,
-      })));
+              setChartDataLayer(layerData.map(item => ({
+                Prd: item.periode,
+                Revenue: item.revenue,
+                Cost: item.cost,
+                Laba: item.laba,
+              })));
 
               const analysisName = analysisNames[index];
 
@@ -404,14 +404,14 @@ useEffect(() => {
                 bepHarga: doc.data().hasilAnalisis?.bepHarga || 0,
                 bepHasil: doc.data().hasilAnalisis?.bepHasil || 0,
                 laba: doc.data().hasilAnalisis?.laba || 0,
-                periode: doc.data().periode ??0,
-              revenue: doc.data().penerimaan?.totalrevenue || 0,
-              cost: doc.data().pengeluaran?.totalCost || 0,
+                periode: doc.data().periode ?? 0,
+                revenue: doc.data().penerimaan?.totalRevenue || 0,
+                cost: doc.data().pengeluaran?.totalCost || 0,
                 marginOfSafety: doc.data().hasilAnalisis?.marginOfSafety || 0,
                 rcRatio: doc.data().hasilAnalisis?.rcRatio || 0,
                 analysisName: analysisName, // Menyimpan nama analisis
               }));
-              
+
             }
             return [];
           })
@@ -449,7 +449,7 @@ useEffect(() => {
 
 
   function formatNumber(number: number): string {
-    if (number >= 1000000) { 
+    if (number >= 1000000) {
       const millions = number / 1000000;
       return Number.isInteger(millions) ? `${millions} JT` : `${millions.toFixed(1)} JT`;
     } else if (number >= 1000) {
@@ -561,8 +561,8 @@ useEffect(() => {
                               valueFormatter={(number: number) =>
                                 `${formatNumber(number)}`}
                               onValueChange={(v) => console.log(v)}
-                              xAxisLabel="Periode"    
-                              yAxisLabel="Rp"    
+                              xAxisLabel="Periode"
+                              yAxisLabel="Rp"
                               fill="solid"
                             />
                           </div>
@@ -580,19 +580,19 @@ useEffect(() => {
                               valueFormatter={(number: number) =>
                                 `${formatNumber(number)}`}
                               onValueChange={(v) => console.log(v)}
-                              xAxisLabel="Periode"    
-                              yAxisLabel="Rp"    
+                              xAxisLabel="Periode"
+                              yAxisLabel="Rp"
                               fill="solid"
                             />
                           </div>
-                        </TabsContent> 
+                        </TabsContent>
                         <TabsContent
                           value="tab3"
 
                           className="space-y-2 text-sm leading-7 text-gray-600 dark:text-gray-500"
                         >
                           <div className="flex space-x-4">
-                          <AreaChart
+                            <AreaChart
                               className=" flex items-center justify-center h-50"
                               data={chartDataLayer}
                               index="Prd"
@@ -600,8 +600,8 @@ useEffect(() => {
                               valueFormatter={(number: number) =>
                                 `${formatNumber(number)}`}
                               onValueChange={(v) => console.log(v)}
-                              xAxisLabel="Periode"    
-                              yAxisLabel="Rp"    
+                              xAxisLabel="Periode"
+                              yAxisLabel="Rp"
                               fill="solid"
                             />
                           </div>
@@ -620,81 +620,81 @@ useEffect(() => {
               <div className="bg-white p-3 rounded-lg shadow-md w-200">
                 <h2 className="text-lg sm-bold">Riwayat Analisis</h2>
                 <Grid container spacing={3}>
-            {dataAnalisis.map((data, index) => (
-              <Grid item xs={12} key={index}>
-                <Card style={styles.card}>
-                <CardContent
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      height: "180px",
-                    }}
-                  >
-                    {/* Display Time and Date */}
-                    <Grid container justifyContent="space-between">
-                      <Typography variant="body2" style={styles.time}>
-                        {data.created_at.toDate().toLocaleTimeString()}
-                      </Typography>
-                      <Typography variant="body2" style={styles.date}>
-                        {data.created_at.toDate().toLocaleDateString()}
-                      </Typography>
-                    </Grid>
+                  {dataAnalisis.map((data, index) => (
+                    <Grid item xs={12} key={index}>
+                      <Card style={styles.card}>
+                        <CardContent
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            height: "180px",
+                          }}
+                        >
+                          {/* Display Time and Date */}
+                          <Grid container justifyContent="space-between">
+                            <Typography variant="body2" style={styles.time}>
+                              {data.created_at.toDate().toLocaleTimeString()}
+                            </Typography>
+                            <Typography variant="body2" style={styles.date}>
+                              {data.created_at.toDate().toLocaleDateString()}
+                            </Typography>
+                          </Grid>
 
-                    {/* Display Profit */}
-                    {/* <Typography variant="h6" style={styles.amount}>
+                          {/* Display Profit */}
+                          {/* <Typography variant="h6" style={styles.amount}>
                       Rp. {data.laba.toLocaleString("id-ID")}
                     </Typography> */}
 
-                    <div
-                      style={{
-                        flexGrow: 1,
-                        display: "flex",
-                        alignItems: "center",
-                      }}
-                    >
-                      {data.laba !== undefined &&
-                      data.laba !== null &&
-                      !isNaN(data.laba) ? (
-                        <Typography
-                          variant="h6"
-                          style={{ ...styles.amount, textAlign: "center" }}
-                        >
-                          Rp. {data.laba.toLocaleString("id-ID")}
-                        </Typography>
-                      ) : (
-                        <Typography
-                          variant="h6"
-                          style={{
-                            ...styles.amount,
-                            textAlign: "center",
-                            color: "red",
-                          }}
-                        >
-                          Laba tidak tersedia
-                        </Typography>
-                      )}
-                    </div>
+                          <div
+                            style={{
+                              flexGrow: 1,
+                              display: "flex",
+                              alignItems: "center",
+                            }}
+                          >
+                            {data.laba !== undefined &&
+                              data.laba !== null &&
+                              !isNaN(data.laba) ? (
+                              <Typography
+                                variant="h6"
+                                style={{ ...styles.amount, textAlign: "center" }}
+                              >
+                                Rp. {data.laba.toLocaleString("id-ID")}
+                              </Typography>
+                            ) : (
+                              <Typography
+                                variant="h6"
+                                style={{
+                                  ...styles.amount,
+                                  textAlign: "center",
+                                  color: "red",
+                                }}
+                              >
+                                Laba tidak tersedia
+                              </Typography>
+                            )}
+                          </div>
 
-                    {/* Display Analysis Name */}
-                    <Typography
-                      variant="body1"
-                      style={{
-                        backgroundColor: "#FFD580",
-                        padding: "5px 10px",
-                        borderRadius: "9999px",
-                        textAlign: "center",
-                        display: "inline-block",
-                        marginTop: "10px",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {data.analysisName} {/* Menampilkan nama analisis */}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+                          {/* Display Analysis Name */}
+                          <Typography
+                            variant="body1"
+                            style={{
+                              backgroundColor: "#FFD580",
+                              padding: "5px 10px",
+                              borderRadius: "9999px",
+                              textAlign: "center",
+                              display: "inline-block",
+                              marginTop: "10px",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            {data.analysisName} {/* Menampilkan nama analisis */}
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
               </div>
             </div>
           </div>
