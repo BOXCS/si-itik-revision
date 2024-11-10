@@ -132,7 +132,6 @@ function Popup({ open, onClose, data }: PopupProps) {
     }
   }
 
-
   const chartData = [
     {
       name: "0",
@@ -226,6 +225,7 @@ function Popup({ open, onClose, data }: PopupProps) {
             </Grid>
           </Grid>
         </Card>
+        
 
         {/* Grafik */}
         <Card
