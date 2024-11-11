@@ -16,8 +16,7 @@ import { Input } from "@/components/ui/input";
 import { SigninValidation } from "@/lib/validation";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
-import { firestore } from "@/lib/firebase";
-import { auth } from "@/lib/firebase";
+import { auth, firestore } from "@/lib/firebase";
 import { z } from "zod";
 import Loader from "@/components/shared/Loader";
 import Link from "next/link";
@@ -54,19 +53,19 @@ const LoginPage = () => {
     setIsLoading(true);
     setErrorMessage(""); // Reset pesan error saat submit
     const { username, password } = values;
-  
+
     try {
       // Proses login dengan Firebase Authentication menggunakan email (username di sini adalah email)
       const userCredential = await signInWithEmailAndPassword(auth, username, password);
-  
+
       // Dapatkan user yang login dari userCredential
       const user = userCredential.user;
-  
+
       // Redirect ke dashboard setelah login berhasil
       router.push(`/dashboard?username=${user.displayName || "User"}`);
     } catch (error: any) {
       console.error("Login error:", error);
-  
+
       // Custom pesan error berdasarkan kode error dari Firebase
       if (error.code) {
         switch (error.code) {
@@ -91,8 +90,8 @@ const LoginPage = () => {
     } finally {
       setIsLoading(false);
     }
-  };  
-  
+  };
+
 
   return (
     <div className="w-full h-screen flex flex-1 justify-center items-center overflow-hidden">
@@ -193,12 +192,13 @@ const LoginPage = () => {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input type="password" {...field} />
+                        <Input type="password" placeholder="Masukkan Password Anda" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
 
                 {errorMessage && (
                   <div className="text-red-500 text-sm mt-2">
@@ -267,7 +267,7 @@ const LoginPage = () => {
           <p className="text-sm font-normal text-black">
             Tidak Punya Akun?{" "}
             <Link href="/auth/signup">
-              <span className="font-semibold underline underline-offset-2 cursor-pointer">
+              <span className="font-semibold underline underline-offset-2 cursor-pointer text-orange-500">
                 Daftar Sekarang
               </span>
             </Link>

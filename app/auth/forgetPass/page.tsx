@@ -1,166 +1,296 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getAuth, sendPasswordResetEmail } from "firebase/auth";
+import {
+  Toast,
+  ToastClose,
+  ToastDescription,
+  ToastProvider,
+  ToastTitle,
+  ToastViewport,
+} from "@/components/ui/toast";
+import { getAuth, sendPasswordResetEmail } from "firebase/auth"; // Tambahkan import ini
 
-// Validasi form dengan zod
-const schema = z.object({
-  email: z.string().email("Email tidak valid"),
-});
+interface ToastMessage {
+  id: string;
+  title: string;
+  description: string;
+  variant: "default" | "destructive";
+}
 
 const ForgetPasswordPage = () => {
+  const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
-  const router = useRouter();
+  const [emailSent, setEmailSent] = useState(false);
+  const [resendTimer, setResendTimer] = useState(0);
+  const [emailError, setEmailError] = useState("");
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
-  const form = useForm({
-    resolver: zodResolver(schema),
-    defaultValues: { email: "" },
-  });
+  const auth = getAuth(); // Inisialisasi Firebase Auth
 
-  // Fungsi untuk mengirim email reset password
-  const sendResetPasswordEmail = async (email: string) => {
-    const auth = getAuth();
+  const showToast = (toast: Omit<ToastMessage, "id">) => {
+    const id = Math.random().toString(36).substr(2, 9);
+    setToasts((prev) => [...prev, { ...toast, id }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 5000);
+  };
 
-    // Pengaturan actionCodeSettings untuk URL dan data tambahan
-    const actionCodeSettings = {
-      url: `https://si-itik-7b3e6.firebaseapp.com/__/auth/action?mode=action&oobCode=code`,
-      handleCodeInApp: true,
-    };
+  const validateEmail = (email: string) => {
+    const re = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+    if (!email) {
+      return "Email wajib diisi";
+    }
+    if (!re.test(email)) {
+      return "Format email tidak valid";
+    }
+    return "";
+  };
+
+  // Modifikasi fungsi untuk menggunakan Firebase
+  const sendResetPasswordEmail = async (
+    email: string,
+    isResend: boolean = false
+  ) => {
+    setIsLoading(true);
 
     try {
-      // Mengirim email reset password melalui Firebase Authentication
-      await sendPasswordResetEmail(auth, email, actionCodeSettings);
+      await sendPasswordResetEmail(auth, email);
 
-      console.log(`Email reset password telah dikirim ke ${email}`);
-      alert("Email reset password telah dikirim. Periksa inbox Anda.");
-    } catch (error) {
-      console.error(
-        "Terjadi kesalahan dalam mengirim email reset password:",
-        error
-      );
+      setEmailSent(true);
+      showToast({
+        title: "Berhasil",
+        description: `Email reset password telah dikirim ke ${email}. Periksa inbox atau folder spam Anda.`,
+        variant: "default",
+      });
+
+      if (isResend) {
+        startResendTimer();
+      }
+    } catch (error: any) {
+      // Handle specific Firebase errors
+      let errorMessage =
+        "Terjadi kesalahan dalam mengirim email reset password.";
+
+      switch (error.code) {
+        case "auth/user-not-found":
+          errorMessage = "Email tidak terdaftar dalam sistem.";
+          break;
+        case "auth/invalid-email":
+          errorMessage = "Format email tidak valid.";
+          break;
+        case "auth/too-many-requests":
+          errorMessage = "Terlalu banyak permintaan. Silakan coba lagi nanti.";
+          break;
+        // Tambahkan case lain sesuai kebutuhan
+      }
+
+      showToast({
+        title: "Gagal",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const onSubmit = async (data: { email: string }) => {
-    await sendResetPasswordEmail(data.email);
+  const startResendTimer = () => {
+    setResendTimer(60);
+    const timer = setInterval(() => {
+      setResendTimer((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const error = validateEmail(email);
+    if (error) {
+      setEmailError(error);
+      return;
+    }
+    setEmailError("");
+    await sendResetPasswordEmail(email);
+  };
+
+  const handleResend = async () => {
+    if (email && !resendTimer) {
+      await sendResetPasswordEmail(email, true);
+    }
   };
 
   return (
-    <div className="w-full h-screen flex flex-1 justify-center items-center overflow-hidden">
-      <div className="relative w-2/3 h-full hidden flex-col xl:block">
-        <div className="absolute top-[25%] left-[10%] flex flex-col gap-5">
-          <img
-            src="/assets/logo-si-itik.svg"
-            alt="Logo SI_ITIK"
-            className="w-20"
-          />
-          <h1 className="flex flex-col text-5xl font-bold text-white">
-            Keunggulan SI-ITIK
-          </h1>
-          <div className="benefit-point grid text-2xl font-semibold gap-5">
-            <h2>
-              <img
-                src="/assets/point-benefit.svg"
-                alt="Point"
-                className="inline-block w-10 h-10 mr-2"
-              />
-              Pengelolaan terintegrasi
-            </h2>
-            <h2>
-              <img
-                src="/assets/point-benefit.svg"
-                alt="Point"
-                className="inline-block w-10 h-10 mr-2"
-              />
-              User Friendly
-            </h2>
-            <h2>
-              <img
-                src="/assets/point-benefit.svg"
-                alt="Point"
-                className="inline-block w-10 h-10 mr-2"
-              />
-              Analisis mendalam
-            </h2>
-            <h2>
-              <img
-                src="/assets/point-benefit.svg"
-                alt="Point"
-                className="inline-block w-10 h-10 mr-2"
-              />
-              Data finansial akurat
-            </h2>
-            <h2>
-              <img
-                src="/assets/point-benefit.svg"
-                alt="Point"
-                className="inline-block w-10 h-10 mr-2"
-              />
-              Fleksible
-            </h2>
-          </div>
-          <div className="absolute top-[45%] items-end justify-end">
-            <img
-              src="/assets/itik-cartoon.svg"
-              alt="Logo SI_ITIK"
-              className="hidden xl:block ml-72"
-            />
-          </div>
-        </div>
-        <div className="bg-[#CF5804] w-full h-full object-cover"></div>
-      </div>
+    <>
+      <ToastProvider>
+        {toasts.map(({ id, title, description, variant }) => (
+          <Toast key={id} variant={variant}>
+            <div className="grid gap-1">
+              <ToastTitle>{title}</ToastTitle>
+              <ToastDescription>{description}</ToastDescription>
+            </div>
+            <ToastClose />
+          </Toast>
+        ))}
+        <ToastViewport />
+      </ToastProvider>
 
-      {/* Bagian Form */}
-      <div className="w-full h-full bg-[#fff] flex flex-col p-20 justify-between xl:w-2/5">
-        <div className="w-full flex flex-col">
-          <div className="w-full flex flex-col mb-10 items-center justify-center">
-            <h1 className="text-6xl text-[#060606] font-bold">Lupa Password</h1>
-          </div>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="mb-6">
-              <label htmlFor="email" className="block text-sm font-medium">
-                Masukkan Email
-              </label>
-              <Input
-                id="email"
-                {...form.register("email")}
-                type="email"
-                placeholder="Masukkan Email"
-                className="w-full px-4 py-2 border rounded-md"
+      <div className="w-full h-screen flex flex-1 justify-center items-center overflow-hidden">
+        <div className="relative w-2/3 h-full hidden flex-col xl:block">
+          <div className="absolute top-[25%] left-[10%] flex flex-col gap-5">
+            <img
+              src="/assets/logo-si-itik.svg"
+              alt="Logo SI_ITIK"
+              className="w-20"
+            />
+            <h1 className="flex flex-col text-5xl font-bold text-white">
+              Keunggulan SI-ITIK
+            </h1>
+            <div className="benefit-point grid text-2xl font-semibold gap-5">
+              <h2 className="text-white">
+                <img
+                  src="/assets/point-benefit.svg"
+                  alt="Point"
+                  className="inline-block w-10 h-10 mr-2"
+                />
+                Pengelolaan terintegrasi
+              </h2>
+              <h2 className="text-white">
+                <img
+                  src="/assets/point-benefit.svg"
+                  alt="Point"
+                  className="inline-block w-10 h-10 mr-2"
+                />
+                User Friendly
+              </h2>
+              <h2 className="text-white">
+                <img
+                  src="/assets/point-benefit.svg"
+                  alt="Point"
+                  className="inline-block w-10 h-10 mr-2"
+                />
+                Analisis mendalam
+              </h2>
+              <h2 className="text-white">
+                <img
+                  src="/assets/point-benefit.svg"
+                  alt="Point"
+                  className="inline-block w-10 h-10 mr-2"
+                />
+                Data finansial akurat
+              </h2>
+              <h2 className="text-white">
+                <img
+                  src="/assets/point-benefit.svg"
+                  alt="Point"
+                  className="inline-block w-10 h-10 mr-2"
+                />
+                Fleksible
+              </h2>
+            </div>
+            <div className="absolute top-[45%] items-end justify-end">
+              <img
+                src="/assets/itik-cartoon.svg"
+                alt="Logo SI_ITIK"
+                className="hidden xl:block ml-72"
               />
             </div>
-            {/* Spacer between input and button */}
-            <div className="mb-6"></div>
-            <Button
-              type="submit"
-              className="w-full bg-orange-500 text-white py-2 rounded-md hover:bg-orange-600 transition"
-              disabled={isLoading}
-            >
-              {isLoading ? "Mengirim..." : "Kirim"}
-            </Button>
-          </form>
-          {/* Spacer between button and link */}
-          <div className="mb-6"></div>
-          <div className="text-center">
-            {otpSent ? (
-              <p className="text-green-500">OTP telah dikirim ke email Anda.</p>
-            ) : (
-              <Link href="#" className="text-orange-500 hover:underline">
-                Tidak menerima OTP? Kirim ulang
-              </Link>
-            )}
+          </div>
+          <div className="bg-[#CF5804] w-full h-full object-cover"></div>
+        </div>
+
+        {/* Bagian kanan - Form */}
+        <div className="w-full h-full bg-white flex flex-col p-20 justify-between xl:w-2/5">
+          <div className="w-full flex flex-col max-w-md mx-auto">
+            <div className="w-full flex flex-col mb-10 items-center">
+              <h1 className="text-4xl md:text-6xl text-[#060606] font-bold">
+                Lupa Password
+              </h1>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Masukkan Email
+                </label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (emailError) setEmailError("");
+                  }}
+                  aria-invalid={emailError ? "true" : "false"}
+                  placeholder="Masukkan Email"
+                  className="w-full"
+                  disabled={isLoading}
+                />
+                {emailError && (
+                  <p className="mt-1 text-sm text-red-600">{emailError}</p>
+                )}
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <span className="flex items-center gap-2">
+                    <span className="animate-spin">⊚</span>
+                    Mengirim...
+                  </span>
+                ) : (
+                  "Kirim Link Reset Password"
+                )}
+              </Button>
+            </form>
+
+            <div className="mt-6 text-center">
+              {emailSent && (
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">Tidak menerima email?</p>
+                  {resendTimer > 0 ? (
+                    <p className="text-sm text-gray-500">
+                      Tunggu {resendTimer} detik untuk kirim ulang
+                    </p>
+                  ) : (
+                    <Button
+                      variant="link"
+                      onClick={handleResend}
+                      className="text-orange-500 hover:text-orange-600"
+                      disabled={isLoading || resendTimer > 0}
+                    >
+                      Kirim Ulang Email
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="mt-8 text-center">
+              <button
+                onClick={() => window.history.back()}
+                className="w-fit p-2 mr-2 border rounded-lg border-black text-black bg-white hover:bg-gray-100"
+              >
+                Kembali ke Halaman Login
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

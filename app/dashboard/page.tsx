@@ -375,6 +375,24 @@ export default function Dashboard() {
                 })
               );
 
+            return subCollectionSnapshot.docs.map((doc) => ({
+              id: doc.id,
+              created_at: doc.data().created_at || Timestamp.now(),
+              bepHarga: doc.data().hasilAnalisis?.bepHarga || 0,
+              bepHasil: doc.data().hasilAnalisis?.bepHasil || 0,
+              laba: doc.data().hasilAnalisis?.laba || 0,
+              periode: doc.data().periode ??0,
+            revenue: doc.data().penerimaan?.totalRevenue || 0,
+            cost: doc.data().pengeluaran?.totalCost || 0,
+              marginOfSafety: doc.data().hasilAnalisis?.marginOfSafety || 0,
+              rcRatio: doc.data().hasilAnalisis?.rcRatio || 0,
+              analysisName: analysisNames[index],
+            }));
+          }
+          return [];
+        })
+      );
+
               setChartDataPenetasan(penetasanData.map(item => ({
                 Prd: item.periode,
                 Revenue: item.revenue,
@@ -407,6 +425,9 @@ export default function Dashboard() {
                 periode: doc.data().periode ?? 0,
                 revenue: doc.data().penerimaan?.totalRevenue || 0,
                 cost: doc.data().pengeluaran?.totalCost || 0,
+                periode: doc.data().periode ??0,
+              revenue: doc.data().penerimaan?.totalRevenue || 0,
+              cost: doc.data().pengeluaran?.totalCost || 0,
                 marginOfSafety: doc.data().hasilAnalisis?.marginOfSafety || 0,
                 rcRatio: doc.data().hasilAnalisis?.rcRatio || 0,
                 analysisName: analysisName, // Menyimpan nama analisis

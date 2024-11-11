@@ -19,9 +19,9 @@ import Loader from "@/components/shared/Loader";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { auth } from "@/lib/firebase";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { auth } from "@/lib/firebase";
 
 const SignUpPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -164,7 +164,7 @@ const SignUpPage = () => {
                     <FormItem>
                       <FormLabel className="shad-form_label">Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="email" {...field} />
+                        <Input placeholder="Masukkan Email Anda" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -177,7 +177,7 @@ const SignUpPage = () => {
                     <FormItem>
                       <FormLabel>Username</FormLabel>
                       <FormControl>
-                        <Input placeholder="username" {...field} />
+                        <Input placeholder="Masukkan Username Anda" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -190,12 +190,13 @@ const SignUpPage = () => {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input type="password" {...field} />
+                        <Input type="password" placeholder="Masukkan Password Anda" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
 
                 {errorMessage && (
                   <div className="text-red-500 mb-4">{errorMessage}</div> // Menampilkan pesan error
@@ -224,7 +225,7 @@ const SignUpPage = () => {
           <p className="text-sm font-normal text-black">
             Sudah Punya Akun?{" "}
             <Link href="/auth/login">
-              <span className="font-semibold underline underline-offset-2 cursor-pointer">
+              <span className="font-semibold underline underline-offset-2 cursor-pointer text-orange-500">
                 Masuk Sekarang
               </span>
             </Link>
