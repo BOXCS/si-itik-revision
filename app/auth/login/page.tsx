@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import 'remixicon/fonts/remixicon.css';
 import {
   Form,
   FormControl,
@@ -48,7 +49,9 @@ const LoginPage = () => {
       throw new Error("User not found"); // Atau tangani error sesuai kebutuhan
     }
   };
-
+  const handleback = () => {
+    router.push(`/`)
+  }
   const onSubmit = async (values: z.infer<typeof SigninValidation>) => {
     setIsLoading(true);
     setErrorMessage(""); // Reset pesan error saat submit
@@ -149,9 +152,23 @@ const LoginPage = () => {
           </div>
           <div className="absolute top-[45%] items-end justify-end">
             <img
-              src="/assets/itik-cartoon.svg"
+              src="/assets/bebek.svg"
               alt="Logo SI_ITIK"
-              className="hidden xl:block ml-72"
+              className="hidden xl:block xl:ml-80 xl:mt-[-25px] object-contain"
+            />
+          </div>
+          <div className="absolute top-[-20%] right-[-120%]">
+            <img
+              src="/assets/elips.svg"
+              alt="elips"
+              className="w-[270px] h-[270px]"
+            />
+          </div>
+          <div className="absolute top-[110%] left-[-50%]">
+            <img
+              src="/assets/elips2.svg"
+              alt="elips"
+              className="ml-20"
             />
           </div>
         </div>
@@ -160,6 +177,12 @@ const LoginPage = () => {
 
       <div className="w-full h-full bg-[#fff] flex flex-col p-20 justify-between xl:w-2/5">
         <div className="w-full flex flex-col">
+
+          <button className="flex items-center space-x-2 " onClick={handleback}>
+            <i className="ri-arrow-left-line text-2xl "></i>
+            <span>Kembali</span>
+          </button>
+
           <div className="w-full flex flex-col mb-10 items-center justify-center">
             <h1 className="text-6xl text-[#060606] font-bold">Halo!</h1>
             <p className="text-2xl">Masukkan Informasi Akun</p>

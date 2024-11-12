@@ -90,7 +90,7 @@ const SignUpPage = () => {
             Keunggulan SI-ITIK
           </h1>
           <div className="benefit-point grid text-2xl font-semibold gap-5">
-            <h2>
+            <h2 className="text-white">
               <img
                 src="/assets/point-benefit.svg"
                 alt="Point"
@@ -98,7 +98,7 @@ const SignUpPage = () => {
               />
               Pengelolaan terintegrasi
             </h2>
-            <h2>
+            <h2 className="text-white">
               <img
                 src="/assets/point-benefit.svg"
                 alt="Point"
@@ -106,7 +106,7 @@ const SignUpPage = () => {
               />
               User Friendly
             </h2>
-            <h2>
+            <h2 className="text-white">
               <img
                 src="/assets/point-benefit.svg"
                 alt="Point"
@@ -114,7 +114,7 @@ const SignUpPage = () => {
               />
               Analisis mendalam
             </h2>
-            <h2>
+            <h2 className="text-white">
               <img
                 src="/assets/point-benefit.svg"
                 alt="Point"
@@ -122,7 +122,7 @@ const SignUpPage = () => {
               />
               Data finansial akurat
             </h2>
-            <h2>
+            <h2 className="text-white">
               <img
                 src="/assets/point-benefit.svg"
                 alt="Point"
@@ -133,9 +133,23 @@ const SignUpPage = () => {
           </div>
           <div className="absolute top-[45%] items-end justify-end">
             <img
-              src="/assets/itik-cartoon.svg"
+              src="/assets/bebek.svg"
               alt="Logo SI_ITIK"
-              className="hidden xl:block ml-72"
+              className="hidden xl:block xl:ml-80 xl:mt-[-25px] object-contain"
+            />
+          </div>
+          <div className="absolute top-[-20%] right-[-120%]">
+            <img
+              src="/assets/elips.svg"
+              alt="elips"
+              className="w-[270px] h-[270px]"
+            />
+          </div>
+          <div className="absolute top-[110%] left-[-50%]">
+            <img
+              src="/assets/elips2.svg"
+              alt="elips"
+              className="ml-20"
             />
           </div>
         </div>
