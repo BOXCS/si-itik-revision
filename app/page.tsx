@@ -11,6 +11,7 @@ import PenetasanPage from "./analisis/penetasan/page";
 import ForgetPassPage from "./auth/forgetPass/page";
 import GetDataPage from "./analisis/test/page";
 import SettingPage from "./user_setting/page";
+import { PeriodProvider } from "./context/PeriodeContext";
 
 function Home() {
   const pathname = usePathname(); // Ambil pathname saat ini
@@ -47,9 +48,11 @@ function Home() {
 
   return (
     <UserProvider>
-      {" "}
-      {/* UserProvider membungkus seluruh aplikasi */}
-      {content}
+      <PeriodProvider>
+        {" "}
+        {/* UserProvider membungkus seluruh aplikasi */}
+        {content}
+      </PeriodProvider>
     </UserProvider>
   );
 }

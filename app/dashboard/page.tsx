@@ -131,174 +131,6 @@ export default function Dashboard() {
     return () => unsubscribe();
   }, []);
 
-  // useEffect(() => {
-  //   if (!userEmail) return;
-  //   const fetchData = async () => {
-  //     try {
-  //       console.log("Mencari dokumen dengan email:", userEmail);
-  //       //Detail Penetasan
-  //       const detailpenetasan = query(
-  //         collection(firestore, "detail_penetasan"),
-  //         where("userId", "==", userEmail)
-  //       );
-
-  //       const querySnapshot = await getDocs(detailpenetasan);
-
-  //       if (!querySnapshot.empty) {
-  //         const userDocref = querySnapshot.docs[0].ref;
-  //         const subCollectionRef = query(
-  //           collection(userDocref, "analisis_periode"),
-  //           orderBy("created_at", "asc") // Mengurutkan berdasarkan `created_at`
-  //         );
-  //         const subCollectionSnapshot = await getDocs(subCollectionRef);
-
-  //         console.log("SubCollection Snapshot: ", subCollectionSnapshot.docs);
-
-  //         const fetchData: AnalisisPeriode[] = subCollectionSnapshot.docs.map((doc) => {
-  //           const docData = doc.data();
-  //           console.log("Data Dokumen: ", docData);
-
-  //           const hasilAnalisis = docData.hasilAnalisis || {};
-  //           const penerimaan = docData.penerimaan || {};
-  //           const pengeluaran = docData.pengeluaran || {};
-  //           const periode = docData.periode || {};
-
-  //           return {
-  //             id: doc.id,
-  //             created_at: docData.created_at || Timestamp.now(),
-  //             laba: hasilAnalisis.laba ?? 0,
-  //             revenue: penerimaan.totalRevenue ?? 0,
-  //             cost: pengeluaran.totalCost ?? 0,
-  //             periode: periode ??0,
-  //           } as AnalisisPeriode;
-  //         });
-
-  //         setData(fetchData);
-  //         console.log("Data yang di set: ", fetchData);          
-  //         const updatedChartData = fetchData.map(item => ({
-  //           Prd: item.periode,
-  //           Revenue: item.revenue,
-  //           Cost: item.cost,
-  //           Laba: item.laba,
-  //         }));
-  //         setChartDataPenetasan(updatedChartData);
-  //       } else {
-  //         console.error("Dokumen tidak ditemukan untuk email yang diberikan");
-  //       }
-
-  //       //Detail Penggemukan
-  //       const detailpenggemukan = query(
-  //         collection(firestore, "detail_penggemukan"),
-  //         where("userId", "==", userEmail)
-  //       );
-
-  //       const querySnapshot1 = await getDocs(detailpenggemukan);
-
-  //       if (!querySnapshot1.empty) {
-  //         const userDocref = querySnapshot1.docs[0].ref;
-  //         const subCollectionRef = query(
-  //           collection(userDocref, "analisis_periode"),
-  //           orderBy("created_at", "asc") // Mengurutkan berdasarkan `created_at`
-  //         );
-  //         const subCollectionSnapshot = await getDocs(subCollectionRef);
-
-  //         console.log("SubCollection Snapshot:                                                                                    ", subCollectionSnapshot.docs);
-
-  //         const fetchData: AnalisisPeriode[] = subCollectionSnapshot.docs.map((doc) => {
-  //           const docData = doc.data();
-  //           console.log("Data Dokumen: ", docData);
-
-  //           const hasilAnalisis = docData.hasilAnalisis || {};
-  //           const penerimaan = docData.penerimaan || {};
-  //           const pengeluaran = docData.pengeluaran || {};
-  //           const periode = docData.periode || {};
-
-  //           return {
-  //             id: doc.id,
-  //             created_at: docData.created_at || Timestamp.now(),
-  //             laba: hasilAnalisis.laba ?? 0,
-  //             revenue: penerimaan.totalRevenue ?? 0,
-  //             cost: pengeluaran.totalCost ?? 0,
-  //             periode: periode ??0,
-  //           } as AnalisisPeriode;
-  //         });
-
-  //         setData(fetchData);
-  //         console.log("Data yang di set: ", fetchData);          
-  //         const updatedChartData = fetchData.map(item => ({
-  //           Prd: item.periode,
-  //           Revenue: item.revenue,
-  //           Cost: item.cost,
-  //           Laba: item.laba,
-  //         }));
-  //         setChartDataPenggemukan(updatedChartData);
-  //       } else {
-  //         console.error("Dokumen tidak ditemukan untuk email yang diberikan");
-  //       }
-
-  //       //Detail Layering
-  //       const detaillayer = query(
-  //         collection(firestore, "detail_layer"),
-  //         where("userId", "==", userEmail)
-  //       );
-
-  //       const querySnapshot2 = await getDocs(detaillayer);
-
-  //       if (!querySnapshot2.empty) {
-  //         const userDocref = querySnapshot2.docs[0].ref;
-  //         const subCollectionRef = query(
-  //           collection(userDocref, "analisis_periode"),
-  //           orderBy("created_at", "asc") // Mengurutkan berdasarkan `created_at`
-  //         );
-  //         const subCollectionSnapshot = await getDocs(subCollectionRef);
-
-  //         console.log("SubCollection Snapshot: ", subCollectionSnapshot.docs);
-
-  //         const fetchData: AnalisisPeriode[] = subCollectionSnapshot.docs.map((doc) => {
-  //           const docData = doc.data();
-  //           console.log("Data Dokumen: ", docData);
-
-  //           const hasilAnalisis = docData.hasilAnalisis || {};
-  //           const penerimaan = docData.penerimaan || {};
-  //           const pengeluaran = docData.pengeluaran || {};
-  //           const periode = docData.periode || {};
-
-  //           return {
-  //             id: doc.id,
-  //             created_at: docData.created_at || Timestamp.now(),
-  //             laba: hasilAnalisis.laba ?? 0,
-  //             revenue: penerimaan.totalRevenue ?? 0,
-  //             cost: pengeluaran.totalCost ?? 0,
-  //             periode: periode ??0,
-  //           } as AnalisisPeriode;
-  //         });
-
-  //         setData(fetchData);
-  //         console.log("Data yang di set: ", fetchData);          
-  //         const updatedChartData = fetchData.map(item => ({
-  //           Prd: item.periode,
-  //           Revenue: item.revenue,
-  //           Cost: item.cost,
-  //           Laba: item.laba,
-  //         }));
-  //         setChartDataLayer(updatedChartData);
-  //       } else {
-  //         console.error("Dokumen tidak ditemukan untuk email yang diberikan");
-  //       }
-        
-
-  //     } catch (error) {
-  //       console.error("Error mengambil Data: ", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   fetchData();
-  // }, [userEmail]);
-  // if (loading) {
-  //   return <p>Loading...</p>
-  // }
-
 useEffect(() => {
     const fetchUserSpecificData = async () => {
       const auth = getAuth();
@@ -538,8 +370,8 @@ useEffect(() => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 justify-center gap-5 pt-5">
-                <div className="bg-white p-3 rounded-lg shadow-md">
+              <div className="justify-center gap-5 pt-5 w-full">
+                <div className="bg-white p-3 rounded-lg shadow-md w-full">
                   <div className="flex-1">
                     <Tabs defaultValue="tab1">
                       <TabsList>
@@ -610,23 +442,26 @@ useEffect(() => {
                     </Tabs>
                   </div>
                 </div>
-                <div className="bg-white p-3 rounded-lg shadow-md">
-                </div>
               </div>
             </div>
 
             {/* Riwayat */}
-            <div className="flex justify-center p-5 gap-5 pl-0">
-              <div className="bg-white p-3 rounded-lg shadow-md w-200">
+            <div className="flex justify-center items-center p-5 gap-5 pl-0">
+              <div className="bg-white p-3 rounded-lg shadow-md w-200 justify-center items-center">
                 <h2 className="text-lg sm-bold">Riwayat Analisis</h2>
                 <Grid container spacing={3}>
             {dataAnalisis.map((data, index) => (
               <Grid item xs={12} key={index}>
-                <Card style={styles.card}>
+                <Card style={{
+                  ...styles.card,
+                  width: "100%",
+                  height: "200px"
+                  }}>
                 <CardContent
                     style={{
                       display: "flex",
                       flexDirection: "column",
+                      width: "100%",
                       height: "180px",
                     }}
                   >

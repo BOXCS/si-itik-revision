@@ -20,7 +20,7 @@ import { useNavigate } from 'react-router-dom';
 
 const LayerPage = () => {
   const initialPeriods = JSON.parse(
-    (typeof window !== "undefined" && localStorage.getItem("periods")) ||
+    (typeof window !== "undefined" && localStorage.getItem("layer_periods")) ||
       '["Periode 1"]'
   );
 
@@ -203,8 +203,8 @@ toast({
 };
 
 useEffect(() => {
-// Simpan periode ke local storage setiap kali `periods` berubah
-localStorage.setItem("periods", JSON.stringify(periods));
+  // Simpan periode ke local storage khusus untuk penetasan
+  localStorage.setItem("layer_periods", JSON.stringify(periods));
 }, [periods]);
 
 useEffect(() => {

@@ -19,7 +19,7 @@ import { useUser } from "@/app/context/UserContext";
 
 const PenggemukanPage = () => {
   const initialPeriods = JSON.parse(
-    (typeof window !== "undefined" && localStorage.getItem("periods")) ||
+    (typeof window !== "undefined" && localStorage.getItem("penggemukan_periods")) ||
       '["Periode 1"]'
   );
 
@@ -237,6 +237,11 @@ const PenggemukanPage = () => {
       const value = e.target.value.replace(/[^0-9]/g, ""); // Menghapus karakter non-angka
       setter(value ? parseFloat(value) : 0); // Jika nilai ada, set sebagai angka
     };
+
+    useEffect(() => {
+      // Simpan periode ke local storage khusus untuk penggemukan
+      localStorage.setItem("penggemukan_periods", JSON.stringify(periods));
+    }, [periods]);
 
   // Rumus Penerimaan
   useEffect(() => {
