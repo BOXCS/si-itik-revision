@@ -1,76 +1,59 @@
 "use client";
 
 import React, { useState, useEffect, ChangeEvent } from "react";
-import {
-  collection,
-  getDocs,
-  query,
-  where,
-  Timestamp,
-} from "firebase/firestore";
+import { AreaChart } from "@/components/ui/chart";
+import { db } from "@/lib/firebase"; // Import db Firebase yang telah dikonfigurasi
+import { collection,doc, getDocs, getDoc,query, where, Timestamp, orderBy, } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-<<<<<<< HEAD
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, AreaChart, ResponsiveContainer, Area } from 'recharts';
-=======
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-} from "recharts";
->>>>>>> master
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area } from 'recharts';
 import { firestore, auth } from "@/lib/firebase";
 import { SidebarDemo } from "@/components/Sidebar";
 import {
-  Grid,
-  Card,
-  CardContent,
-  Typography,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
+  Grid, Card, CardContent, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, MenuItem, Select, FormControl, InputLabel,
   SelectChangeEvent,
 } from "@mui/material";
 
 interface AnalysisPeriodData {
   id: string;
+  periode: string;
   analysisId: string;
   created_at: Timestamp;
   bepHarga: number;
   bepHasil: number;
-  laba: number;
+  Laba: number;
   marginOfSafety: number;
   rcRatio: number;
   analysisName: string;
-  totalRevenue: String;
-  totalCost: String;
+  totalRevenue: number;
+  totalCost: number;
 }
 
-interface AnalysisData {
-  id: string;
+type PeriodData = {
   analysisName: string;
-}
+  marginOfSafety: number;
+  rcRatio: number;
+  bepHarga: number;
+  bepHasil: number;
+  laba: number;
+};
 
-interface PopupProps {
+type PopupProps = {
   open: boolean;
   onClose: () => void;
-  data: AnalysisPeriodData | null;
-}
+  data1: {
+    analysisName: string;
+    marginOfSafety: number;
+    rcRatio: number;
+    bepHarga: number;
+    bepHasil: number;
+    Laba: number;
+    totalRevenue: number;
+    totalCost: number;
+    periode: string;
+  } | null;
+};
 
 const styles = {
-<<<<<<< HEAD
-
-=======
->>>>>>> master
   pageContainer: {
     background: "linear-gradient(180deg, #FFD580, #FFCC80)",
     minHeight: "100vh",
@@ -80,8 +63,6 @@ const styles = {
   },
   contentContainer: {
     padding: "20px",
-    width: "100%", // Pastikan kontainer memiliki lebar penuh
-    marginTop: "20px", // Beri jarak dari atas untuk menghindari tumpang tindih
   },
   titleContainer: {
     display: "flex",
@@ -103,14 +84,16 @@ const styles = {
   card: {
     backgroundColor: "#FFFFFF",
     borderRadius: "12px",
-    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
-    padding: "15px",
+    boxShadow: "0px 8px 16px rgba(255, 153, 51, 0.5)", // Light orange shadow
+    padding: "20px",
     cursor: "pointer",
-    transition: "transform 0.2s",
-    width: "300px", // Atur lebar card
-    height: "200px", // Atur tinggi card
+    transition: "transform 0.2s, box-shadow 0.2s",
+    width: "300px", // Card width
+    height: "200px", // Card height
     "&:hover": {
       transform: "scale(1.02)",
+      boxShadow: "0px 12px 24px rgba(255, 153, 51, 0.7)", // Darker orange shadow on hover
+
     },
   },
   time: {
@@ -130,6 +113,14 @@ const styles = {
     fontSize: "14px",
     color: "#999",
   },
+  popupContainer: {
+    width: "90vw", // Adjust the popup width to cover 90% of the viewport width
+    maxWidth: "1000px", // Set a maximum width for larger screens
+    backgroundColor: "#FFFFFF",
+    borderRadius: "20px",
+    padding: "20px",
+    boxShadow: "0px 8px 16px rgba(0, 0, 0, 0.15)",
+  },
   popupTitle: {
     borderBottom: "1px solid #eee",
     paddingBottom: "10px",
@@ -137,395 +128,35 @@ const styles = {
   popupContent: {
     padding: "20px 0",
   },
+  chartContainer: {
+    marginTop: '20px',
+  },
+  cardContent: {
+    display: 'flex',
+    flexDirection: 'column' as const, // Tentukan tipe flexDirection sebagai const
+    gap: 8, // Tentukan gap sebagai number, bukan string
+  },
+
+  labelText: {
+    fontWeight: 'bold',
+  },
 };
 
-const getChartData = async (analysisId: string) => {
-  const periodRef = collection(firestore, "analisis_periode");
-  const periodQuery = query(periodRef, where("analysisId", "==", analysisId));
-  const querySnapshot = await getDocs(periodQuery);
-
-  // Menyusun data untuk chart
-  const chartData = querySnapshot.docs.map((doc) => {
-    const data = doc.data();
-    return {
-      name: doc.id, // ID periode sebagai label sumbu X
-      "Margin of Safety": data.marginOfSafety,
-      "R/C Ratio": data.rcRatio * 100, // Mengkalikan dengan 100 untuk skala yang sama
-      "BEP Harga": data.bepHarga,
-      "BEP Hasil": data.bepHasil,
-      Laba: data.laba,
-    };
-  });
-
-  return chartData;
-};
-
-function Popup({ open, onClose, data }: PopupProps) {
-  if (!data) return null;
-
-<<<<<<< HEAD
-  function formatNumber(number: number): string {
-    if (number >= 1000000) {
-      const millions = number / 1000000;
-      return Number.isInteger(millions) ? `${millions} JT` : `${millions.toFixed(1)} JT`;
-    } else if (number >= 1000) {
-      const thousands = number / 1000;
-      return Number.isInteger(thousands) ? `${thousands} K` : `${thousands.toFixed(1)} K`;
-    } else {
-      return number.toString();
-    }
-  }
-
-  const chartData = [
-    {
-      name: "0",
-      'Margin of Safety': data.marginOfSafety,
-      'R/C Ratio': data.rcRatio * 100, // Mengkalikan dengan 100 untuk skala yang sama
-      'BEP Harga': data.bepHarga,
-      'BEP Hasil': data.bepHasil,
-      'Laba': data.laba,
-      'totalCost': data.totalCost,
-      'totalRevenue': data.totalRevenue
-    }
-  ];
-  
-=======
-  const chartData = [
-    {
-      name: "Detail Grafik",
-      "Margin of Safety": data.marginOfSafety,
-      "R/C Ratio": data.rcRatio * 100,
-      "BEP Harga": data.bepHarga,
-      "BEP Hasil": data.bepHasil,
-      Laba: data.laba,
-    },
-  ];
-
->>>>>>> master
-  return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle
-        style={{
-<<<<<<< HEAD
-          backgroundColor: '#FFD580',
-          color: '#333',
-          fontWeight: 'bold'
-=======
-          backgroundColor: "#FFD580",
-          color: "#333",
-          fontWeight: "bold",
->>>>>>> master
-        }}
-      >
-        {data.analysisName}
-      </DialogTitle>
-      <DialogContent
-        style={{
-<<<<<<< HEAD
-          padding: '24px',
-          backgroundColor: '#FFF7E9'
-=======
-          padding: "24px",
-          backgroundColor: "#FFF7E9",
->>>>>>> master
-        }}
-      >
-        <Card
-          elevation={3}
-          style={{
-<<<<<<< HEAD
-            padding: '20px',
-            backgroundColor: 'white',
-            borderRadius: '12px',
-            boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-            marginBottom: '20px'
-          }}
-        >
-          <Grid container spacing={2}>
-
-            <Grid item xs={4}>
-              <Typography variant="body1" style={{ fontWeight: 'bold' }}>Mos</Typography>
-=======
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            padding: "20px",
-            backgroundColor: "white",
-            borderRadius: "12px",
-            boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-            marginBottom: "20px",
-          }}
-        >
-          <Grid container spacing={2}>
-            <Grid item xs={4}>
-              <Typography variant="body1" style={{ fontWeight: "bold" }}>
-                Mos
-              </Typography>
->>>>>>> master
-            </Grid>
-            <Grid item xs={1}>
-              <Typography variant="body1">:</Typography>
-            </Grid>
-            <Grid item xs={7}>
-<<<<<<< HEAD
-              <Typography variant="body1">{data.marginOfSafety.toFixed(2)}%</Typography>
-            </Grid>
-
-            <Grid item xs={4}>
-              <Typography variant="body1" style={{ fontWeight: 'bold' }}>R/C Ratio</Typography>
-=======
-              <Typography variant="body1">
-                {data.marginOfSafety.toFixed(2)}%
-              </Typography>
-            </Grid>
-
-            <Grid item xs={4}>
-              <Typography variant="body1" style={{ fontWeight: "bold" }}>
-                R/C Ratio
-              </Typography>
->>>>>>> master
-            </Grid>
-            <Grid item xs={1}>
-              <Typography variant="body1">:</Typography>
-            </Grid>
-            <Grid item xs={7}>
-              <Typography variant="body1">{data.rcRatio.toFixed(2)}</Typography>
-            </Grid>
-
-            <Grid item xs={4}>
-<<<<<<< HEAD
-              <Typography variant="body1" style={{ fontWeight: 'bold' }}>BEP Harga</Typography>
-=======
-              <Typography variant="body1" style={{ fontWeight: "bold" }}>
-                BEP Harga
-              </Typography>
->>>>>>> master
-            </Grid>
-            <Grid item xs={1}>
-              <Typography variant="body1">:</Typography>
-            </Grid>
-            <Grid item xs={7}>
-<<<<<<< HEAD
-              <Typography variant="body1">Rp. {data.bepHarga.toLocaleString('id-ID')}</Typography>
-            </Grid>
-
-            <Grid item xs={4}>
-              <Typography variant="body1" style={{ fontWeight: 'bold' }}>BEP Hasil</Typography>
-=======
-              <Typography variant="body1">
-                Rp. {data.bepHarga.toLocaleString("id-ID")}
-              </Typography>
-            </Grid>
-
-            <Grid item xs={4}>
-              <Typography variant="body1" style={{ fontWeight: "bold" }}>
-                BEP Hasil
-              </Typography>
->>>>>>> master
-            </Grid>
-            <Grid item xs={1}>
-              <Typography variant="body1">:</Typography>
-            </Grid>
-            <Grid item xs={7}>
-<<<<<<< HEAD
-              <Typography variant="body1">{data.bepHasil.toLocaleString('id-ID')} unit</Typography>
-            </Grid>
-
-            <Grid item xs={4}>
-              <Typography variant="body1" style={{ fontWeight: 'bold' }}>Laba</Typography>
-=======
-              <Typography variant="body1">
-                {data.bepHasil.toLocaleString("id-ID")} unit
-              </Typography>
-            </Grid>
-
-            <Grid item xs={4}>
-              <Typography variant="body1" style={{ fontWeight: "bold" }}>
-                Laba
-              </Typography>
->>>>>>> master
-            </Grid>
-            <Grid item xs={1}>
-              <Typography variant="body1">:</Typography>
-            </Grid>
-            <Grid item xs={7}>
-<<<<<<< HEAD
-              <Typography variant="body1">Rp. {data.laba.toLocaleString('id-ID')}</Typography>
-            </Grid>
-          </Grid>
-        </Card>
-        
-=======
-              <Typography variant="body1">
-                Rp. {data.laba.toLocaleString("id-ID")}
-              </Typography>
-            </Grid>
-          </Grid>
-        </Card>
->>>>>>> master
-
-        {/* Grafik */}
-        <Card
-          elevation={3}
-          style={{
-<<<<<<< HEAD
-            padding: '20px',
-            backgroundColor: 'white',
-            borderRadius: '12px',
-            boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
-          }}
-        >
-          
-
-          <LineChart  
-            width={600}
-            height={300}
-            data={chartData} // Ensure chartData contains a "Periode" field and other data fields
-=======
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            padding: "20px",
-            backgroundColor: "white",
-            borderRadius: "12px",
-            boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-          }}
-        >
-          <LineChart
-            width={600}
-            height={300}
-            data={chartData}
->>>>>>> master
-            margin={{
-              top: 5,
-              right: 30,
-              left: 20,
-              bottom: 5,
-            }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-<<<<<<< HEAD
-            <XAxis dataKey="Periode" tick={{ fontSize: 12 }} />
-            <YAxis domain={[0, 'auto']} tick={{ fontSize: 12 }} />
-            <Tooltip formatter={(value) => value.toLocaleString('id-ID')} />
-            <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
-
-            <Line
-              type="monotone"
-              dataKey="totalCost"
-              stroke="#8884d8"
-              strokeWidth={2}
-              dot={{ r: 4, stroke: '#8884d8', strokeWidth: 1 }}
-              activeDot={{ r: 6 }}
-            />
-            <Line
-              type="monotone"
-              dataKey="totalRevenue"
-              stroke="#82ca9d"
-              strokeWidth={2}
-              dot={{ r: 4, stroke: '#82ca9d', strokeWidth: 1 }}
-              activeDot={{ r: 6 }}
-            />
-            <Line
-              type="monotone"
-              dataKey="BEP Harga"
-              stroke="#ffc658"
-              strokeWidth={2}
-              dot={{ r: 4, stroke: '#ffc658', strokeWidth: 1 }}
-              activeDot={{ r: 6 }}
-            />
-            <Line
-              type="monotone"
-              dataKey="BEP Hasil"
-              stroke="#ff7300"
-              strokeWidth={2}
-              dot={{ r: 4, stroke: '#ff7300', strokeWidth: 1 }}
-              activeDot={{ r: 6 }}
-            />
-            <Line
-              type="monotone"
-              dataKey="Laba"
-              stroke="#ff0000"
-              strokeWidth={2}
-              dot={{ r: 4, stroke: '#ff0000', strokeWidth: 1 }}
-              activeDot={{ r: 6 }}
-            />
-            <Line
-              type="monotone"
-              dataKey="Margin of Safety"
-              stroke="#00bcd4"
-              strokeWidth={2}
-              dot={{ r: 4, stroke: '#00bcd4', strokeWidth: 1 }}
-              activeDot={{ r: 6 }}
-            />
-            <Line
-              type="monotone"
-              dataKey="R/C Ratio"
-              stroke="#795548"
-              strokeWidth={2}
-              dot={{ r: 4, stroke: '#795548', strokeWidth: 1 }}
-              activeDot={{ r: 6 }}
-            />
-          </LineChart>
-        </Card>
-
-      </DialogContent>
-      <DialogActions style={{ padding: '16px', backgroundColor: '#FFF7E9' }}>
-=======
-            <XAxis dataKey="name" />
-            <YAxis domain={[0, "auto"]} />
-            <Tooltip formatter={(value) => value.toLocaleString("id-ID")} />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="BEP Harga"
-              stroke="#8884d8"
-              activeDot={{ r: 8 }}
-            />
-            <Line type="monotone" dataKey="BEP Hasil" stroke="#82ca9d" />
-            <Line type="monotone" dataKey="Laba" stroke="#ffc658" />
-            <Line type="monotone" dataKey="Margin of Safety" stroke="#ff7300" />
-            <Line type="monotone" dataKey="R/C Ratio" stroke="#ff0000" />
-          </LineChart>
-        </Card>
-      </DialogContent>
-      <DialogActions style={{ padding: "16px", backgroundColor: "#FFF7E9" }}>
->>>>>>> master
-        <Button
-          onClick={onClose}
-          variant="contained"
-          sx={{
-<<<<<<< HEAD
-            backgroundColor: '#FFD580',
-            color: '#333',
-            '&:hover': {
-              backgroundColor: '#FFCC80'
-            }
-=======
-            backgroundColor: "#FFD580",
-            color: "#333",
-            "&:hover": {
-              backgroundColor: "#FFCC80",
-            },
->>>>>>> master
-          }}
-        >
-          Tutup
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-}
 
 export default function RiwayatAnalisis() {
-  const [username, setUsername] = useState<string>("User");
-  const [openPopup, setOpenPopup] = useState<boolean>(false);
+
+  const [username, setUsername] = useState<string>("User");//Variabel state ini menyimpan nama pengguna dengan nilai awal "User".
+  const [openPopup, setOpenPopup] = useState<boolean>(false);//State boolean ini mengontrol apakah popup terbuka. Nilai awalnya adalah false.
   const [selectedData, setSelectedData] = useState<AnalysisPeriodData | null>(
-    null
+    null//Variabel state ini menyimpan data analisis yang dipilih saat ini. Awalnya diatur ke null (menandakan tidak ada data yang dipilih). Tipe AnalysisPeriodData | null berarti dapat menyimpan data dari tipe AnalysisPeriodData atau null
   );
-  const [dataAnalisis, setDataAnalisis] = useState<AnalysisPeriodData[]>([]);
-  const [originalData, setOriginalData] = useState<AnalysisPeriodData[]>([]);
+  const [dataAnalisis, setDataAnalisis] = useState<AnalysisPeriodData[]>([]);//
   const [sortCriteria, setSortCriteria] = useState<string>("terbaru");
+
+
+  const [chartDataPenetasan, setChartDataPenetasan] = useState<{ Prd: string; Revenue: number; Cost: number; Laba: number; }[]>([]);
+  const [chartDataPenggemukan, setChartDataPenggemukan] = useState<{ Prd: string; Revenue: number; Cost: number; Laba: number; }[]>([]);
+  const [chartDataLayer, setChartDataLayer] = useState<{ Prd: string; Revenue: number; Cost: number; Laba: number; }[]>([]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -535,6 +166,23 @@ export default function RiwayatAnalisis() {
     });
     return () => unsubscribe();
   }, []);
+
+
+  async function getAnalysisPeriodData(analysisId: string, periode: string): Promise<AnalysisPeriodData | null> {
+    try {
+      const docRef = doc(db, `tipe_analisis/${analysisId}/analisis_periode/${periode}`);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        return { id: docSnap.id, ...docSnap.data() } as AnalysisPeriodData;
+      } else {
+        console.error("No such document!");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error getting document:", error);
+      return null;
+    }
+  }
 
   // Fetch User-Specific Data
   useEffect(() => {
@@ -566,6 +214,8 @@ export default function RiwayatAnalisis() {
           ),
         ];
 
+
+
         const userData = await Promise.all(
           detailQueries.map(async (q, index) => {
             const querySnapshot = await getDocs(q);
@@ -593,6 +243,60 @@ export default function RiwayatAnalisis() {
                 ];
                 const analysisName = analysisNames[index];
 
+
+
+                const [penetasanData, penggemukanData, layerData] = await Promise.all(
+                  detailQueries.map(async (q, index) => {
+                    const querySnapshot = await getDocs(q);
+                    if (!querySnapshot.empty) {
+                      const userDocRef = querySnapshot.docs[0].ref;
+                      const subCollectionRef = query(
+                        collection(userDocRef, "analisis_periode"),
+                        orderBy("created_at", "asc") // Mengurutkan berdasarkan created_at
+                      );
+                      const subCollectionSnapshot = await getDocs(subCollectionRef);
+
+                      return subCollectionSnapshot.docs.map((doc) => ({
+                        id: doc.id,
+                        analysisId: userDoc.id,
+                        created_at: doc.data().created_at || Timestamp.now(),
+                        bepHarga: doc.data().hasilAnalisis?.bepHarga || 0,
+                        bepHasil: doc.data().hasilAnalisis?.bepHasil || 0,
+                        laba: doc.data().hasilAnalisis?.laba || 0,
+                        marginOfSafety:
+                          doc.data().hasilAnalisis?.marginOfSafety || 0,
+                        periode: doc.data().periode ?? 0,
+                        rcRatio: doc.data().hasilAnalisis?.rcRatio || 0,
+                        totalCost: doc.data().hasilAnalisis?.totalCost || 0,
+                        totalRevenue: doc.data().hasilAnalisis?.totalRevenue || 0,
+                        analysisName: analysisName,
+                      }));
+                    }
+                    return [];
+                  })
+                );
+
+                setChartDataPenetasan(penetasanData.map(item => ({
+                  Prd: item.periode,
+                  Revenue: item.totalRevenue,
+                  Cost: item.totalCost,
+                  Laba: item.laba,
+                })));
+
+                setChartDataPenggemukan(penggemukanData.map(item => ({
+                  Prd: item.periode,
+                  Revenue: item.totalRevenue,
+                  Cost: item.totalCost,
+                  Laba: item.laba,
+                })));
+
+                setChartDataLayer(layerData.map(item => ({
+                  Prd: item.periode,
+                  Revenue: item.totalRevenue,
+                  Cost: item.totalCost,
+                  Laba: item.laba,
+                })));
+
                 subCollectionSnapshot.docs.forEach((doc) => {
                   const docData = {
                     id: doc.id,
@@ -600,9 +304,10 @@ export default function RiwayatAnalisis() {
                     created_at: doc.data().created_at || Timestamp.now(),
                     bepHarga: doc.data().hasilAnalisis?.bepHarga || 0,
                     bepHasil: doc.data().hasilAnalisis?.bepHasil || 0,
-                    laba: doc.data().hasilAnalisis?.laba || 0,
+                    Laba: doc.data().hasilAnalisis?.laba || 0,
                     marginOfSafety:
                       doc.data().hasilAnalisis?.marginOfSafety || 0,
+                    periode: doc.data().periode ?? 0,
                     rcRatio: doc.data().hasilAnalisis?.rcRatio || 0,
                     totalCost: doc.data().hasilAnalisis?.totalCost || 0,
                     totalRevenue: doc.data().hasilAnalisis?.totalRevenue || 0,
@@ -617,13 +322,15 @@ export default function RiwayatAnalisis() {
           })
         );
 
+        // setDataAnalisis(userData.flat());
+
         // Gabungkan data berdasarkan `analysisId` alih-alih `analysisName`
         const aggregatedData: { [key: string]: AnalysisPeriodData } = {};
 
         userData.flat().forEach((data) => {
           const key = data.analysisId; // Gunakan `analysisId` sebagai kunci untuk penggabungan
           if (aggregatedData[key]) {
-            aggregatedData[key].laba += data.laba;
+            aggregatedData[key].Laba += data.Laba;
             aggregatedData[key].bepHarga += data.bepHarga;
             aggregatedData[key].bepHasil += data.bepHasil;
             if (data.created_at < aggregatedData[key].created_at) {
@@ -637,8 +344,6 @@ export default function RiwayatAnalisis() {
         console.log("Data yang sudah digabungkan:", aggregatedData);
 
         setDataAnalisis(Object.values(aggregatedData));
-        setOriginalData(Object.values(aggregatedData)); // Simpan data asli
-        setDataAnalisis(Object.values(aggregatedData)); // Simpan data untuk ditampilkan
       } catch (error) {
         console.error("Error mengambil data: ", error);
       }
@@ -655,27 +360,23 @@ export default function RiwayatAnalisis() {
   const handleSortChange = (event: SelectChangeEvent<string>) => {
     const criteria = event.target.value;
     setSortCriteria(criteria);
-  
-    // Mulai dari data asli untuk menghindari penyaringan berulang-ulang yang menghilangkan data
-    let sortedData = [...originalData];
-  
+
+    let sortedData = [...dataAnalisis];
     if (criteria === "terbaru") {
       sortedData.sort((a, b) => b.created_at.seconds - a.created_at.seconds);
     } else if (criteria === "terlama") {
       sortedData.sort((a, b) => a.created_at.seconds - b.created_at.seconds);
     } else if (criteria === "laba") {
-      sortedData.sort((a, b) => b.laba - a.laba);
-    } else if (criteria === "detail_penetasan") {
-      sortedData = sortedData.filter((data) => data.analysisName === "Detail Penetasan");
-    } else if (criteria === "detail_penggemukan") {
-      sortedData = sortedData.filter((data) => data.analysisName === "Detail Penggemukan");
-    } else if (criteria === "detail_layer") {
-      sortedData = sortedData.filter((data) => data.analysisName === "Detail Layer");
+      sortedData.sort((a, b) => b.Laba - a.Laba);
+    } else if (criteria === "tipe") {
+      sortedData.sort((a, b) => a.analysisName.localeCompare(b.analysisName));
     }
-  
+
     setDataAnalisis(sortedData);
+
   };
-  
+
+
 
   return (
     <div style={styles.pageContainer}>
@@ -694,22 +395,18 @@ export default function RiwayatAnalisis() {
                 <MenuItem value="terbaru">Terbaru</MenuItem>
                 <MenuItem value="terlama">Terlama</MenuItem>
                 <MenuItem value="laba">Laba Terbanyak</MenuItem>
-                <MenuItem value="detail_penetasan">Detail Penetasan</MenuItem>
-                <MenuItem value="detail_penggemukan">
-                  Detail Penggemukan
-                </MenuItem>
-                <MenuItem value="detail_layer">Detail Layer</MenuItem>
+                <MenuItem value="tipe">Tipe Analisis</MenuItem>
               </Select>
             </FormControl>
           </div>
 
-          <Grid container spacing={3} style={{ width: "100%", margin: "0" }}>
+          <Grid container spacing={3}>
             {dataAnalisis.map((data, index) => (
               <Grid item xs={12} sm={6} md={4} key={data.id}>
                 <Card
                   style={{
                     ...styles.card,
-                    width: "100%", // Ukuran lebar tetap untuk desktop
+                    width: "300px", // Ukuran lebar tetap untuk desktop
                     height: "200px", // Ukuran tinggi tetap untuk desktop
                   }}
                   onClick={() => handleCardClick(data)}
@@ -737,14 +434,14 @@ export default function RiwayatAnalisis() {
                         alignItems: "center",
                       }}
                     >
-                      {data.laba !== undefined &&
-                        data.laba !== null &&
-                        !isNaN(data.laba) ? (
+                      {data.Laba !== undefined &&
+                        data.Laba !== null &&
+                        !isNaN(data.Laba) ? (
                         <Typography
                           variant="h6"
                           style={{ ...styles.amount, textAlign: "center" }}
                         >
-                          Rp. {data.laba.toLocaleString("id-ID")}
+                          Rp. {data.Laba.toLocaleString("id-ID")}
                         </Typography>
                       ) : (
                         <Typography
@@ -787,10 +484,124 @@ export default function RiwayatAnalisis() {
           <Popup
             open={openPopup}
             onClose={() => setOpenPopup(false)}
-            data={selectedData}
+            data1={selectedData}
           />
         </div>
       </SidebarDemo>
     </div>
   );
+
+
+  function formatNumber(number: number): string {
+    if (number >= 1000000) {
+      const millions = number / 1000000;
+      return Number.isInteger(millions) ? `${millions} JT` : `${millions.toFixed(1)} JT`;
+    } else if (number >= 1000) {
+      const thousands = number / 1000;
+      return Number.isInteger(thousands) ? `${thousands} K` : `${thousands.toFixed(1)} K`;
+    } else {
+      return number.toString();
+    }
+  };
+
+  function Popup({ open, onClose, data1 }: PopupProps) {
+    if (!data1) return null;
+
+    return (
+      <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
+        <DialogTitle style={styles.popupTitle}>{data1.analysisName}</DialogTitle>
+        <DialogContent style={styles.popupContent}>
+          <Grid container spacing={5} justifyContent="center">
+            {[0, 1].map((index) => (
+              <Grid item xs={5} key={index}>
+                <Card style={styles.card}>
+                  <CardContent style={styles.cardContent}>
+                    <Grid container spacing={1}>
+                      {/* Baris untuk Mos */}
+                      <Grid item xs={5}>
+                        <Typography variant="body1" style={styles.labelText}>Mos</Typography>
+                      </Grid>
+                      <Grid item xs={1} style={{ textAlign: 'center' }}>
+                        <Typography variant="body1">:</Typography>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Typography variant="body2">{data1.marginOfSafety}</Typography>
+                      </Grid>
+
+                      {/* Baris untuk R/C Ratio */}
+                      <Grid item xs={5}>
+                        <Typography variant="body1" style={styles.labelText}>R/C Ratio</Typography>
+                      </Grid>
+                      <Grid item xs={1} style={{ textAlign: 'center' }}>
+                        <Typography variant="body1">:</Typography>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Typography variant="body2">{data1.rcRatio}</Typography>
+                      </Grid>
+
+                      {/* Baris untuk BEP Harga */}
+                      <Grid item xs={5}>
+                        <Typography variant="body1" style={styles.labelText}>BEP Harga</Typography>
+                      </Grid>
+                      <Grid item xs={1} style={{ textAlign: 'center' }}>
+                        <Typography variant="body1">:</Typography>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Typography variant="body2">{data1.bepHarga}</Typography>
+                      </Grid>
+
+                      {/* Baris untuk BEP Hasil */}
+                      <Grid item xs={5}>
+                        <Typography variant="body1" style={styles.labelText}>BEP Hasil</Typography>
+                      </Grid>
+                      <Grid item xs={1} style={{ textAlign: 'center' }}>
+                        <Typography variant="body1">:</Typography>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Typography variant="body2">{data1.bepHasil}</Typography>
+                      </Grid>
+
+                      {/* Baris untuk Laba */}
+                      <Grid item xs={5}>
+                        <Typography variant="body1" style={styles.labelText}>Laba</Typography>
+                      </Grid>
+                      <Grid item xs={1} style={{ textAlign: 'center' }}>
+                        <Typography variant="body1">:</Typography>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Typography variant="body2">Rp. {data1.Laba.toLocaleString("id-ID")}</Typography>
+                      </Grid>
+                    </Grid>
+                  </CardContent>
+                </Card>
+
+              </Grid>
+            ))}
+          </Grid>
+
+          <Grid container justifyContent="left" style={{ marginTop: '20px', width: '100%' }}>
+            <Grid item xs={10} md={8} lg={6}style={{ marginLeft: '15px' }}>
+              <AreaChart
+                style={{ width: '175%' }} // Mengatur grafik agar memenuhi lebar kolom
+                className="flex items-center justify-center h-100"
+                data={chartDataPenetasan}
+                index="Prd"
+                categories={["Revenue", "Cost", "Laba"]}
+                valueFormatter={(number: number) => `${formatNumber(number)}`}
+                onValueChange={(v) => console.log(v)}
+                xAxisLabel="Periode"
+                yAxisLabel="Rp"
+                fill="solid"
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  };
 }
