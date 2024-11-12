@@ -584,7 +584,7 @@ export default function RiwayatAnalisis() {
               <AreaChart
                 style={{ width: '175%' }} // Mengatur grafik agar memenuhi lebar kolom
                 className="flex items-center justify-center h-100"
-                data={chartDataPenetasan}//belommm bisaaa 
+                data={chartDataPenetasan}
                 index="Prd"
                 categories={["Revenue", "Cost", "Laba"]}
                 valueFormatter={(number: number) => `${formatNumber(number)}`}
@@ -605,3 +605,4 @@ export default function RiwayatAnalisis() {
     );
   };
 }
+//kurang menampilkan data id periode
