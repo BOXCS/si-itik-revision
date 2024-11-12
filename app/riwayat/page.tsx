@@ -584,7 +584,7 @@ export default function RiwayatAnalisis() {
               <AreaChart
                 style={{ width: '175%' }} // Mengatur grafik agar memenuhi lebar kolom
                 className="flex items-center justify-center h-100"
-                data={chartDataPenetasan}
+                data={chartDataPenetasan}//belommm bisaaa 
                 index="Prd"
                 categories={["Revenue", "Cost", "Laba"]}
                 valueFormatter={(number: number) => `${formatNumber(number)}`}
