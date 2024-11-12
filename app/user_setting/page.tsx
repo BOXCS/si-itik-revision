@@ -4,7 +4,7 @@
 import { useRouter } from "next/navigation";
 import { SidebarDemo } from "@/components/Sidebar";
 import { useEffect, useState } from "react";
-import { deleteUser, updateProfile } from "firebase/auth";
+import { deleteUser, signOut, updateProfile } from "firebase/auth";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Impor fungsi untuk Firebase Storage
 import { auth, storage } from "@/lib/firebase";
 import { getAuth, reauthenticateWithPopup, GoogleAuthProvider } from 'firebase/auth';
@@ -62,6 +62,8 @@ export default function SettingPage() {
 
 function CardContainer() {
   const { toast } = useToast();
+  const [showDialog, setShowDialog] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const router = useRouter();
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
   const [photoAdded, setPhotoAdded] = useState<boolean>(false);
@@ -96,7 +98,7 @@ function CardContainer() {
         }
       });
     }
-  }, []);
+  }, []);  
 
   const handleDeleteAccount = async () => {
     const auth = getAuth();
@@ -191,6 +193,20 @@ function CardContainer() {
     }
   };
 
+  const handleLogoutClick = () => {
+    setIsLogoutModalOpen(true); // Tampilkan modal konfirmasi logout
+  };
+
+  const confirmLogout = async () => {
+    setIsLogoutModalOpen(false); // Tutup modal
+    await signOut(auth); // Logout dari Firebase
+    router.push('/auth/login/'); // Redirect ke halaman login
+  };
+
+  const cancelLogout = () => {
+    setIsLogoutModalOpen(false); // Tutup modal jika batal logout
+  };
+
 
   return (
     <div className="w-full p-4">
@@ -271,12 +287,38 @@ function CardContainer() {
             />
           </Modal>
 
+          {/* Modal konfirmasi logout */}
+          {isLogoutModalOpen && (
+            <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
+              <div className="bg-white p-6 rounded-xl shadow-lg w-96">
+                <h3 className="text-xl font-semibold mb-4">Konfirmasi Logout</h3>
+                <p className="mb-4">Apakah Anda yakin ingin keluar?</p>
+                <div className="flex justify-between">
+                  <button
+                    onClick={confirmLogout}
+                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                  >
+                    Ya, Keluar
+                  </button>
+                  <button
+                    onClick={cancelLogout}
+                    className="px-4 py-2 bg-gray-300 text-black rounded-md hover:bg-gray-400"
+                  >
+                    Batal
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="flex justify-between border-t border-b border-gray-300 my-4 mt-7">
             <div className="flex flex-col gap-3 mb-4">
-              <h1 className="text-2xl font-semibold">Ganti Akun</h1>
-              <p className="text-base text-gray-500">Maks 3 akun yang dapat ditambahkan dalam 1 device</p>
+              <h1 className="text-2xl font-semibold">Keluar</h1>
+              <p className="text-base text-gray-500">Keluar dari akun</p>
             </div>
-            <button className="p-2 bg-[#F58110] text-white hover:bg-orange-600 transition duration-300 flex-shrink-0 rounded-md w-28">Ganti Akun</button>
+            <button 
+            onClick={handleLogoutClick}
+            className="p-2 bg-[#F58110] text-white hover:bg-orange-600 transition duration-300 flex-shrink-0 rounded-md w-28">Keluar</button>
           </div>
 
           <div className="flex justify-between border-t border-b border-gray-300 my-4 mt-7">

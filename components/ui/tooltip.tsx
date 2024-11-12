@@ -1,5 +1,3 @@
-// Tremor Tooltip [v0.0.2]
-
 "use client"
 
 import React from "react"
