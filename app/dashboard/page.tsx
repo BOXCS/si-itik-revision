@@ -13,6 +13,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import {
   Grid,
   Card,
+  Divider,
   CardContent,
   Typography,
   Dialog,
@@ -20,6 +21,11 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  FormControl,
+  InputLabel,
+  SelectChangeEvent,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { auth } from "@/lib/firebase";
 import { unsubscribe } from "diagnostics_channel";
@@ -59,6 +65,8 @@ export default function Dashboard() {
   const [chartDataPenggemukan, setChartDataPenggemukan] = useState<{ Prd: string; Revenue: number; Cost: number; Laba: number; }[]>([]);
   const [chartDataLayer, setChartDataLayer] = useState<{ Prd: string; Revenue: number; Cost: number; Laba: number; }[]>([]);
   const [dataAnalisis, setDataAnalisis] = useState<AnalysisPeriodData[]>([]);
+  const [originalData, setOriginalData] = useState<AnalysisPeriodData[]>([]);
+  const [sortCriteria, setSortCriteria] = useState<string>("terbaru");
 
   const styles = {
     pageContainer: {
@@ -78,6 +86,9 @@ export default function Dashboard() {
     sectionTitle: {
       color: "#333",
       marginBottom: "15px",
+    },
+    sortControl: {
+      minWidth: "150px",
     },
     card: {
       backgroundColor: "#FFFFFF",
@@ -117,7 +128,7 @@ export default function Dashboard() {
       padding: "20px 0",
     },
   };
-  
+
   // Memeriksa login
   useEffect(() => {
     const auth = getAuth();
@@ -131,7 +142,175 @@ export default function Dashboard() {
     return () => unsubscribe();
   }, []);
 
-useEffect(() => {
+  // useEffect(() => {
+  //   if (!userEmail) return;
+  //   const fetchData = async () => {
+  //     try {
+  //       console.log("Mencari dokumen dengan email:", userEmail);
+  //       //Detail Penetasan
+  //       const detailpenetasan = query(
+  //         collection(firestore, "detail_penetasan"),
+  //         where("userId", "==", userEmail)
+  //       );
+
+  //       const querySnapshot = await getDocs(detailpenetasan);
+
+  //       if (!querySnapshot.empty) {
+  //         const userDocref = querySnapshot.docs[0].ref;
+  //         const subCollectionRef = query(
+  //           collection(userDocref, "analisis_periode"),
+  //           orderBy("created_at", "asc") // Mengurutkan berdasarkan created_at
+  //         );
+  //         const subCollectionSnapshot = await getDocs(subCollectionRef);
+
+  //         console.log("SubCollection Snapshot: ", subCollectionSnapshot.docs);
+
+  //         const fetchData: AnalisisPeriode[] = subCollectionSnapshot.docs.map((doc) => {
+  //           const docData = doc.data();
+  //           console.log("Data Dokumen: ", docData);
+
+  //           const hasilAnalisis = docData.hasilAnalisis || {};
+  //           const penerimaan = docData.penerimaan || {};
+  //           const pengeluaran = docData.pengeluaran || {};
+  //           const periode = docData.periode || {};
+
+  //           return {
+  //             id: doc.id,
+  //             created_at: docData.created_at || Timestamp.now(),
+  //             laba: hasilAnalisis.laba ?? 0,
+  //             revenue: penerimaan.totalRevenue ?? 0,
+  //             cost: pengeluaran.totalCost ?? 0,
+  //             periode: periode ??0,
+  //           } as AnalisisPeriode;
+  //         });
+
+  //         setData(fetchData);
+  //         console.log("Data yang di set: ", fetchData);          
+  //         const updatedChartData = fetchData.map(item => ({
+  //           Prd: item.periode,
+  //           Revenue: item.revenue,
+  //           Cost: item.cost,
+  //           Laba: item.laba,
+  //         }));
+  //         setChartDataPenetasan(updatedChartData);
+  //       } else {
+  //         console.error("Dokumen tidak ditemukan untuk email yang diberikan");
+  //       }
+
+  //       //Detail Penggemukan
+  //       const detailpenggemukan = query(
+  //         collection(firestore, "detail_penggemukan"),
+  //         where("userId", "==", userEmail)
+  //       );
+
+  //       const querySnapshot1 = await getDocs(detailpenggemukan);
+
+  //       if (!querySnapshot1.empty) {
+  //         const userDocref = querySnapshot1.docs[0].ref;
+  //         const subCollectionRef = query(
+  //           collection(userDocref, "analisis_periode"),
+  //           orderBy("created_at", "asc") // Mengurutkan berdasarkan created_at
+  //         );
+  //         const subCollectionSnapshot = await getDocs(subCollectionRef);
+
+  //         console.log("SubCollection Snapshot:                                                                                    ", subCollectionSnapshot.docs);
+
+  //         const fetchData: AnalisisPeriode[] = subCollectionSnapshot.docs.map((doc) => {
+  //           const docData = doc.data();
+  //           console.log("Data Dokumen: ", docData);
+
+  //           const hasilAnalisis = docData.hasilAnalisis || {};
+  //           const penerimaan = docData.penerimaan || {};
+  //           const pengeluaran = docData.pengeluaran || {};
+  //           const periode = docData.periode || {};
+
+  //           return {
+  //             id: doc.id,
+  //             created_at: docData.created_at || Timestamp.now(),
+  //             laba: hasilAnalisis.laba ?? 0,
+  //             revenue: penerimaan.totalRevenue ?? 0,
+  //             cost: pengeluaran.totalCost ?? 0,
+  //             periode: periode ??0,
+  //           } as AnalisisPeriode;
+  //         });
+
+  //         setData(fetchData);
+  //         console.log("Data yang di set: ", fetchData);          
+  //         const updatedChartData = fetchData.map(item => ({
+  //           Prd: item.periode,
+  //           Revenue: item.revenue,
+  //           Cost: item.cost,
+  //           Laba: item.laba,
+  //         }));
+  //         setChartDataPenggemukan(updatedChartData);
+  //       } else {
+  //         console.error("Dokumen tidak ditemukan untuk email yang diberikan");
+  //       }
+
+  //       //Detail Layering
+  //       const detaillayer = query(
+  //         collection(firestore, "detail_layer"),
+  //         where("userId", "==", userEmail)
+  //       );
+
+  //       const querySnapshot2 = await getDocs(detaillayer);
+
+  //       if (!querySnapshot2.empty) {
+  //         const userDocref = querySnapshot2.docs[0].ref;
+  //         const subCollectionRef = query(
+  //           collection(userDocref, "analisis_periode"),
+  //           orderBy("created_at", "asc") // Mengurutkan berdasarkan created_at
+  //         );
+  //         const subCollectionSnapshot = await getDocs(subCollectionRef);
+
+  //         console.log("SubCollection Snapshot: ", subCollectionSnapshot.docs);
+
+  //         const fetchData: AnalisisPeriode[] = subCollectionSnapshot.docs.map((doc) => {
+  //           const docData = doc.data();
+  //           console.log("Data Dokumen: ", docData);
+
+  //           const hasilAnalisis = docData.hasilAnalisis || {};
+  //           const penerimaan = docData.penerimaan || {};
+  //           const pengeluaran = docData.pengeluaran || {};
+  //           const periode = docData.periode || {};
+
+  //           return {
+  //             id: doc.id,
+  //             created_at: docData.created_at || Timestamp.now(),
+  //             laba: hasilAnalisis.laba ?? 0,
+  //             revenue: penerimaan.totalRevenue ?? 0,
+  //             cost: pengeluaran.totalCost ?? 0,
+  //             periode: periode ??0,
+  //           } as AnalisisPeriode;
+  //         });
+
+  //         setData(fetchData);
+  //         console.log("Data yang di set: ", fetchData);          
+  //         const updatedChartData = fetchData.map(item => ({
+  //           Prd: item.periode,
+  //           Revenue: item.revenue,
+  //           Cost: item.cost,
+  //           Laba: item.laba,
+  //         }));
+  //         setChartDataLayer(updatedChartData);
+  //       } else {
+  //         console.error("Dokumen tidak ditemukan untuk email yang diberikan");
+  //       }
+
+
+  //     } catch (error) {
+  //       console.error("Error mengambil Data: ", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   fetchData();
+  // }, [userEmail]);
+  // if (loading) {
+  //   return <p>Loading...</p>
+  // }
+
+  useEffect(() => {
     const fetchUserSpecificData = async () => {
       const auth = getAuth();
       const user = auth.currentUser;
@@ -168,8 +347,6 @@ useEffect(() => {
                 "analisis_periode"
               );
               const subCollectionSnapshot = await getDocs(subCollectionRef);
-              const subCollectionSnapshot1 = await getDocs(subCollectionRef);
-
 
               // Tentukan nama analisis berdasarkan index
               const analysisNames = [
@@ -177,56 +354,56 @@ useEffect(() => {
                 "Detail Penggemukan",
                 "Detail Layer",
               ];
-
+                // chart
               const [penetasanData, penggemukanData, layerData] = await Promise.all(
-        detailQueries.map(async (q, index) => {
-          const querySnapshot = await getDocs(q);
-          if (!querySnapshot.empty) {
-            const userDocRef = querySnapshot.docs[0].ref;
-            const subCollectionRef = collection(
-              userDocRef,
-              "analisis_periode"
-            );
-            const subCollectionSnapshot = await getDocs(subCollectionRef);
+                detailQueries.map(async (q, index) => {
+                  const querySnapshot = await getDocs(q);
+                  if (!querySnapshot.empty) {
+                    const userDocRef = querySnapshot.docs[0].ref;
+                    const subCollectionRef = query(
+                      collection(userDocRef, "analisis_periode"),
+                      orderBy("created_at", "asc") // Mengurutkan berdasarkan created_at
+                    );
+                    const subCollectionSnapshot = await getDocs(subCollectionRef);
 
-            return subCollectionSnapshot.docs.map((doc) => ({
-              id: doc.id,
-              created_at: doc.data().created_at || Timestamp.now(),
-              bepHarga: doc.data().hasilAnalisis?.bepHarga || 0,
-              bepHasil: doc.data().hasilAnalisis?.bepHasil || 0,
-              laba: doc.data().hasilAnalisis?.laba || 0,
-              periode: doc.data().periode ??0,
-            revenue: doc.data().penerimaan?.totalRevenue || 0,
-            cost: doc.data().pengeluaran?.totalCost || 0,
-              marginOfSafety: doc.data().hasilAnalisis?.marginOfSafety || 0,
-              rcRatio: doc.data().hasilAnalisis?.rcRatio || 0,
-              analysisName: analysisNames[index],
-            }));
-          }
-          return [];
-        })
-      );
+                    return subCollectionSnapshot.docs.map((doc) => ({
+                      id: doc.id,
+                      created_at: doc.data().created_at || Timestamp.now(),
+                      bepHarga: doc.data().hasilAnalisis?.bepHarga || 0,
+                      bepHasil: doc.data().hasilAnalisis?.bepHasil || 0,
+                      laba: doc.data().hasilAnalisis?.laba || 0,
+                      periode: doc.data().periode ?? 0,
+                      revenue: doc.data().penerimaan?.totalRevenue || 0,
+                      cost: doc.data().pengeluaran?.totalCost || 0,
+                      marginOfSafety: doc.data().hasilAnalisis?.marginOfSafety || 0,
+                      rcRatio: doc.data().hasilAnalisis?.rcRatio || 0,
+                      analysisName: analysisNames[index],
+                    }));
+                  }
+                  return [];
+                })
+              );
 
-      setChartDataPenetasan(penetasanData.map(item => ({
-        Prd: item.periode,
-        Revenue: item.revenue,
-        Cost: item.cost,
-        Laba: item.laba,
-      })));
+              setChartDataPenetasan(penetasanData.map(item => ({
+                Prd: item.periode,
+                Revenue: item.revenue,
+                Cost: item.cost,
+                Laba: item.laba,
+              })));
 
-      setChartDataPenggemukan(penggemukanData.map(item => ({
-        Prd: item.periode,
-        Revenue: item.revenue,
-        Cost: item.cost,
-        Laba: item.laba,
-      })));
+              setChartDataPenggemukan(penggemukanData.map(item => ({
+                Prd: item.periode,
+                Revenue: item.revenue,
+                Cost: item.cost,
+                Laba: item.laba,
+              })));
 
-      setChartDataLayer(layerData.map(item => ({
-        Prd: item.periode,
-        Revenue: item.revenue,
-        Cost: item.cost,
-        Laba: item.laba,
-      })));
+              setChartDataLayer(layerData.map(item => ({
+                Prd: item.periode,
+                Revenue: item.revenue,
+                Cost: item.cost,
+                Laba: item.laba,
+              })));
 
               const analysisName = analysisNames[index];
 
@@ -236,14 +413,14 @@ useEffect(() => {
                 bepHarga: doc.data().hasilAnalisis?.bepHarga || 0,
                 bepHasil: doc.data().hasilAnalisis?.bepHasil || 0,
                 laba: doc.data().hasilAnalisis?.laba || 0,
-                periode: doc.data().periode ??0,
-              revenue: doc.data().penerimaan?.totalRevenue || 0,
-              cost: doc.data().pengeluaran?.totalCost || 0,
+                periode: doc.data().periode ?? 0,
+                revenue: doc.data().penerimaan?.totalRevenue || 0,
+                cost: doc.data().pengeluaran?.totalCost || 0,
                 marginOfSafety: doc.data().hasilAnalisis?.marginOfSafety || 0,
                 rcRatio: doc.data().hasilAnalisis?.rcRatio || 0,
                 analysisName: analysisName, // Menyimpan nama analisis
               }));
-              
+
             }
             return [];
           })
@@ -271,6 +448,7 @@ useEffect(() => {
 
         // Convert the aggregated data back to an array and update state
         setDataAnalisis(Object.values(aggregatedData));
+        setOriginalData(Object.values(aggregatedData)); // Simpan data asli
       } catch (error) {
         console.error("Error mengambil data: ", error);
       }
@@ -279,9 +457,31 @@ useEffect(() => {
     fetchUserSpecificData();
   }, []);
 
+  const handleSortChange = (event: SelectChangeEvent<string>) => {
+    const criteria = event.target.value;
+    setSortCriteria(criteria);
+
+    // Mulai dari data asli untuk menghindari penyaringan berulang-ulang yang menghilangkan data
+    let sortedData = [...originalData];
+
+    if (criteria === "terbaru") {
+      sortedData.sort((a, b) => b.created_at.seconds - a.created_at.seconds);
+    } else if (criteria === "terlama") {
+      sortedData.sort((a, b) => a.created_at.seconds - b.created_at.seconds);
+    }  else if (criteria === "detail_penetasan") {
+      sortedData = sortedData.filter((data) => data.analysisName === "Detail Penetasan");
+    } else if (criteria === "detail_penggemukan") {
+      sortedData = sortedData.filter((data) => data.analysisName === "Detail Penggemukan");
+    } else if (criteria === "detail_layer") {
+      sortedData = sortedData.filter((data) => data.analysisName === "Detail Layer");
+    }
+
+    setDataAnalisis(sortedData);
+  };
+
 
   function formatNumber(number: number): string {
-    if (number >= 1000000) { 
+    if (number >= 1000000) {
       const millions = number / 1000000;
       return Number.isInteger(millions) ? `${millions} JT` : `${millions.toFixed(1)} JT`;
     } else if (number >= 1000) {
@@ -370,8 +570,8 @@ useEffect(() => {
                 </div>
               </div>
 
-              <div className="justify-center gap-5 pt-5 w-full">
-                <div className="bg-white p-3 rounded-lg shadow-md w-full">
+              <div className="flex justify-center gap-5 pt-5">
+                <div className="flex-1 bg-white p-3 rounded-lg shadow-md">
                   <div className="flex-1">
                     <Tabs defaultValue="tab1">
                       <TabsList>
@@ -393,8 +593,8 @@ useEffect(() => {
                               valueFormatter={(number: number) =>
                                 `${formatNumber(number)}`}
                               onValueChange={(v) => console.log(v)}
-                              xAxisLabel="Periode"    
-                              yAxisLabel="Rp"    
+                              xAxisLabel="Periode"
+                              yAxisLabel="Rp"
                               fill="solid"
                             />
                           </div>
@@ -412,19 +612,19 @@ useEffect(() => {
                               valueFormatter={(number: number) =>
                                 `${formatNumber(number)}`}
                               onValueChange={(v) => console.log(v)}
-                              xAxisLabel="Periode"    
-                              yAxisLabel="Rp"    
+                              xAxisLabel="Periode"
+                              yAxisLabel="Rp"
                               fill="solid"
                             />
                           </div>
-                        </TabsContent> 
+                        </TabsContent>
                         <TabsContent
                           value="tab3"
 
                           className="space-y-2 text-sm leading-7 text-gray-600 dark:text-gray-500"
                         >
                           <div className="flex space-x-4">
-                          <AreaChart
+                            <AreaChart
                               className=" flex items-center justify-center h-50"
                               data={chartDataLayer}
                               index="Prd"
@@ -432,8 +632,8 @@ useEffect(() => {
                               valueFormatter={(number: number) =>
                                 `${formatNumber(number)}`}
                               onValueChange={(v) => console.log(v)}
-                              xAxisLabel="Periode"    
-                              yAxisLabel="Rp"    
+                              xAxisLabel="Periode"
+                              yAxisLabel="Rp"
                               fill="solid"
                             />
                           </div>
@@ -446,90 +646,99 @@ useEffect(() => {
             </div>
 
             {/* Riwayat */}
-            <div className="flex justify-center items-center p-5 gap-5 pl-0">
-              <div className="bg-white p-3 rounded-lg shadow-md w-200 justify-center items-center">
-                <h2 className="text-lg sm-bold">Riwayat Analisis</h2>
+            <div className="flex justify-center p-5 gap-5 pl-0">
+              <div className="bg-white p-3 rounded-lg shadow-md w-200">
+                <div className="flex flex-wrap items-center justify-between">
+                  <h2 className="text-lg sm-bold">Riwayat Analisis</h2>
+                  <div>
+                    <FormControl variant="outlined" style={styles.sortControl}>
+                      <InputLabel id="sort-label">Sort By</InputLabel>
+                      <Select
+                        labelId="sort-label"
+                        value={sortCriteria}
+                        onChange={handleSortChange}
+                        label="Sort By"
+                      >
+                        <MenuItem value="terbaru">Terbaru</MenuItem>
+                        <MenuItem value="terlama">Terlama</MenuItem>
+                        <MenuItem value="detail_penetasan">Detail Penetasan</MenuItem>
+                        <MenuItem value="detail_penggemukan">
+                          Detail Penggemukan
+                        </MenuItem>
+                        <MenuItem value="detail_layer">Detail Layer</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </div>
+                </div>
+
+                {/*Card Riwayat Analisis */}
                 <Grid container spacing={3}>
-            {dataAnalisis.map((data, index) => (
-              <Grid item xs={12} key={index}>
-                <Card style={{
-                  ...styles.card,
-                  width: "100%",
-                  height: "200px"
-                  }}>
-                <CardContent
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      width: "100%",
-                      height: "180px",
-                    }}
-                  >
-                    {/* Display Time and Date */}
-                    <Grid container justifyContent="space-between">
-                      <Typography variant="body2" style={styles.time}>
-                        {data.created_at.toDate().toLocaleTimeString()}
-                      </Typography>
-                      <Typography variant="body2" style={styles.date}>
-                        {data.created_at.toDate().toLocaleDateString()}
-                      </Typography>
-                    </Grid>
-
-                    {/* Display Profit */}
-                    {/* <Typography variant="h6" style={styles.amount}>
-                      Rp. {data.laba.toLocaleString("id-ID")}
-                    </Typography> */}
-
-                    <div
-                      style={{
-                        flexGrow: 1,
-                        display: "flex",
-                        alignItems: "center",
+                  {dataAnalisis.map((data, index) => (
+                    <Grid item xs={12} key={index}>
+                      <Card style={{
+                        ...styles.card,
+                        flexDirection: "column",
+                        width: "100%",
+                        height: "138px",
                       }}
-                    >
-                      {data.laba !== undefined &&
-                      data.laba !== null &&
-                      !isNaN(data.laba) ? (
+                      >
+                        {/* Display Analysis Name */}
                         <Typography
-                          variant="h6"
-                          style={{ ...styles.amount, textAlign: "center" }}
-                        >
-                          Rp. {data.laba.toLocaleString("id-ID")}
-                        </Typography>
-                      ) : (
-                        <Typography
-                          variant="h6"
+                          variant="body1"
                           style={{
-                            ...styles.amount,
+                            borderRadius: "9999px",
                             textAlign: "center",
-                            color: "red",
+                            display: "inline-block",
+                            marginTop: "0px",
+                            fontWeight: "bold",
                           }}
                         >
-                          Laba tidak tersedia
+                          {data.analysisName} {/* Menampilkan nama analisis */}
                         </Typography>
-                      )}
-                    </div>
 
-                    {/* Display Analysis Name */}
-                    <Typography
-                      variant="body1"
-                      style={{
-                        backgroundColor: "#FFD580",
-                        padding: "5px 10px",
-                        borderRadius: "9999px",
-                        textAlign: "center",
-                        display: "inline-block",
-                        marginTop: "10px",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {data.analysisName} {/* Menampilkan nama analisis */}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+                        {/* Garis pemisah */}
+                        <Divider style={{ margin: "10px 0" }} />
+
+                        {/* Tombol Lihat Detail */}
+                        <Grid container justifyContent="space-between">
+                          <Typography
+                            variant="body1"
+
+                          >
+                            Gambar
+                          </Typography>
+                          <Typography
+                            variant="body1"
+                            style={{
+                              backgroundColor: "#FFD580",
+                              padding: "5px 10px",
+                              borderRadius: "9999px",
+                              textAlign: "center",
+                              display: "inline-block",
+                              marginTop: "2px",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            Lihat Detail
+                          </Typography>
+                        </Grid>
+
+                        {/* Garis pemisah */}
+                        <Divider style={{ margin: "10px 0" }} />
+
+                        {/* Display Time and Date */}
+                        <Grid container justifyContent="space-between">
+                          <Typography variant="body2" style={styles.time}>
+                            {data.created_at.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
+                          </Typography>
+                          <Typography variant="body2" style={styles.date}>
+                            {data.created_at.toDate().toLocaleDateString()}
+                          </Typography>
+                        </Grid>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
               </div>
             </div>
           </div>

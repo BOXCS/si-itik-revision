@@ -75,11 +75,25 @@ const PenetasanPage = () => {
   const [laba, setLaba] = useState<number>(0);
 
   const handleAddPeriod = () => {
+    if (periods.length >= 13) {
+      toast({
+        title: "Batas Maksimum Tercapai",
+        description: "Anda hanya dapat menambahkan hingga 13 periode.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const newPeriod = `Periode ${periods.length + 1}`;
     const updatedPeriods = [...periods, newPeriod];
     setPeriods(updatedPeriods);
     setSelectedPeriod(newPeriod);
     setPeriode(newPeriod);
+
+    // Simpan ke localStorage
+    if (typeof window !== "undefined") {
+      localStorage.setItem("penetasan_periods", JSON.stringify(updatedPeriods));
+    }
   };
 
   const handleNewAnalysis = async () => {

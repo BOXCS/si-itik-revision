@@ -79,11 +79,24 @@ const LayerPage = () => {
   const [laba, setLaba] = useState<number>(0);
 
   const handleAddPeriod = () => {
+    if (periods.length >= 2) {
+      toast({
+        title: "Batas Maksimum Tercapai",
+        description: "Anda hanya dapat menambahkan hingga 2 periode.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const newPeriod = `Periode ${periods.length + 1}`;
     const updatedPeriods = [...periods, newPeriod];
     setPeriods(updatedPeriods);
     setSelectedPeriod(newPeriod);
     setPeriode(newPeriod);
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem("layer_periods", JSON.stringify(updatedPeriods));
+    }
   };
 
   const handleNewAnalysis = async () => {
@@ -97,7 +110,8 @@ const LayerPage = () => {
     }
 
     try {
-      const newPeriod = `Periode ${periods.length + 1}`;
+      const newPeriod = `Periode 1`;
+
       const docRef = await addDoc(collection(firestore, "detail_layer"), {
         userId: user.email || user.username,
         created_at: Timestamp.now(),
@@ -106,6 +120,13 @@ const LayerPage = () => {
       setNewAnalysisDocRef(docRef); // Simpan referensi dokumen
       localStorage.setItem("activeDocRef", docRef.id); // Simpan ID dokumen ke localStorage
       setIsNewAnalysis(true);
+
+      setIsNewAnalysis(true);
+
+      setPeriode(newPeriod);
+      setSelectedPeriod(newPeriod);
+
+      setPeriods([newPeriod])
 
       toast({
         title: "Sukses",
