@@ -9,6 +9,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Impor fu
 import { auth, storage } from "@/lib/firebase";
 import { getAuth, reauthenticateWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { useToast } from "@/hooks/use-toast";
+
 import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
 import UserAvatar from "@/components/ui/avatar";
 
