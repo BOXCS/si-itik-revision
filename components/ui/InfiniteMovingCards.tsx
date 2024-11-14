@@ -38,10 +38,7 @@ export const InfiniteMovingCards = ({
       if (containerRef.current) {
         const duration =
           speed === "fast" ? "20s" : speed === "normal" ? "40s" : "80s";
-        containerRef.current.style.setProperty(
-          "--animation-duration",
-          duration
-        );
+        containerRef.current.style.setProperty("--animation-duration", duration);
       }
     };
 
@@ -64,23 +61,6 @@ export const InfiniteMovingCards = ({
   useEffect(() => {
     addAnimation();
   }, [addAnimation]);
-
-  const getDirection = () => {
-    if (containerRef.current) {
-      containerRef.current.style.setProperty(
-        "--animation-direction",
-        direction === "left" ? "forwards" : "reverse"
-      );
-    }
-  };
-
-  const getSpeed = () => {
-    if (containerRef.current) {
-      const duration =
-        speed === "fast" ? "20s" : speed === "normal" ? "40s" : "80s";
-      containerRef.current.style.setProperty("--animation-duration", duration);
-    }
-  };
 
   return (
     <div
