@@ -1,5 +1,6 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -18,8 +19,7 @@ const schema = z
   });
 
 const ResetPasswordPage = () => {
-  const router = useRouter();
-  const { oobCode } = router.query; // Mengambil oobCode dari URL
+  const [oobCode, setOobCode] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm({
@@ -30,12 +30,23 @@ const ResetPasswordPage = () => {
     },
   });
 
-  const onSubmit = async (data: {
-    newPassword: string;
-    confirmPassword: string;
-  }) => {
+  useEffect(() => {
+    // Mengambil oobCode dari URL
+    const queryParams = new URLSearchParams(window.location.search);
+    const code = queryParams.get("oobCode");
+    if (code) {
+      setOobCode(code);
+    }
+  }, []);
+
+  const onSubmit = async (data: { newPassword: string; confirmPassword: string }) => {
     setIsLoading(true);
     try {
+      if (!oobCode) {
+        alert("Kode reset tidak ditemukan.");
+        return;
+      }
+
       // Ganti password menggunakan oobCode
       const response = await fetch(`/api/reset-password`, {
         method: "POST",
@@ -51,7 +62,7 @@ const ResetPasswordPage = () => {
       if (response.ok) {
         alert("Password berhasil diubah!");
         // Redirect ke halaman login atau halaman lain sesuai kebutuhan
-        router.push("/login");
+        window.location.href = "/login";
       } else {
         alert("Gagal mengubah password.");
       }

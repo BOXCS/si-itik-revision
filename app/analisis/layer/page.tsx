@@ -14,7 +14,8 @@ import {
 } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import { useUser } from "@/app/context/UserContext";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import { IconX } from "@tabler/icons-react";
 
 // interface TabSelectionProps
 
@@ -29,13 +30,15 @@ const LayerPage = () => {
   const [selectedPeriod, setSelectedPeriod] = useState(periods[0]);
   const [periode, setPeriode] = useState(periods[0]);
   const { user } = useUser(); // Pindahkan di sini
+  const [disabledPeriods, setDisabledPeriods] = useState<string[]>([]);
 
-   // Tambahkan state untuk mengatur status analisis baru
-   const [isNewAnalysis, setIsNewAnalysis] = useState(false);
-   const [newAnalysisDocRef, setNewAnalysisDocRef] =
-     useState<DocumentReference | null>(null);
- 
-   const [currentForm, setCurrentForm] = useState("Penerimaan");
+  // Tambahkan state untuk mengatur status analisis baru
+  const [isOpen, setIsOpen] = useState(false);
+  const [isNewAnalysis, setIsNewAnalysis] = useState(false);
+  const [newAnalysisDocRef, setNewAnalysisDocRef] =
+    useState<DocumentReference | null>(null);
+
+  const [currentForm, setCurrentForm] = useState("Penerimaan");
 
   // States untuk Penerimaan form
   const [jumlahTelurDihasilkan, setJumlahTelurDihasilkan] = useState<number>(0);
@@ -47,10 +50,9 @@ const LayerPage = () => {
   const [jumlahSatuPeriode, setJumlahSatuPeriode] = useState<number>(0);
   const [hargaTelur, setHargaTelur] = useState<number>(0);
   const [totalRevenue, setTotalRevenue] = useState<number>(0);
-  
+
   const [jumlahTelurMenetas, setJumlahTelurMenetas] = useState<number>(0);
 
-  
   // States untuk Pengeluaran form
   const [sewaKandang, setSewaKandang] = useState<number>(0);
   const [penyusutanItik, setPenyusutanItik] = useState<number>(0);
@@ -126,7 +128,7 @@ const LayerPage = () => {
       setPeriode(newPeriod);
       setSelectedPeriod(newPeriod);
 
-      setPeriods([newPeriod])
+      setPeriods([newPeriod]);
 
       toast({
         title: "Sukses",
@@ -190,81 +192,103 @@ const LayerPage = () => {
           bepHasil,
           laba,
         },
+        created_at: Timestamp.now(),
       };
- // Jika isNewAnalysis adalah true, simpan ke dokumen baru
- if (newAnalysisDocRef) {
-  await addDoc(
-    collection(newAnalysisDocRef, "analisis_periode"),
-    periodeData
-  );
-} else {
-  // Buat dokumen baru jika tidak ada referensi sebelumnya
-  const docRef = await addDoc(collection(firestore, "detail_layer"), {
-    userId: user.email || user.username,
-    created_at: Timestamp.now(),
-  });
+      // Jika isNewAnalysis adalah true, simpan ke dokumen baru
+      if (newAnalysisDocRef) {
+        await addDoc(
+          collection(newAnalysisDocRef, "analisis_periode"),
+          periodeData
+        );
+      } else {
+        // Buat dokumen baru jika tidak ada referensi sebelumnya
+        const docRef = await addDoc(collection(firestore, "detail_layer"), {
+          userId: user.email || user.username,
+          created_at: Timestamp.now(),
+        });
 
-  await addDoc(collection(docRef, "analisis_periode"), periodeData);
-  setNewAnalysisDocRef(docRef);
-  localStorage.setItem("activeDocRef", docRef.id);
-}
+        await addDoc(collection(docRef, "analisis_periode"), periodeData);
+        setNewAnalysisDocRef(docRef);
+        localStorage.setItem("activeDocRef", docRef.id);
+      }
 
-toast({
-  title: "Sukses",
-  description: "Data berhasil disimpan!",
-});
-} catch (error) {
-console.error("Error adding document: ", error);
-toast({
-  title: "Gagal",
-  description: "Gagal menambahkan data!",
-  variant: "destructive",
-});
-}
-};
+      // Tambahkan periode ke dalam disabledPeriods
+      setDisabledPeriods((prev) => [...prev, selectedPeriod]);
 
-useEffect(() => {
-  // Simpan periode ke local storage khusus untuk penetasan
-  localStorage.setItem("layer_periods", JSON.stringify(periods));
-}, [periods]);
-
-useEffect(() => {
-const storedDocRef = localStorage.getItem("activeDocRef");
-if (storedDocRef) {
-const docRef = doc(firestore, "detail_layer", storedDocRef);
-setNewAnalysisDocRef(docRef);
-}
-}, []);
-
-const handleNextForm = () => {
-  if (currentForm === "Penerimaan") {
-    setCurrentForm("Pengeluaran");
-  } else if (currentForm === "Pengeluaran") {
-    setCurrentForm("HasilAnalisis");
-  }
-};
-
-const handleBackForm = () => {
-  if (currentForm === "Pengeluaran") {
-    setCurrentForm("Penerimaan");
-  } else if (currentForm === "HasilAnalisis") {
-    setCurrentForm("Pengeluaran");
-  }
-};
-
-// Fungsi untuk format angka ke Rupiah
-const formatNumber = (number: number) => {
-  return new Intl.NumberFormat("id-ID", {
-    minimumFractionDigits: 0, // Menghilangkan desimal
-  }).format(number);
-};
-
-const handleInputChange =
-  (setter: React.Dispatch<React.SetStateAction<number>>) =>
-  (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9]/g, ""); // Menghapus karakter non-angka
-    setter(value ? parseFloat(value) : 0); // Jika nilai ada, set sebagai angka
+      toast({
+        title: "Sukses",
+        description: "Data berhasil disimpan!",
+      });
+    } catch (error) {
+      console.error("Error adding document: ", error);
+      toast({
+        title: "Gagal",
+        description: "Gagal menambahkan data!",
+        variant: "destructive",
+      });
+    }
   };
+
+  useEffect(() => {
+    // Simpan periode dan disabledPeriods ke localStorage
+    if (typeof window !== "undefined") {
+      localStorage.setItem("layer_periods", JSON.stringify(periods));
+      localStorage.setItem("disabled_periods", JSON.stringify(disabledPeriods));
+    }
+  }, [periods, disabledPeriods]);
+
+  useEffect(() => {
+    // Muat disabledPeriods dari localStorage
+    const storedDisabledPeriods = JSON.parse(
+      (typeof window !== "undefined" &&
+        localStorage.getItem("disabled_periods")) ||
+        "[]"
+    );
+    setDisabledPeriods(storedDisabledPeriods);
+  }, []);
+
+  useEffect(() => {
+    // Simpan periode ke local storage khusus untuk layer
+    localStorage.setItem("layer_periods", JSON.stringify(periods));
+  }, [periods]);
+
+  useEffect(() => {
+    const storedDocRef = localStorage.getItem("activeDocRef");
+    if (storedDocRef) {
+      const docRef = doc(firestore, "detail_layer", storedDocRef);
+      setNewAnalysisDocRef(docRef);
+    }
+  }, []);
+
+  const handleNextForm = () => {
+    if (currentForm === "Penerimaan") {
+      setCurrentForm("Pengeluaran");
+    } else if (currentForm === "Pengeluaran") {
+      setCurrentForm("HasilAnalisis");
+    }
+  };
+
+  const handleBackForm = () => {
+    if (currentForm === "Pengeluaran") {
+      setCurrentForm("Penerimaan");
+    } else if (currentForm === "HasilAnalisis") {
+      setCurrentForm("Pengeluaran");
+    }
+  };
+
+  // Fungsi untuk format angka ke Rupiah
+  const formatNumber = (number: number) => {
+    return new Intl.NumberFormat("id-ID", {
+      minimumFractionDigits: 0, // Menghilangkan desimal
+    }).format(number);
+  };
+
+  const handleInputChange =
+    (setter: React.Dispatch<React.SetStateAction<number>>) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value.replace(/[^0-9]/g, ""); // Menghapus karakter non-angka
+      setter(value ? parseFloat(value) : 0); // Jika nilai ada, set sebagai angka
+    };
 
   // Rumus Penerimaan
   useEffect(() => {
@@ -312,14 +336,15 @@ const handleInputChange =
   }, [biayaOperasional]);
 
   useEffect(() => {
-    const jumlahPakanKilogram = standardPakanGram * 180 * jumlahItikAwal / 1000;
+    const jumlahPakanKilogram =
+      (standardPakanGram * 180 * jumlahItikAwal) / 1000;
     setjumlahPakanKilogram(jumlahPakanKilogram);
   }, [standardPakanGram, jumlahItikAwal]);
 
   useEffect(() => {
     const totalBiayaPakan = jumlahPakanKilogram * 180;
     setTotalBiayaPakan(totalBiayaPakan);
-  }, [totalBiayaPakan,jumlahPakanKilogram]);
+  }, [totalBiayaPakan, jumlahPakanKilogram]);
 
   useEffect(() => {
     const totalVariableCost = totalBiayaOperasional + totalBiayaPakan;
@@ -329,14 +354,20 @@ const handleInputChange =
   useEffect(() => {
     const totalCost = totalFixedCost + totalVariableCost;
     setTotalCost(totalCost);
-  }, [totalCost, totalFixedCost,totalVariableCost]);
+  }, [totalCost, totalFixedCost, totalVariableCost]);
 
   //Rumus Hasil Analisis
   useEffect(() => {
     const bepHasil =
       totalFixedCost / (hargaTelur - totalVariableCost / jumlahSatuPeriode);
     setBepHasil(bepHasil);
-  }, [totalFixedCost, totalFixedCost, totalVariableCost,hargaTelur, jumlahSatuPeriode]);
+  }, [
+    totalFixedCost,
+    totalFixedCost,
+    totalVariableCost,
+    hargaTelur,
+    jumlahSatuPeriode,
+  ]);
 
   useEffect(() => {
     const bepHarga =
@@ -359,54 +390,128 @@ const handleInputChange =
     setLaba(laba);
   }, [totalRevenue, totalCost]);
 
-
-
+  const handleToggle = () => {
+    setIsOpen(!isOpen); // Mengubah state open/close
+  };
 
   return (
     <div className="w-full min-h-screen bg-gray-100 flex">
-    {/* Sidebar */}
-    <SidebarDemo>
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center p-10">
-        {/* Header */}
-        <h1 className="text-3xl font-bold text-black mb-8">
-          Analisis Layer
-        </h1>
+      {/* Sidebar */}
+      <SidebarDemo>
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col items-center p-10">
+          {/* Header */}
+          <h1 className="text-3xl font-bold text-black mb-8">Analisis Layer</h1>
 
-        {/* TabSelection */}
-        <div className="flex flex-col items-center mb-10">
-          <div className="flex justify-center space-x-4 mb-4">
-            {periods.map((period: string, index: number) => (
-              <button
-                key={index}
-                onClick={() => {
-                  setPeriode(period); // Perbarui periode
-                  setSelectedPeriod(period); // Perbarui selectedPeriod
-                }}
-                className={`px-4 py-2 rounded-full text-black ${
-                  selectedPeriod === period ? "bg-orange-500" : "bg-white"
-                }`}
-              >
-                {period}
-              </button>
-            ))}
-
+          {/* TabSelection for Mobile */}
+          <div className="md:hidden flex justify-between items-center mb-4 w-full">
             <button
-              onClick={handleAddPeriod}
-              className="px-4 py-2 rounded-full bg-blue-500 text-white"
+              onClick={handleToggle}
+              className="px-4 py-2 rounded-md bg-blue-500 text-white"
             >
-              Tambah Periode
+              Pilih Periode
             </button>
+            <span className="ml-4 text-black">
+              Periode Saat Ini: {selectedPeriod}
+            </span>
           </div>
 
-          <button
-            onClick={handleNewAnalysis}
-            className="px-4 py-2 rounded-full bg-green-500 text-white"
-          >
-            Analisis Baru
-          </button>
-        </div>
+          {/* Modal Dialog for Mobile */}
+          {isOpen && (
+            <div className="fixed inset-0 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg shadow-lg p-6 w-80">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-bold">Pilih Periode</h2>
+                  <button onClick={handleToggle}>
+                    <IconX size={24} />
+                  </button>
+                </div>
 
+                {/* Daftar Periode */}
+                <div className="flex flex-col space-y-2 mb-4">
+                  {periods.map((period: string, index: number) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        if (!disabledPeriods.includes(period)) {
+                          setPeriode(period); // Perbarui periode
+                          setSelectedPeriod(period); // Perbarui selectedPeriod
+                          setIsOpen(false); // Menutup modal setelah periode dipilih
+                        }
+                      }}
+                      className={`p-2 rounded-md text-left ${
+                        disabledPeriods.includes(period)
+                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                          : selectedPeriod === period
+                          ? "bg-orange-500 text-white"
+                          : "bg-gray-200"
+                      }`}
+                      disabled={disabledPeriods.includes(period)}
+                    >
+                      {period}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Tombol Tambah Periode */}
+                <button
+                  onClick={handleAddPeriod}
+                  className="w-full px-4 py-2 rounded-md bg-blue-500 text-white mb-2"
+                >
+                  Tambah Periode
+                </button>
+
+                {/* Tombol Analisis Baru */}
+                <button
+                  onClick={handleNewAnalysis}
+                  className="w-full px-4 py-2 rounded-md bg-green-500 text-white"
+                >
+                  Analisis Baru
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* TabSelection for Desktop */}
+          <div className="hidden md:flex flex-col items-center mb-10">
+            <div className="flex justify-center space-x-4 mb-4">
+              {periods.map((period: string, index: number) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    if (!disabledPeriods.includes(period)) {
+                      setPeriode(period); // Perbarui periode
+                      setSelectedPeriod(period); // Perbarui selectedPeriod
+                    }
+                  }}
+                  className={`px-4 py-2 rounded-full text-black ${
+                    disabledPeriods.includes(period)
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : selectedPeriod === period
+                      ? "bg-orange-500"
+                      : "bg-white"
+                  }`}
+                  disabled={disabledPeriods.includes(period)}
+                >
+                  {period}
+                </button>
+              ))}
+
+              <button
+                onClick={handleAddPeriod}
+                className="px-4 py-2 rounded-full bg-blue-500 text-white"
+              >
+                Tambah Periode
+              </button>
+            </div>
+
+            <button
+              onClick={handleNewAnalysis}
+              className="px-4 py-2 rounded-full bg-green-500 text-white"
+            >
+              Analisis Baru
+            </button>
+          </div>
 
           {/* Kontainer Form */}
           <div className="form-container bg-white overflow-scroll p-8 shadow-lg rounded-lg w-full max-w-7xl mr-14">
@@ -480,9 +585,7 @@ const handleInputChange =
                 {/* Perhitungan mencari Jumlah produksi telur harian */}
                 <div className="flex items-center mt-10 justify-center">
                   <div className="flex flex-col">
-                    <label className="font-semibold">
-                      Jumlah Itik
-                    </label>
+                    <label className="font-semibold">Jumlah Itik</label>
                     <input
                       type="number"
                       value={formatNumber(jumlahItikAwal)}
@@ -506,7 +609,9 @@ const handleInputChange =
                     =
                   </span>
                   <div className="flex flex-col">
-                    <label className="font-semibold">Produksi telur harian</label>
+                    <label className="font-semibold">
+                      Produksi telur harian
+                    </label>
                     <input
                       type="text"
                       value={formatNumber(produksiTelurHarian)}
@@ -519,7 +624,9 @@ const handleInputChange =
                 {/* Perhitungan mencari Jumlah telur 1 periode */}
                 <div className="flex items-center mt-10 justify-center">
                   <div className="flex flex-col">
-                    <label className="font-semibold">Produksi telur harian</label>
+                    <label className="font-semibold">
+                      Produksi telur harian
+                    </label>
                     <input
                       type="text"
                       value={formatNumber(produksiTelurHarian)}
@@ -528,10 +635,14 @@ const handleInputChange =
                     />
                   </div>
 
-                  <span className="mx-5 flex items-center justify-center font-semibold text-2xl">×</span>
+                  <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                    ×
+                  </span>
 
                   <div className="flex flex-col">
-                    <label className="font-semibold">Satu periode (180 hari)</label>
+                    <label className="font-semibold">
+                      Satu periode (180 hari)
+                    </label>
                     <input
                       type="text"
                       value={`${(180).toFixed()} hari`}
@@ -540,10 +651,14 @@ const handleInputChange =
                     />
                   </div>
 
-                  <span className="mx-5 flex items-center justify-center font-semibold text-2xl">=</span>
+                  <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                    =
+                  </span>
 
                   <div className="flex flex-col">
-                    <label className="font-semibold">Jumlah Telur (1 Periode)</label>
+                    <label className="font-semibold">
+                      Jumlah Telur (1 Periode)
+                    </label>
                     <input
                       type="text"
                       value={formatNumber(jumlahSatuPeriode)}
@@ -556,7 +671,9 @@ const handleInputChange =
                 {/* Perhitungan mencari Total Revenue */}
                 <div className="flex items-center mt-10 justify-center">
                   <div className="flex flex-col">
-                    <label className="font-semibold">Jumlah Telur (1 Periode)</label>
+                    <label className="font-semibold">
+                      Jumlah Telur (1 Periode)
+                    </label>
                     <input
                       type="text"
                       value={formatNumber(jumlahSatuPeriode)}
@@ -573,12 +690,14 @@ const handleInputChange =
                       <span className="p-2 bg-gray-100">Rp.</span>
                       <input
                         type="number"
-                        value={hargaTelur ? formatNumber(hargaTelur) : ""}  // Gunakan nilai asli tanpa formatNumber
-                        onChange={(e) => setHargaTelur(parseFloat(e.target.value) || 0)} // Tetap terima input sebagai angka
+                        value={hargaTelur ? formatNumber(hargaTelur) : ""} // Gunakan nilai asli tanpa formatNumber
+                        onChange={(e) =>
+                          setHargaTelur(parseFloat(e.target.value) || 0)
+                        } // Tetap terima input sebagai angka
                         onBlur={(e) =>
                           setHargaTelur(
                             parseFloat(e.target.value.replace(/[^0-9]/g, "")) ||
-                            0
+                              0
                           )
                         }
                         className="border-0 p-2 rounded-md flex-1"
@@ -628,9 +747,7 @@ const handleInputChange =
                 </div>
                 <div className="flex items-center justify-center">
                   <div className="flex flex-col">
-                    <label className="font-semibold">
-                      Sewa Kandang
-                    </label>
+                    <label className="font-semibold">Sewa Kandang</label>
                     <div className="flex items-center border border-gray-300 rounded-md">
                       <span className="p-2 bg-gray-100">Rp.</span>
                       <input
@@ -640,7 +757,7 @@ const handleInputChange =
                         onBlur={(e) =>
                           setSewaKandang(
                             parseFloat(e.target.value.replace(/[^0-9]/g, "")) ||
-                            0
+                              0
                           )
                         } // Set angka mentah saat blur
                         className="border border-gray-300 p-2 rounded-md"
@@ -653,24 +770,23 @@ const handleInputChange =
                   </span>
 
                   <div className="flex flex-col">
-                    <label className="font-semibold">
-                      Penyusutan Itik
-                    </label>
+                    <label className="font-semibold">Penyusutan Itik</label>
                     <div className="flex items-center border border-gray-300 rounded-md">
                       <span className="p-2 bg-gray-100">Rp.</span>
                       <input
                         type="number"
-                        value={penyusutanItik ? formatNumber(penyusutanItik) : ""} // Format angka saat render
+                        value={
+                          penyusutanItik ? formatNumber(penyusutanItik) : ""
+                        } // Format angka saat render
                         onChange={handleInputChange(setPenyusutanItik)} // Panggil setter dinamis
                         onBlur={(e) =>
                           setPenyusutanItik(
                             parseFloat(e.target.value.replace(/[^0-9]/g, "")) ||
-                            0
+                              0
                           )
-                        }// Set angka mentah saat blur
+                        } // Set angka mentah saat blur
                         className="border border-gray-300 p-2 rounded-md"
                         placeholder="Masukkan jumlah penyusutan itik"
-
                       />
                     </div>
                   </div>
@@ -678,9 +794,7 @@ const handleInputChange =
                     =
                   </span>
                   <div className="flex flex-col">
-                    <label className="font-semibold">
-                      Total Biaya
-                    </label>
+                    <label className="font-semibold">Total Biaya</label>
                     <div className="flex items-center border border-gray-300 rounded-md">
                       <span className="p-2 bg-gray-100">Rp.</span>
                       <input
@@ -752,17 +866,21 @@ const handleInputChange =
                         <span className="p-2 bg-gray-100">Rp.</span>
                         <input
                           type="number"
-                          value={biayaTenagaKerja ? formatNumber(biayaTenagaKerja) : ""} // Format angka saat render
+                          value={
+                            biayaTenagaKerja
+                              ? formatNumber(biayaTenagaKerja)
+                              : ""
+                          } // Format angka saat render
                           onChange={handleInputChange(setBiayaTenagaKerja)} // Panggil setter dinamis
                           onBlur={(e) =>
                             setBiayaTenagaKerja(
-                              parseFloat(e.target.value.replace(/[^0-9]/g, "")) ||
-                              0
+                              parseFloat(
+                                e.target.value.replace(/[^0-9]/g, "")
+                              ) || 0
                             )
-                          }// Set angka mentah saat blur
+                          } // Set angka mentah saat blur
                           className="border border-gray-300 p-2 rounded-md"
                           placeholder="Masukkan biaya tenaga kerja"
-
                         />
                       </div>
                     </div>
@@ -779,10 +897,11 @@ const handleInputChange =
                           onChange={handleInputChange(setBiayaListrik)} // Panggil setter dinamis
                           onBlur={(e) =>
                             setBiayaListrik(
-                              parseFloat(e.target.value.replace(/[^0-9]/g, "")) ||
-                              0
+                              parseFloat(
+                                e.target.value.replace(/[^0-9]/g, "")
+                              ) || 0
                             )
-                          }// Set angka mentah saat blur
+                          } // Set angka mentah saat blur
                           className="border border-gray-300 p-2 rounded-md"
                           placeholder="Masukkan biaya listrik"
                         />
@@ -801,10 +920,11 @@ const handleInputChange =
                           onChange={handleInputChange(setBiayaOvk)} // Panggil setter dinamis
                           onBlur={(e) =>
                             setBiayaOvk(
-                              parseFloat(e.target.value.replace(/[^0-9]/g, "")) ||
-                              0
+                              parseFloat(
+                                e.target.value.replace(/[^0-9]/g, "")
+                              ) || 0
                             )
-                          }// Set angka mentah saat blur
+                          } // Set angka mentah saat blur
                           className="border border-gray-300 p-2 rounded-md"
                           placeholder="Masukkan Biaya OVK"
                         />
@@ -882,16 +1002,22 @@ const handleInputChange =
                     <div className="flex flex-col">
                       <label className="font-semibold">
                         Standart pakan (Gram)
-                        </label>
+                      </label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <span className="p-0 bg-gray-100"></span>
                         <input
                           type="number"
-                          value={standardPakanGram ? formatNumber(standardPakanGram) : ""}
+                          value={
+                            standardPakanGram
+                              ? formatNumber(standardPakanGram)
+                              : ""
+                          }
                           onChange={handleInputChange(setstandardPakanGram)}
                           onBlur={(e) =>
                             setstandardPakanGram(
-                              parseFloat(e.target.value.replace(/[^0-9]/g, "")) || 0
+                              parseFloat(
+                                e.target.value.replace(/[^0-9]/g, "")
+                              ) || 0
                             )
                           }
                           className="border border-gray-300 p-2 rounded-md"
@@ -899,7 +1025,9 @@ const handleInputChange =
                         />
                       </div>
                     </div>
-                    <span className="mx-5 flex items-center justify-center font-semibold text-2xl">×</span>
+                    <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                      ×
+                    </span>
                     <div className="flex flex-col">
                       <label className="font-semibold">Jumlah hari</label>
                       <input
@@ -909,25 +1037,27 @@ const handleInputChange =
                         className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
                       />
                     </div>
-                    <span className="mx-5 flex items-center justify-center font-semibold text-2xl">×</span>
+                    <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                      ×
+                    </span>
                     {/* <div className="flex items-center mt-8 justify-center"> */}
-                      <div className="flex flex-col">
-                        <label className="font-semibold">
-                          Jumlah Itik
-                        </label>
-                        <input
-                          type="number"
-                          value={formatNumber(jumlahItikAwal)}
-                          readOnly
-                          className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
-                        />
-                      </div>
+                    <div className="flex flex-col">
+                      <label className="font-semibold">Jumlah Itik</label>
+                      <input
+                        type="number"
+                        value={formatNumber(jumlahItikAwal)}
+                        readOnly
+                        className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                      />
+                    </div>
                     {/* </div> */}
-                    <span className="mx-5 flex items-center justify-center font-semibold text-2xl">=</span>
+                    <span className="mx-5 flex items-center justify-center font-semibold text-2xl">
+                      =
+                    </span>
                     <div className="flex flex-col">
                       <label className="font-semibold">
                         Jumlah pakan (Kilogram)
-                        </label>
+                      </label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <span className="p-0 bg-gray-100"></span>
                         <input
@@ -941,7 +1071,9 @@ const handleInputChange =
                   </div>
                   <div className="flex items-center justify-center mt-10">
                     <div className="flex flex-col">
-                      <label className="font-semibold">Jumlah Pakan (Kilogram)</label>
+                      <label className="font-semibold">
+                        Jumlah Pakan (Kilogram)
+                      </label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <span className="p-0 bg-gray-100"></span>
                         <input
@@ -968,9 +1100,7 @@ const handleInputChange =
                       =
                     </span>
                     <div className="flex flex-col">
-                      <label className="font-semibold">
-                        Total Biaya Pakan
-                      </label>
+                      <label className="font-semibold">Total Biaya Pakan</label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <span className="p-2 bg-gray-100">Rp.</span>
                         <input
@@ -984,7 +1114,9 @@ const handleInputChange =
                   </div>
                   <div className="flex items-center justify-center mt-10">
                     <div className="flex flex-col">
-                      <label className="font-semibold">Total biaya Operasional</label>
+                      <label className="font-semibold">
+                        Total biaya Operasional
+                      </label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <span className="p-2 bg-gray-100">Rp.</span>
                         <input
@@ -999,9 +1131,7 @@ const handleInputChange =
                       ×
                     </span>
                     <div className="flex flex-col">
-                      <label className="font-semibold">
-                        Total Biaya Pakan
-                      </label>
+                      <label className="font-semibold">Total Biaya Pakan</label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <span className="p-2 bg-gray-100">Rp.</span>
                         <input
@@ -1055,9 +1185,7 @@ const handleInputChange =
                     +
                   </span>
                   <div className="flex flex-col">
-                    <label className="font-semibold">
-                      Total Variable Cost
-                    </label>
+                    <label className="font-semibold">Total Variable Cost</label>
                     <div className="flex items-center border border-gray-300 rounded-md">
                       <span className="p-2 bg-gray-100">Rp.</span>
                       <input
@@ -1072,9 +1200,7 @@ const handleInputChange =
                     =
                   </span>
                   <div className="flex flex-col">
-                    <label className="font-semibold">
-                      Total Cost
-                    </label>
+                    <label className="font-semibold">Total Cost</label>
                     <div className="flex items-center border border-gray-300 rounded-md">
                       <span className="p-2 bg-gray-100">Rp.</span>
                       <input
@@ -1086,8 +1212,7 @@ const handleInputChange =
                     </div>
                   </div>
                 </div>
-                <div>
-                </div>
+                <div></div>
                 {/* Tombol Kembali dan Selanjutnya */}
                 <div className="flex justify-between mt-14">
                   <button
