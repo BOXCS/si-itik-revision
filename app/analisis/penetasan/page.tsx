@@ -225,6 +225,25 @@ const PenetasanPage = () => {
   };
 
   useEffect(() => {
+    // Simpan periode dan disabledPeriods ke localStorage
+    if (typeof window !== "undefined") {
+      localStorage.setItem("penetasan_periods", JSON.stringify(periods));
+      localStorage.setItem("disabled_periods", JSON.stringify(disabledPeriods));
+    }
+  }, [periods, disabledPeriods]);
+
+  useEffect(() => {
+    // Muat disabledPeriods dari localStorage
+    const storedDisabledPeriods = JSON.parse(
+      (typeof window !== "undefined" &&
+        localStorage.getItem("disabled_periods")) ||
+        "[]"
+    );
+    setDisabledPeriods(storedDisabledPeriods);
+  }, []);
+  
+
+  useEffect(() => {
     // Simpan periode ke local storage khusus untuk penetasan
     localStorage.setItem("penetasan_periods", JSON.stringify(periods));
   }, [periods]);
