@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, ChangeEvent } from "react";
 import { AreaChart } from "@/components/ui/chart";
-import { db } from "@/lib/firebase"; // Import db Firebase yang telah dikonfigurasi
+// import { db } from "@/lib/firebase";
 import { collection,doc, getDocs, getDoc,query, where, Timestamp, orderBy, } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area } from 'recharts';
@@ -170,7 +170,7 @@ export default function RiwayatAnalisis() {
 
   async function getAnalysisPeriodData(analysisId: string, periode: string): Promise<AnalysisPeriodData | null> {
     try {
-      const docRef = doc(db, `tipe_analisis/${analysisId}/analisis_periode/${periode}`);
+      const docRef = doc(firestore, `tipe_analisis/${analysisId}/analisis_periode/${periode}`);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         return { id: docSnap.id, ...docSnap.data() } as AnalysisPeriodData;
@@ -605,4 +605,3 @@ export default function RiwayatAnalisis() {
     );
   };
 }
-//kurang menampilkan data id periode

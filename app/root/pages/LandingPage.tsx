@@ -5,9 +5,7 @@ import { InfiniteMovingCards } from "@/components/ui/InfiniteMovingCards";
 import Image from "next/image";
 import { useState } from "react";
 import Link from "next/link";
-import {
-  IconArrowUp,
-} from "@tabler/icons-react";
+import { IconArrowUp } from "@tabler/icons-react";
 
 const images = [
   "/assets/penetasan.svg",
@@ -181,7 +179,9 @@ export default function LandingPage() {
       <div className="container" id="Home">
         <div className="info">
           <h2 className="text-2xl font-semibold">SI-ITIK</h2>
-          <h1 className="text-[#d05805] text-lg font-bold mt-3">{headers[currentIndex]}</h1>
+          <h1 className="text-[#d05805] text-lg font-bold mt-3">
+            {headers[currentIndex]}
+          </h1>
           <p className="mt-4">{descriptions[currentIndex]}</p>
           <a
             href="#Beranda"
@@ -225,7 +225,7 @@ export default function LandingPage() {
       <section className="tentang-kami bg-[#F9C994] py-12" id="tentangKami">
         <div className="tentang-kami-container flex justify-between items-start">
           {/* Left Side: Judul dan Deskripsi */}
-          <div className="tentang-kami-info w-1/2">
+          <div className="tentang-kami-info w-full">
             <h2 className="text-4xl font-bold mb-4">Mengapa Harus SI-ITIK</h2>
             <p className="text-lg">
               Selamat datang di aplikasi SI ITIK, solusi modern yang dirancang
@@ -238,7 +238,7 @@ export default function LandingPage() {
           </div>
 
           {/* Right Side: Card Section */}
-          <div className="tentang-kami-cards w-1/2 grid grid-cols-1 gap-4">
+          <div className="tentang-kami-cards w-full grid grid-cols-1 gap-4">
             {/* Card 1 */}
             <div className="card bg-white p-6 rounded-lg shadow-lg flex items-center justify-between">
               <div className="card-content">
@@ -296,7 +296,7 @@ export default function LandingPage() {
           Fitur <span className="text-[#D05805]">Utama</span>
         </h2>
 
-        <div className="fima-container">
+        <div className="fima-container grid grid-cols-1 gap-6 sm:grid-cols-2">
           {/* Penetasan */}
           <div className="fima-box">
             <img src="/assets/Penetasan-fima.png" alt="Penetasan" />
@@ -317,7 +317,7 @@ export default function LandingPage() {
 
           {/* Layer */}
           <div className="fima-box">
-            <img src="/assets/layer-fima.png" alt="Penggemukan" />
+            <img src="/assets/layer-fima.png" alt="Layer" />
             <div className="fima-layer">
               <h4>Layer</h4>
               <p>Pantau produksi telur itik betina dari layer dengan data</p>
@@ -326,7 +326,10 @@ export default function LandingPage() {
 
           {/* Analisis */}
           <div className="fima-box">
-            <img src="/assets/Laporan-fima.png" alt="Penggemukan" />
+            <img
+              src="/assets/Laporan-fima.png"
+              alt="Analisis dan Laporan Keuangan"
+            />
             <div className="fima-layer">
               <h4>Analisis dan Laporan Keuangan</h4>
               <p>Pantau produksi telur itik betina dari layer dengan data</p>
@@ -336,7 +339,10 @@ export default function LandingPage() {
       </section>
 
       {/* Section Testimoni */}
-      <section className="testimoni py-20 overflow-hidden" id="testimoniPeternak">
+      <section
+        className="testimoni py-20 overflow-hidden"
+        id="testimoniPeternak"
+      >
         <h2>Testimoni</h2>
         <h3>Ulasan Peternak Lain</h3>
         <div className="flex flex-col items-center max-lg:mt-10">
@@ -356,19 +362,23 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="footer-container bg-[#CF5804]">
-        <div className="logo-si-itik">
+      <section className="footer-container flex flex-col items-center gap-10 sm:flex-row sm:items-start justify-between p-5 bg-[#CF5804]">
+        <div className="logo-si-itik w-32">
           <img src="/assets/logo-si-itik.svg" alt="Logo SI-ITIK" />
         </div>
 
-        <div className="footer-social">
-          <h2>Social Media</h2>
-          <a href="">Whatsapp</a>
-          <a href="https://www.instagram.com/zaboxc/">Instagram</a>
+        <div className="footer-social flex flex-col items-center sm:items-start gap-5">
+          <h2 className="text-white">Social Media</h2>
+          <a className="text-white" href="">
+            Whatsapp
+          </a>
+          <a className="text-white" href="https://www.instagram.com/zaboxc/">
+            Instagram
+          </a>
         </div>
 
-        <div className="footer-location">
-          <h2>Location</h2>
+        <div className="footer-location flex flex-col items-center sm:items-start gap-4">
+          <h2 className="text-white">Location</h2>
           <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3949.424154373322!2d113.72049301127193!3d-8.15994978172228!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd695b617d8f623%3A0xf6c4437632474338!2sPoliteknik%20Negeri%20Jember!5e0!3m2!1sid!2sid!4v1726996903102!5m2!1sid!2sid"
             width="350"
@@ -379,10 +389,9 @@ export default function LandingPage() {
           ></iframe>
         </div>
 
-        <div className="footer-update">
-          <h2>New</h2>
-          <p>Ingin Update ternak usaha itik ?</p>
-          <p>Klik berikut</p>
+        <div className="footer-update flex flex-col items-center sm:items-start gap-5">
+          <p className="text-white">Ingin Update ternak usaha itik ?</p>
+          <p className="text-white">Klik berikut</p>
           <button className="px-8 py-2 rounded-md bg-[#FCCD8F] text-black font-bold transition duration-200 hover:bg-white hover:text-black border-2 border-transparent hover:border-[#FCCD8F]">
             Follow it
           </button>

@@ -30,7 +30,6 @@ import {
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation"; // Import useRouter
 
-
 export function SidebarDemo({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -44,7 +43,9 @@ export function SidebarDemo({
     {
       label: "Beranda",
       href: `/dashboard/?username=${username}`, // Beranda dengan username
-      icon: <IconBrandTabler className="text-neutral-700 dark:text-neutral-200 h-7 w-7 flex-shrink-0" />,
+      icon: (
+        <IconBrandTabler className="text-neutral-700 dark:text-neutral-200 h-7 w-7 flex-shrink-0" />
+      ),
     },
     {
       label: "Analisis",
@@ -60,24 +61,44 @@ export function SidebarDemo({
         </div>
       ),
       subLinks: [
-        { label: "Penetasan", href: `/analisis/penetasan?username=${username}`, icon: <IconAnalyzeFilled className="h-7 w-7 ml-3" /> },
-        { label: "Penggemukan", href: `/analisis/penggemukan?username=${username}`, icon: <IconAnalyzeFilled className="h-7 w-7 ml-3" /> },
-        { label: "Layer", href: `/analisis/layer?username=${username}`, icon: <IconAnalyzeFilled className="h-7 w-7 ml-3" /> },
-        { label: "test Data", href: `/analisis/test?username=${username}`, icon: <IconAnalyzeFilled className="h-7 w-7 ml-3" /> },
+        {
+          label: "Penetasan",
+          href: `/analisis/penetasan?username=${username}`,
+          icon: <IconAnalyzeFilled className="h-7 w-7 ml-3" />,
+        },
+        {
+          label: "Penggemukan",
+          href: `/analisis/penggemukan?username=${username}`,
+          icon: <IconAnalyzeFilled className="h-7 w-7 ml-3" />,
+        },
+        {
+          label: "Layer",
+          href: `/analisis/layer?username=${username}`,
+          icon: <IconAnalyzeFilled className="h-7 w-7 ml-3" />,
+        },
+        {
+          label: "test Data",
+          href: `/analisis/test?username=${username}`,
+          icon: <IconAnalyzeFilled className="h-7 w-7 ml-3" />,
+        },
       ],
     },
-    
+
     {
       label: "Riwayat Analisis",
       href: `/riwayat?username=${username}`, // Tambahkan username ke riwayat
-      icon: <IconHistory className="text-neutral-700 dark:text-neutral-200 h-7 w-7 flex-shrink-0" />,
+      icon: (
+        <IconHistory className="text-neutral-700 dark:text-neutral-200 h-7 w-7 flex-shrink-0" />
+      ),
     },
     {
       label: "Pengaturan",
       href: `/user_setting?username=${username}`, // Tambahkan username ke pengaturan
-      icon: <IconSettings2 className="text-neutral-700 dark:text-neutral-200 h-7 w-7 flex-shrink-0" />,
+      icon: (
+        <IconSettings2 className="text-neutral-700 dark:text-neutral-200 h-7 w-7 flex-shrink-0" />
+      ),
     },
-  ]; 
+  ];
 
   const handleLogout = () => {
     setIsDialogOpen(true); // Open the dialog on logout click
@@ -85,10 +106,10 @@ export function SidebarDemo({
 
   return (
     <div
-    className={cn(
-        "rounded-md flex flex-col md:flex-row bg-gradient-to-t from-[#F9AC45] to-white w-full flex-1 max-w-full mx-auto border border-neutral-200 dark:border-neutral-700 overflow-hidden",
+      className={cn(
+        "rounded-md flex flex-col md:flex-row bg-gradient-to-t from-[#F68211] to-[rgba(249, 170, 69, 0.47)] w-full flex-1 max-w-full mx-auto border border-neutral-200 dark:border-neutral-700 overflow-hidden",
         "h-dvh"
-      )}      
+      )}
     >
       <Sidebar open={open} setOpen={setOpen}>
         <SidebarBody className="justify-between gap-10">
@@ -118,28 +139,30 @@ export function SidebarDemo({
             </div>
           </div>
           <div>
-            {/* Tombol Keluar yang memicu popup */} 
+            {/* Tombol Keluar yang memicu popup */}
             <Dialog>
               <DialogTrigger asChild>
-            <SidebarLink
-              link={{
-                label: "Keluar",
-                href: "#",
-                icon: (
-                  <Image
-                    src="/assets/sign-out-fill.svg"
-                    className="h-7 w-7 flex-shrink-0 rounded-full"
-                    width={50}
-                    height={50}
-                    alt="Avatar"
-                  />
-                ),
-              }}
-            />
-            </DialogTrigger>
-            <DialogContent className="lg:max-w-lg">
-            <DialogHeader>
-                  <DialogTitle className="text-center">Konfirmasi Logout</DialogTitle>
+                <SidebarLink
+                  link={{
+                    label: "Keluar",
+                    href: "#",
+                    icon: (
+                      <Image
+                        src="/assets/sign-out-fill.svg"
+                        className="h-7 w-7 flex-shrink-0 rounded-full"
+                        width={50}
+                        height={50}
+                        alt="Avatar"
+                      />
+                    ),
+                  }}
+                />
+              </DialogTrigger>
+              <DialogContent className="lg:max-w-lg">
+                <DialogHeader>
+                  <DialogTitle className="text-center">
+                    Konfirmasi Logout
+                  </DialogTitle>
                   <DialogDescription className="text-center mt-1 text-lg leading-6">
                     Apakah kamu yakin ingin Logout.
                   </DialogDescription>
@@ -155,8 +178,10 @@ export function SidebarDemo({
                     </Button>
                   </DialogClose>
                   <DialogClose asChild>
-                  <Link href="/auth/login">
-                      <Button className="w-full lg:w-fit bg-orange-500 text-white hover:bg-orange-600">Logout!</Button>
+                    <Link href="/auth/login">
+                      <Button className="w-full lg:w-fit bg-orange-500 text-white hover:bg-orange-600">
+                        Logout!
+                      </Button>
                     </Link>
                   </DialogClose>
                 </DialogFooter>
@@ -176,7 +201,9 @@ export const Logo = () => {
       href="#"
       className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
     >
-      <div className="h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
+      <div className="logo-si-itik w-8">
+          <img src="/assets/logo-si-itik.svg" alt="Logo SI-ITIK" />
+        </div>
       <motion.span
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -194,7 +221,9 @@ export const LogoIcon = () => {
       href="#"
       className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
     >
-      <div className="h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
+      <div className="logo-si-itik w-8">
+          <img src="/assets/logo-si-itik.svg" alt="Logo SI-ITIK" />
+        </div>
     </Link>
   );
 };

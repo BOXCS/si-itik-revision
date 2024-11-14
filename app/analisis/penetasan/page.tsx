@@ -22,7 +22,8 @@ interface TabSelectionProps {
 
 const PenetasanPage = () => {
   const initialPeriods = JSON.parse(
-    (typeof window !== "undefined" && localStorage.getItem("periods")) ||
+    (typeof window !== "undefined" &&
+      localStorage.getItem("penetasan_periods")) ||
       '["Periode 1"]'
   );
 
@@ -74,11 +75,25 @@ const PenetasanPage = () => {
   const [laba, setLaba] = useState<number>(0);
 
   const handleAddPeriod = () => {
+    if (periods.length >= 13) {
+      toast({
+        title: "Batas Maksimum Tercapai",
+        description: "Anda hanya dapat menambahkan hingga 13 periode.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const newPeriod = `Periode ${periods.length + 1}`;
     const updatedPeriods = [...periods, newPeriod];
     setPeriods(updatedPeriods);
     setSelectedPeriod(newPeriod);
     setPeriode(newPeriod);
+
+    // Simpan ke localStorage
+    if (typeof window !== "undefined") {
+      localStorage.setItem("penetasan_periods", JSON.stringify(updatedPeriods));
+    }
   };
 
   const handleNewAnalysis = async () => {
@@ -92,7 +107,10 @@ const PenetasanPage = () => {
     }
 
     try {
-      const newPeriod = `Periode ${periods.length + 1}`;
+      // Buat periode baru, tetapi hanya jika belum ada
+      const newPeriod = `Periode 1`; // Selalu mulai dengan Periode 1
+
+      // Tambahkan dokumen baru untuk analisis
       const docRef = await addDoc(collection(firestore, "detail_penetasan"), {
         userId: user.email || user.username,
         created_at: Timestamp.now(),
@@ -100,11 +118,15 @@ const PenetasanPage = () => {
 
       setNewAnalysisDocRef(docRef); // Simpan referensi dokumen
       localStorage.setItem("activeDocRef", docRef.id); // Simpan ID dokumen ke localStorage
+
       setIsNewAnalysis(true);
 
       // Atur periode kembali ke "Periode 1"
-      setPeriode("Periode 1");
-      setSelectedPeriod("Periode 1");
+      setPeriode(newPeriod);
+      setSelectedPeriod(newPeriod);
+
+      // Jika ada data periode sebelumnya, reset atau hapus
+      setPeriods([newPeriod]); // Reset periode yang tampil hanya Periode 1
 
       toast({
         title: "Sukses",
@@ -203,8 +225,27 @@ const PenetasanPage = () => {
   };
 
   useEffect(() => {
-    // Simpan periode ke local storage setiap kali `periods` berubah
-    localStorage.setItem("periods", JSON.stringify(periods));
+    // Simpan periode dan disabledPeriods ke localStorage
+    if (typeof window !== "undefined") {
+      localStorage.setItem("penetasan_periods", JSON.stringify(periods));
+      localStorage.setItem("disabled_periods", JSON.stringify(disabledPeriods));
+    }
+  }, [periods, disabledPeriods]);
+
+  useEffect(() => {
+    // Muat disabledPeriods dari localStorage
+    const storedDisabledPeriods = JSON.parse(
+      (typeof window !== "undefined" &&
+        localStorage.getItem("disabled_periods")) ||
+        "[]"
+    );
+    setDisabledPeriods(storedDisabledPeriods);
+  }, []);
+  
+
+  useEffect(() => {
+    // Simpan periode ke local storage khusus untuk penetasan
+    localStorage.setItem("penetasan_periods", JSON.stringify(periods));
   }, [periods]);
 
   useEffect(() => {

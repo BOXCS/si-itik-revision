@@ -9,7 +9,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AreaChart } from "@/components/ui/chart"
 import { Tooltip } from "@/components/ui/tooltip";
 import UserAvatar from "@/components/ui/avatar";
-import $ from 'jquery';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import {
   Grid,

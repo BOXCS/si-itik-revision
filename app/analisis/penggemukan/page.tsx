@@ -19,7 +19,7 @@ import { useUser } from "@/app/context/UserContext";
 
 const PenggemukanPage = () => {
   const initialPeriods = JSON.parse(
-    (typeof window !== "undefined" && localStorage.getItem("periods")) ||
+    (typeof window !== "undefined" && localStorage.getItem("penggemukan_periods")) ||
       '["Periode 1"]'
   );
 
@@ -72,11 +72,25 @@ const PenggemukanPage = () => {
   const [laba, setLaba] = useState<number>(0);
 
   const handleAddPeriod = () => {
+    if (periods.length >= 6) {
+      toast({
+        title: "Batas Maksimum Tercapai",
+        description: "Anda hanya dapat menambahkan hingga 6 periode.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const newPeriod = `Periode ${periods.length + 1}`;
     const updatedPeriods = [...periods, newPeriod];
     setPeriods(updatedPeriods);
     setSelectedPeriod(newPeriod);
     setPeriode(newPeriod);
+
+    // Simpan ke localStorage
+    if (typeof window !== "undefined") {
+      localStorage.setItem("penggemukan_periods", JSON.stringify(updatedPeriods));
+    }
   };
 
   const handleNewAnalysis = async () => {
@@ -90,7 +104,8 @@ const PenggemukanPage = () => {
     }
   
     try {
-      const newPeriod = `Periode ${periods.length + 1}`;
+      const newPeriod = `Periode 1`;
+
       const docRef = await addDoc(collection(firestore, "detail_penggemukan"), {
         userId: user.email || user.username,
         created_at: Timestamp.now(),
@@ -101,8 +116,10 @@ const PenggemukanPage = () => {
       setIsNewAnalysis(true);
   
       // Atur periode kembali ke "Periode 1"
-      setPeriode("Periode 1");
-      setSelectedPeriod("Periode 1");
+      setPeriode(newPeriod);
+      setSelectedPeriod(newPeriod);
+
+      setPeriods([newPeriod]);
   
       toast({
         title: "Sukses",
@@ -237,6 +254,11 @@ const PenggemukanPage = () => {
       const value = e.target.value.replace(/[^0-9]/g, ""); // Menghapus karakter non-angka
       setter(value ? parseFloat(value) : 0); // Jika nilai ada, set sebagai angka
     };
+
+    useEffect(() => {
+      // Simpan periode ke local storage khusus untuk penggemukan
+      localStorage.setItem("penggemukan_periods", JSON.stringify(periods));
+    }, [periods]);
 
   // Rumus Penerimaan
   useEffect(() => {
