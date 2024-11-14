@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import 'remixicon/fonts/remixicon.css';
+import "remixicon/fonts/remixicon.css";
 import {
   Form,
   FormControl,
@@ -24,7 +24,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { signInWithGoogle } from "@/lib/authProviders"; // Ensure these functions are defined
 import { useRouter } from "next/navigation"; // Import useRouter
-// import "@/app/auth.css";
+import { FirebaseError } from "firebase/app";
 
 const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -39,19 +39,10 @@ const LoginPage = () => {
     },
   });
 
-  const getUserFromEmail = async (email: string) => {
-    const userRef = doc(firestore, "users", email); // Ganti 'users' dengan nama koleksi yang sesuai
-    const userDoc = await getDoc(userRef);
-
-    if (userDoc.exists()) {
-      return userDoc.data(); // Kembalikan data pengguna, termasuk username
-    } else {
-      throw new Error("User not found"); // Atau tangani error sesuai kebutuhan
-    }
-  };
   const handleback = () => {
-    router.push(`/`)
-  }
+    router.push(`/`);
+  };
+
   const onSubmit = async (values: z.infer<typeof SigninValidation>) => {
     setIsLoading(true);
     setErrorMessage(""); // Reset pesan error saat submit
@@ -59,34 +50,47 @@ const LoginPage = () => {
 
     try {
       // Proses login dengan Firebase Authentication menggunakan email (username di sini adalah email)
-      const userCredential = await signInWithEmailAndPassword(auth, username, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        username,
+        password
+      );
 
       // Dapatkan user yang login dari userCredential
       const user = userCredential.user;
 
       // Redirect ke dashboard setelah login berhasil
       router.push(`/dashboard?username=${user.displayName || "User"}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Login error:", error);
 
-      // Custom pesan error berdasarkan kode error dari Firebase
-      if (error.code) {
+      // Type narrowing to ensure `error` is a FirebaseError
+      if (error instanceof FirebaseError) {
         switch (error.code) {
           case "auth/user-not-found":
-            setErrorMessage("Akun tidak ditemukan. Mohon periksa kembali email.");
+            setErrorMessage(
+              "Akun tidak ditemukan. Mohon periksa kembali email."
+            );
             break;
           case "auth/invalid-credential":
             setErrorMessage("Email atau Password salah. Mohon coba lagi.");
             break;
           case "auth/invalid-email":
-            setErrorMessage("Format email tidak valid. Mohon masukkan email yang benar.");
+            setErrorMessage(
+              "Format email tidak valid. Mohon masukkan email yang benar."
+            );
             break;
           case "auth/too-many-requests":
-            setErrorMessage("Terlalu banyak percobaan login. Silakan coba lagi nanti.");
+            setErrorMessage(
+              "Terlalu banyak percobaan login. Silakan coba lagi nanti."
+            );
             break;
           default:
             setErrorMessage(`Error: ${error.message}`); // Tampilkan pesan error default
         }
+      } else if (error instanceof Error) {
+        // Handle generic errors
+        setErrorMessage(`Terjadi kesalahan: ${error.message}`);
       } else {
         setErrorMessage("Terjadi kesalahan. Mohon coba lagi.");
       }
@@ -95,14 +99,15 @@ const LoginPage = () => {
     }
   };
 
-
   return (
     <div className="w-full h-screen flex flex-1 justify-center items-center overflow-hidden">
       <div className="relative w-2/3 h-full hidden flex-col xl:block">
         <div className="absolute top-[25%] left-[10%] flex flex-col gap-5">
-          <img
+          <Image
             src="/assets/logo-si-itik.svg"
             alt="Logo SI_ITIK"
+            width={80}
+            height={80}
             className="w-20"
           />
           <h1 className="flex flex-col text-5xl font-bold text-white">
@@ -110,64 +115,80 @@ const LoginPage = () => {
           </h1>
           <div className="benefit-point grid text-2xl font-semibold gap-5">
             <h2 className="text-white">
-              <img
+              <Image
                 src="/assets/point-benefit.svg"
                 alt="Point"
+                width={80}
+                height={80}
                 className="inline-block w-10 h-10 mr-2"
               />
               Pengelolaan terintegrasi
             </h2>
             <h2 className="text-white">
-              <img
+              <Image
                 src="/assets/point-benefit.svg"
                 alt="Point"
+                width={80}
+                height={80}
                 className="inline-block w-10 h-10 mr-2"
               />
               User Friendly
             </h2>
             <h2 className="text-white">
-              <img
+              <Image
                 src="/assets/point-benefit.svg"
                 alt="Point"
+                width={80}
+                height={80}
                 className="inline-block w-10 h-10 mr-2"
               />
               Analisis mendalam
             </h2>
             <h2 className="text-white">
-              <img
+              <Image
                 src="/assets/point-benefit.svg"
                 alt="Point"
+                width={80}
+                height={80}
                 className="inline-block w-10 h-10 mr-2"
               />
               Data finansial akurat
             </h2>
             <h2 className="text-white">
-              <img
+              <Image
                 src="/assets/point-benefit.svg"
                 alt="Point"
+                width={80}
+                height={80}
                 className="inline-block w-10 h-10 mr-2"
               />
               Fleksible
             </h2>
           </div>
           <div className="absolute top-[45%] items-end justify-end">
-            <img
+            <Image
               src="/assets/bebek.svg"
               alt="Logo SI_ITIK"
+              width={80}
+              height={80}
               className="hidden xl:block xl:ml-80 xl:mt-[-25px] object-contain"
             />
           </div>
           <div className="absolute top-[-20%] right-[-120%]">
-            <img
+            <Image
               src="/assets/elips.svg"
               alt="elips"
+              width={80}
+              height={80}
               className="w-[270px] h-[270px]"
             />
           </div>
           <div className="absolute top-[110%] left-[-50%]">
-            <img
+            <Image
               src="/assets/elips2.svg"
               alt="elips"
+              width={80}
+              height={80}
               className="ml-20"
             />
           </div>
@@ -177,7 +198,6 @@ const LoginPage = () => {
 
       <div className="w-full h-full bg-[#fff] flex flex-col p-20 justify-between xl:w-2/5">
         <div className="w-full flex flex-col">
-
           <button className="flex items-center space-x-2 " onClick={handleback}>
             <i className="ri-arrow-left-line text-2xl "></i>
             <span>Kembali</span>
@@ -215,13 +235,16 @@ const LoginPage = () => {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="Masukkan Password Anda" {...field} />
+                        <Input
+                          type="password"
+                          placeholder="Masukkan Password Anda"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
 
                 {errorMessage && (
                   <div className="text-red-500 text-sm mt-2">

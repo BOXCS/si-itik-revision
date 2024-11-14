@@ -1,13 +1,13 @@
-"use client"; // Menandakan bahwa komponen ini Client Component
+// "use client";
 
-import { usePathname } from "next/navigation"; // Menggunakan usePathname
-import { SidebarDemo } from "@/components/Sidebar"; // Mengimpor SidebarDemo
+// import { usePathname } from "next/navigation";
+// import { SidebarDemo } from "@/components/Sidebar";
 
-interface SidebarHandlerProps {
-  children: React.ReactNode;
-}
+// interface SidebarHandlerProps {
+//   children: React.ReactNode;
+// }
 
-export default function SidebarHandler({ children }: Readonly<{children:React.ReactNode}>) {
+// export default function SidebarHandler({ children }: Readonly<{children:React.ReactNode}>) {
 //   const pathname = usePathname(); // Mendapatkan URL
 
 //   // Tentukan halaman di mana Sidebar tidak seharusnya muncul
@@ -22,4 +22,4 @@ export default function SidebarHandler({ children }: Readonly<{children:React.Re
 //       <main>{children}</main>
 //     </>
 //   );
-}
+// }

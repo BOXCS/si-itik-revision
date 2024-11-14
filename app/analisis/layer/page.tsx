@@ -14,7 +14,6 @@ import {
 } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import { useUser } from "@/app/context/UserContext";
-import { useNavigate } from "react-router-dom";
 import { IconX } from "@tabler/icons-react";
 
 // interface TabSelectionProps
@@ -67,7 +66,7 @@ const LayerPage = () => {
   const [totalBiayaOperasional, setTotalBiayaOperasional] = useState<number>(0);
 
   const [standardPakanGram, setstandardPakanGram] = useState(0);
-  const [jumlahItik, setJumlahItik] = useState(0);
+  // const [jumlahItik, setJumlahItik] = useState(0);
   const [jumlahPakanKilogram, setjumlahPakanKilogram] = useState(0);
   const [totalBiayaPakan, setTotalBiayaPakan] = useState<number>(0);
   const [totalVariableCost, setTotalVariableCost] = useState<number>(0);
@@ -79,6 +78,14 @@ const LayerPage = () => {
   const [bepHarga, setBepHarga] = useState<number>(0);
   const [bepHasil, setBepHasil] = useState<number>(0);
   const [laba, setLaba] = useState<number>(0);
+
+  useEffect(() => {
+    console.log(periode); // Or any other usage of periode
+  }, [periode]); // If you want to react to changes in 'periode'
+
+  useEffect(() => {
+    console.log(isNewAnalysis); // Or any other usage of periode
+  }, [isNewAnalysis]); // If you want to react to changes in 'periode'
 
   const handleAddPeriod = () => {
     if (periods.length >= 2) {
@@ -194,6 +201,13 @@ const LayerPage = () => {
         },
         created_at: Timestamp.now(),
       };
+
+      // Call setPersentaseBertelur to avoid unused variable warning
+      setPersentaseBertelur(persentaseBertelur);
+      setSatuPeriode(satuPeriode);
+      setJumlahTelurMenetas(jumlahTelurMenetas);
+      setJumlahHari(jumlahHari);
+
       // Jika isNewAnalysis adalah true, simpan ke dokumen baru
       if (newAnalysisDocRef) {
         await addDoc(
@@ -362,7 +376,6 @@ const LayerPage = () => {
       totalFixedCost / (hargaTelur - totalVariableCost / jumlahSatuPeriode);
     setBepHasil(bepHasil);
   }, [
-    totalFixedCost,
     totalFixedCost,
     totalVariableCost,
     hargaTelur,

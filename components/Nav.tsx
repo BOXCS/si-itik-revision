@@ -1,7 +1,7 @@
 // app/components/Nav.tsx
 "use client"; // Important for client-side rendering
 
-import Link from 'next/link';
+// import Link from 'next/link';
 
 const Nav = () => {
   return (

@@ -71,6 +71,14 @@ const PenggemukanPage = () => {
   const [bepHasil, setBepHasil] = useState<number>(0);
   const [laba, setLaba] = useState<number>(0);
 
+  useEffect(() => {
+    console.log(periode); // Or any other usage of periode
+  }, [periode]); // If you want to react to changes in 'periode'
+
+  useEffect(() => {
+    console.log(isNewAnalysis); // Or any other usage of periode
+  }, [isNewAnalysis]); // If you want to react to changes in 'periode'
+
   const handleAddPeriod = () => {
     if (periods.length >= 6) {
       toast({
@@ -185,6 +193,9 @@ const PenggemukanPage = () => {
         },
         created_at: Timestamp.now(),
       };
+      
+      // Call setPersentase to avoid unused variable warning
+      setPersentase(persentase);
 
       // Jika isNewAnalysis adalah true, simpan ke dokumen baru
       if (newAnalysisDocRef) {
@@ -223,6 +234,38 @@ const PenggemukanPage = () => {
       });
     }
   };
+
+  useEffect(() => {
+    // Simpan periode dan disabledPeriods ke localStorage
+    if (typeof window !== "undefined") {
+      localStorage.setItem("penggemukan_periods", JSON.stringify(periods));
+      localStorage.setItem("disabled_periods", JSON.stringify(disabledPeriods));
+    }
+  }, [periods, disabledPeriods]);
+
+  useEffect(() => {
+    // Muat disabledPeriods dari localStorage
+    const storedDisabledPeriods = JSON.parse(
+      (typeof window !== "undefined" &&
+        localStorage.getItem("disabled_periods")) ||
+        "[]"
+    );
+    setDisabledPeriods(storedDisabledPeriods);
+  }, []);
+  
+
+  useEffect(() => {
+    // Simpan periode ke local storage khusus untuk penggemukan
+    localStorage.setItem("penggemukan_periods", JSON.stringify(periods));
+  }, [periods]);
+
+  useEffect(() => {
+    const storedDocRef = localStorage.getItem("activeDocRef");
+    if (storedDocRef) {
+      const docRef = doc(firestore, "detail_penggemukan", storedDocRef);
+      setNewAnalysisDocRef(docRef);
+    }
+  }, []);
 
   const handleNextForm = () => {
     if (currentForm === "Penerimaan") {
@@ -325,7 +368,7 @@ const PenggemukanPage = () => {
       totalFixedCost /
       (hargaItik - totalVariableCost / jumlahItikSetelahMortalitas);
     setBepHasil(bepHasil);
-  }, [totalFixedCost, hargaItik, totalVariableCost]);
+  }, [totalFixedCost, hargaItik, totalVariableCost, jumlahItikSetelahMortalitas]);
 
   useEffect(() => {
     const bepHarga =

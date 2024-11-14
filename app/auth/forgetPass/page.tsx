@@ -12,6 +12,8 @@ import {
   ToastViewport,
 } from "@/components/ui/toast";
 import { getAuth, sendPasswordResetEmail } from "firebase/auth"; // Tambahkan import ini
+import { FirebaseError } from "firebase/app";
+import Image from "next/image";
 
 interface ToastMessage {
   id: string;
@@ -69,22 +71,27 @@ const ForgetPasswordPage = () => {
       if (isResend) {
         startResendTimer();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      // Use `unknown` type here
       // Handle specific Firebase errors
       let errorMessage =
         "Terjadi kesalahan dalam mengirim email reset password.";
 
-      switch (error.code) {
-        case "auth/user-not-found":
-          errorMessage = "Email tidak terdaftar dalam sistem.";
-          break;
-        case "auth/invalid-email":
-          errorMessage = "Format email tidak valid.";
-          break;
-        case "auth/too-many-requests":
-          errorMessage = "Terlalu banyak permintaan. Silakan coba lagi nanti.";
-          break;
-        // Tambahkan case lain sesuai kebutuhan
+      // Type guard to check if error is a FirebaseError
+      if (error instanceof FirebaseError) {
+        switch (error.code) {
+          case "auth/user-not-found":
+            errorMessage = "Email tidak terdaftar dalam sistem.";
+            break;
+          case "auth/invalid-email":
+            errorMessage = "Format email tidak valid.";
+            break;
+          case "auth/too-many-requests":
+            errorMessage =
+              "Terlalu banyak permintaan. Silakan coba lagi nanti.";
+            break;
+          // Tambahkan case lain sesuai kebutuhan
+        }
       }
 
       showToast({
@@ -145,9 +152,11 @@ const ForgetPasswordPage = () => {
       <div className="w-full h-screen flex flex-1 justify-center items-center overflow-hidden">
         <div className="relative w-2/3 h-full hidden flex-col xl:block">
           <div className="absolute top-[25%] left-[10%] flex flex-col gap-5">
-            <img
+            <Image
               src="/assets/logo-si-itik.svg"
               alt="Logo SI_ITIK"
+              width={80} // Set a specific width
+              height={80} // Set a specific height
               className="w-20"
             />
             <h1 className="flex flex-col text-5xl font-bold text-white">
@@ -155,50 +164,62 @@ const ForgetPasswordPage = () => {
             </h1>
             <div className="benefit-point grid text-2xl font-semibold gap-5">
               <h2 className="text-white">
-                <img
+                <Image
                   src="/assets/point-benefit.svg"
                   alt="Point"
+                  width={80} // Set a specific width
+                  height={80} // Set a specific height
                   className="inline-block w-10 h-10 mr-2"
                 />
                 Pengelolaan terintegrasi
               </h2>
               <h2 className="text-white">
-                <img
+                <Image
                   src="/assets/point-benefit.svg"
                   alt="Point"
+                  width={80} // Set a specific width
+                  height={80} // Set a specific height
                   className="inline-block w-10 h-10 mr-2"
                 />
                 User Friendly
               </h2>
               <h2 className="text-white">
-                <img
+                <Image
                   src="/assets/point-benefit.svg"
                   alt="Point"
+                  width={80} // Set a specific width
+                  height={80} // Set a specific height
                   className="inline-block w-10 h-10 mr-2"
                 />
                 Analisis mendalam
               </h2>
               <h2 className="text-white">
-                <img
+                <Image
                   src="/assets/point-benefit.svg"
                   alt="Point"
+                  width={80} // Set a specific width
+                  height={80} // Set a specific height
                   className="inline-block w-10 h-10 mr-2"
                 />
                 Data finansial akurat
               </h2>
               <h2 className="text-white">
-                <img
+                <Image
                   src="/assets/point-benefit.svg"
                   alt="Point"
+                  width={80} // Set a specific width
+                  height={80} // Set a specific height
                   className="inline-block w-10 h-10 mr-2"
                 />
                 Fleksible
               </h2>
             </div>
             <div className="absolute top-[45%] items-end justify-end">
-              <img
+              <Image
                 src="/assets/itik-cartoon.svg"
                 alt="Logo SI_ITIK"
+                width={80} // Set a specific width
+                height={80} // Set a specific height
                 className="hidden xl:block ml-72"
               />
             </div>

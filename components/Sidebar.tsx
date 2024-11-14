@@ -1,12 +1,12 @@
 "use client";
 import React, { useState } from "react";
 import {
-  IconArrowLeft,
+  // IconArrowLeft,
   IconBrandTabler,
-  IconSettings,
-  IconUserBolt,
+  // IconSettings,
+  // IconUserBolt,
   IconChevronDown,
-  IconAnalyze,
+  // IconAnalyze,
   IconAnalyzeFilled,
   IconHistory,
   IconSettings2,
@@ -28,7 +28,7 @@ import {
   DialogTrigger,
 } from "@/app/auth/Log_out/page";
 import { Button } from "./ui/button";
-import { useRouter } from "next/navigation"; // Import useRouter
+// import { useRouter } from "next/navigation";
 
 export function SidebarDemo({
   children,
@@ -100,9 +100,9 @@ export function SidebarDemo({
     },
   ];
 
-  const handleLogout = () => {
-    setIsDialogOpen(true); // Open the dialog on logout click
-  };
+  // const handleLogout = () => {
+  //   setIsDialogOpen(true); // Open the dialog on logout click
+  // };
 
   return (
     <div
@@ -140,7 +140,10 @@ export function SidebarDemo({
           </div>
           <div>
             {/* Tombol Keluar yang memicu popup */}
-            <Dialog>
+            <Dialog
+              open={isDialogOpen}
+              onOpenChange={(open) => setIsDialogOpen(open)}
+            >
               <DialogTrigger asChild>
                 <SidebarLink
                   link={{
@@ -172,7 +175,7 @@ export function SidebarDemo({
                     <Button
                       className="mt-2 w-full lg:mt-0 lg:w-fit bg-[#E4E4E4] hover:bg-[#C9C8C8]"
                       variant="secondary"
-                      onClick={() => setIsDialogOpen(false)} // Close dialog without logging out
+                      onClick={() => setIsDialogOpen(false)} // Menutup dialog saat tombol diklik
                     >
                       Batal
                     </Button>
@@ -202,8 +205,14 @@ export const Logo = () => {
       className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
     >
       <div className="logo-si-itik w-8">
-          <img src="/assets/logo-si-itik.svg" alt="Logo SI-ITIK" />
-        </div>
+        <Image
+          src="/assets/logo-si-itik.svg"
+          alt="Logo SI-ITIK"
+          width={32} // Specify the width (8 * 4 = 32px for consistency with your design)
+          height={32} // Specify the height (8 * 4 = 32px for consistency with your design)
+          layout="intrinsic" // Ensures the image is responsive
+        />
+      </div>
       <motion.span
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -222,34 +231,13 @@ export const LogoIcon = () => {
       className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
     >
       <div className="logo-si-itik w-8">
-          <img src="/assets/logo-si-itik.svg" alt="Logo SI-ITIK" />
-        </div>
-    </Link>
-  );
-};
-
-// Dummy dashboard component with content
-const Dashboard = () => {
-  return (
-    <div className="flex flex-1">
-      <div className="p-2 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full">
-        <div className="flex gap-2">
-          {[...new Array(4)].map((i) => (
-            <div
-              key={"first-array" + i}
-              className="h-20 w-full rounded-lg bg-gray-100 dark:bg-neutral-800 animate-pulse"
-            ></div>
-          ))}
-        </div>
-        <div className="flex gap-2 flex-1">
-          {[...new Array(2)].map((i) => (
-            <div
-              key={"second-array" + i}
-              className="h-full w-full rounded-lg bg-gray-100 dark:bg-neutral-800 animate-pulse"
-            ></div>
-          ))}
-        </div>
+        <Image
+          src="/assets/logo-si-itik.svg"
+          alt="Logo SI-ITIK"
+          width={32} // Sesuaikan dengan ukuran yang diinginkan
+          height={32} // Sesuaikan dengan ukuran yang diinginkan
+        />
       </div>
-    </div>
+    </Link>
   );
 };

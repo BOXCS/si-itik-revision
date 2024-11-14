@@ -13,12 +13,8 @@ import {
   Timestamp,
 } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
-import { IconMenu2, IconX } from "@tabler/icons-react";
+import { IconX } from "@tabler/icons-react";
 import { firestore } from "@/lib/firebase";
-
-interface TabSelectionProps {
-  setSelectedPeriod: (period: string) => void; // Mengatur tipe untuk setSelectedPeriod
-}
 
 const PenetasanPage = () => {
   const initialPeriods = JSON.parse(
@@ -73,6 +69,14 @@ const PenetasanPage = () => {
   const [bepHarga, setBepHarga] = useState<number>(0);
   const [bepHasil, setBepHasil] = useState<number>(0);
   const [laba, setLaba] = useState<number>(0);
+
+  useEffect(() => {
+    console.log(periode); // Or any other usage of periode
+  }, [periode]); // If you want to react to changes in 'periode'
+
+  useEffect(() => {
+    console.log(isNewAnalysis); // Or any other usage of periode
+  }, [isNewAnalysis]); // If you want to react to changes in 'periode'
 
   const handleAddPeriod = () => {
     if (periods.length >= 13) {
@@ -312,7 +316,7 @@ const PenetasanPage = () => {
     const bepHasil =
       totalFixedCost / (hargaDOD - totalVariableCost / jumlahDOD);
     setBepHasil(bepHasil);
-  }, [totalFixedCost, hargaDOD, totalVariableCost]);
+  }, [totalFixedCost, hargaDOD, totalVariableCost, jumlahDOD]);
 
   useEffect(() => {
     const bepHarga =

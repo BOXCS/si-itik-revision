@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import Image from "next/image";
 
 // Validasi form menggunakan zod
 const schema = z
@@ -39,7 +40,10 @@ const ResetPasswordPage = () => {
     }
   }, []);
 
-  const onSubmit = async (data: { newPassword: string; confirmPassword: string }) => {
+  const onSubmit = async (data: {
+    newPassword: string;
+    confirmPassword: string;
+  }) => {
     setIsLoading(true);
     try {
       if (!oobCode) {
@@ -81,41 +85,51 @@ const ResetPasswordPage = () => {
           <h1 className="text-5xl font-bold">Keunggulan SI-Itik</h1>
           <ul className="text-2xl font-semibold mt-5 space-y-5">
             <li className="flex items-center">
-              <img
+              <Image
                 src="/assets/check-icon.svg"
                 alt="Check"
+                width={80}
+                height={80}
                 className="w-6 h-6 mr-2"
               />
               Pengelolaan terintegrasi
             </li>
             <li className="flex items-center">
-              <img
+              <Image
                 src="/assets/check-icon.svg"
                 alt="Check"
+                width={80}
+                height={80}
                 className="w-6 h-6 mr-2"
               />
               User Friendly
             </li>
             <li className="flex items-center">
-              <img
+              <Image
                 src="/assets/check-icon.svg"
                 alt="Check"
+                width={80}
+                height={80}
                 className="w-6 h-6 mr-2"
               />
               Analisis mendalam
             </li>
             <li className="flex items-center">
-              <img
+              <Image
                 src="/assets/check-icon.svg"
                 alt="Check"
+                width={80}
+                height={80}
                 className="w-6 h-6 mr-2"
               />
               Data finansial akurat
             </li>
             <li className="flex items-center">
-              <img
+              <Image
                 src="/assets/check-icon.svg"
                 alt="Check"
+                width={80}
+                height={80}
                 className="w-6 h-6 mr-2"
               />
               Fleksible

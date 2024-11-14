@@ -1,15 +1,36 @@
 "use client";
 
-import React, { useState, useEffect, ChangeEvent } from "react";
+import React, { useState, useEffect } from "react";
 import { AreaChart } from "@/components/ui/chart";
 // import { db } from "@/lib/firebase";
-import { collection,doc, getDocs, getDoc,query, where, Timestamp, orderBy, } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDocs,
+  getDoc,
+  query,
+  where,
+  Timestamp,
+  orderBy,
+} from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area } from 'recharts';
+// import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area } from 'recharts';
 import { firestore, auth } from "@/lib/firebase";
 import { SidebarDemo } from "@/components/Sidebar";
 import {
-  Grid, Card, CardContent, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, MenuItem, Select, FormControl, InputLabel,
+  Grid,
+  Card,
+  CardContent,
+  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
   SelectChangeEvent,
 } from "@mui/material";
 
@@ -28,14 +49,14 @@ interface AnalysisPeriodData {
   totalCost: number;
 }
 
-type PeriodData = {
-  analysisName: string;
-  marginOfSafety: number;
-  rcRatio: number;
-  bepHarga: number;
-  bepHasil: number;
-  laba: number;
-};
+// type PeriodData = {
+//   analysisName: string;
+//   marginOfSafety: number;
+//   rcRatio: number;
+//   bepHarga: number;
+//   bepHasil: number;
+//   laba: number;
+// };
 
 type PopupProps = {
   open: boolean;
@@ -93,7 +114,6 @@ const styles = {
     "&:hover": {
       transform: "scale(1.02)",
       boxShadow: "0px 12px 24px rgba(255, 153, 51, 0.7)", // Darker orange shadow on hover
-
     },
   },
   time: {
@@ -129,34 +149,37 @@ const styles = {
     padding: "20px 0",
   },
   chartContainer: {
-    marginTop: '20px',
+    marginTop: "20px",
   },
   cardContent: {
-    display: 'flex',
-    flexDirection: 'column' as const, // Tentukan tipe flexDirection sebagai const
+    display: "flex",
+    flexDirection: "column" as const, // Tentukan tipe flexDirection sebagai const
     gap: 8, // Tentukan gap sebagai number, bukan string
   },
 
   labelText: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 };
 
-
 export default function RiwayatAnalisis() {
-
-  const [username, setUsername] = useState<string>("User");//Variabel state ini menyimpan nama pengguna dengan nilai awal "User".
-  const [openPopup, setOpenPopup] = useState<boolean>(false);//State boolean ini mengontrol apakah popup terbuka. Nilai awalnya adalah false.
+  const [username, setUsername] = useState<string>("User"); //Variabel state ini menyimpan nama pengguna dengan nilai awal "User".
+  const [openPopup, setOpenPopup] = useState<boolean>(false); //State boolean ini mengontrol apakah popup terbuka. Nilai awalnya adalah false.
   const [selectedData, setSelectedData] = useState<AnalysisPeriodData | null>(
-    null//Variabel state ini menyimpan data analisis yang dipilih saat ini. Awalnya diatur ke null (menandakan tidak ada data yang dipilih). Tipe AnalysisPeriodData | null berarti dapat menyimpan data dari tipe AnalysisPeriodData atau null
+    null //Variabel state ini menyimpan data analisis yang dipilih saat ini. Awalnya diatur ke null (menandakan tidak ada data yang dipilih). Tipe AnalysisPeriodData | null berarti dapat menyimpan data dari tipe AnalysisPeriodData atau null
   );
-  const [dataAnalisis, setDataAnalisis] = useState<AnalysisPeriodData[]>([]);//
+  const [dataAnalisis, setDataAnalisis] = useState<AnalysisPeriodData[]>([]); //
   const [sortCriteria, setSortCriteria] = useState<string>("terbaru");
 
-
-  const [chartDataPenetasan, setChartDataPenetasan] = useState<{ Prd: string; Revenue: number; Cost: number; Laba: number; }[]>([]);
-  const [chartDataPenggemukan, setChartDataPenggemukan] = useState<{ Prd: string; Revenue: number; Cost: number; Laba: number; }[]>([]);
-  const [chartDataLayer, setChartDataLayer] = useState<{ Prd: string; Revenue: number; Cost: number; Laba: number; }[]>([]);
+  const [chartDataPenetasan, setChartDataPenetasan] = useState<
+    { Prd: string; Revenue: number; Cost: number; Laba: number }[]
+  >([]);
+  const [chartDataPenggemukan, setChartDataPenggemukan] = useState<
+    { Prd: string; Revenue: number; Cost: number; Laba: number }[]
+  >([]);
+  const [chartDataLayer, setChartDataLayer] = useState<
+    { Prd: string; Revenue: number; Cost: number; Laba: number }[]
+  >([]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -167,22 +190,27 @@ export default function RiwayatAnalisis() {
     return () => unsubscribe();
   }, []);
 
-
-  async function getAnalysisPeriodData(analysisId: string, periode: string): Promise<AnalysisPeriodData | null> {
-    try {
-      const docRef = doc(firestore, `tipe_analisis/${analysisId}/analisis_periode/${periode}`);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        return { id: docSnap.id, ...docSnap.data() } as AnalysisPeriodData;
-      } else {
-        console.error("No such document!");
-        return null;
-      }
-    } catch (error) {
-      console.error("Error getting document:", error);
-      return null;
-    }
-  }
+  // async function getAnalysisPeriodData(
+  //   analysisId: string,
+  //   periode: string
+  // ): Promise<AnalysisPeriodData | null> {
+  //   try {
+  //     const docRef = doc(
+  //       firestore,
+  //       `tipe_analisis/${analysisId}/analisis_periode/${periode}`
+  //     );
+  //     const docSnap = await getDoc(docRef);
+  //     if (docSnap.exists()) {
+  //       return { id: docSnap.id, ...docSnap.data() } as AnalysisPeriodData;
+  //     } else {
+  //       console.error("No such document!");
+  //       return null;
+  //     }
+  //   } catch (error) {
+  //     console.error("Error getting document:", error);
+  //     return null;
+  //   }
+  // }
 
   // Fetch User-Specific Data
   useEffect(() => {
@@ -214,8 +242,6 @@ export default function RiwayatAnalisis() {
           ),
         ];
 
-
-
         const userData = await Promise.all(
           detailQueries.map(async (q, index) => {
             const querySnapshot = await getDocs(q);
@@ -243,59 +269,68 @@ export default function RiwayatAnalisis() {
                 ];
                 const analysisName = analysisNames[index];
 
+                const [penetasanData, penggemukanData, layerData] =
+                  await Promise.all(
+                    detailQueries.map(async (q) => {
+                      // Removed `index`
+                      const querySnapshot = await getDocs(q);
+                      if (!querySnapshot.empty) {
+                        const userDocRef = querySnapshot.docs[0].ref;
+                        const subCollectionRef = query(
+                          collection(userDocRef, "analisis_periode"),
+                          orderBy("created_at", "asc") // Mengurutkan berdasarkan created_at
+                        );
+                        const subCollectionSnapshot = await getDocs(
+                          subCollectionRef
+                        );
 
+                        return subCollectionSnapshot.docs.map((doc) => ({
+                          id: doc.id,
+                          analysisId: userDoc.id,
+                          created_at: doc.data().created_at || Timestamp.now(),
+                          bepHarga: doc.data().hasilAnalisis?.bepHarga || 0,
+                          bepHasil: doc.data().hasilAnalisis?.bepHasil || 0,
+                          laba: doc.data().hasilAnalisis?.laba || 0,
+                          marginOfSafety:
+                            doc.data().hasilAnalisis?.marginOfSafety || 0,
+                          periode: doc.data().periode ?? 0,
+                          rcRatio: doc.data().hasilAnalisis?.rcRatio || 0,
+                          totalCost: doc.data().hasilAnalisis?.totalCost || 0,
+                          totalRevenue:
+                            doc.data().hasilAnalisis?.totalRevenue || 0,
+                          analysisName: analysisName,
+                        }));
+                      }
+                      return [];
+                    })
+                  );
 
-                const [penetasanData, penggemukanData, layerData] = await Promise.all(
-                  detailQueries.map(async (q, index) => {
-                    const querySnapshot = await getDocs(q);
-                    if (!querySnapshot.empty) {
-                      const userDocRef = querySnapshot.docs[0].ref;
-                      const subCollectionRef = query(
-                        collection(userDocRef, "analisis_periode"),
-                        orderBy("created_at", "asc") // Mengurutkan berdasarkan created_at
-                      );
-                      const subCollectionSnapshot = await getDocs(subCollectionRef);
-
-                      return subCollectionSnapshot.docs.map((doc) => ({
-                        id: doc.id,
-                        analysisId: userDoc.id,
-                        created_at: doc.data().created_at || Timestamp.now(),
-                        bepHarga: doc.data().hasilAnalisis?.bepHarga || 0,
-                        bepHasil: doc.data().hasilAnalisis?.bepHasil || 0,
-                        laba: doc.data().hasilAnalisis?.laba || 0,
-                        marginOfSafety:
-                          doc.data().hasilAnalisis?.marginOfSafety || 0,
-                        periode: doc.data().periode ?? 0,
-                        rcRatio: doc.data().hasilAnalisis?.rcRatio || 0,
-                        totalCost: doc.data().hasilAnalisis?.totalCost || 0,
-                        totalRevenue: doc.data().hasilAnalisis?.totalRevenue || 0,
-                        analysisName: analysisName,
-                      }));
-                    }
-                    return [];
-                  })
+                setChartDataPenetasan(
+                  penetasanData.map((item) => ({
+                    Prd: item.periode,
+                    Revenue: item.totalRevenue,
+                    Cost: item.totalCost,
+                    Laba: item.laba,
+                  }))
                 );
 
-                setChartDataPenetasan(penetasanData.map(item => ({
-                  Prd: item.periode,
-                  Revenue: item.totalRevenue,
-                  Cost: item.totalCost,
-                  Laba: item.laba,
-                })));
+                setChartDataPenggemukan(
+                  penggemukanData.map((item) => ({
+                    Prd: item.periode,
+                    Revenue: item.totalRevenue,
+                    Cost: item.totalCost,
+                    Laba: item.laba,
+                  }))
+                );
 
-                setChartDataPenggemukan(penggemukanData.map(item => ({
-                  Prd: item.periode,
-                  Revenue: item.totalRevenue,
-                  Cost: item.totalCost,
-                  Laba: item.laba,
-                })));
-
-                setChartDataLayer(layerData.map(item => ({
-                  Prd: item.periode,
-                  Revenue: item.totalRevenue,
-                  Cost: item.totalCost,
-                  Laba: item.laba,
-                })));
+                setChartDataLayer(
+                  layerData.map((item) => ({
+                    Prd: item.periode,
+                    Revenue: item.totalRevenue,
+                    Cost: item.totalCost,
+                    Laba: item.laba,
+                  }))
+                );
 
                 subCollectionSnapshot.docs.forEach((doc) => {
                   const docData = {
@@ -360,8 +395,8 @@ export default function RiwayatAnalisis() {
   const handleSortChange = (event: SelectChangeEvent<string>) => {
     const criteria = event.target.value;
     setSortCriteria(criteria);
-
-    let sortedData = [...dataAnalisis];
+  
+    const sortedData = [...dataAnalisis]; // Use const instead of let
     if (criteria === "terbaru") {
       sortedData.sort((a, b) => b.created_at.seconds - a.created_at.seconds);
     } else if (criteria === "terlama") {
@@ -371,12 +406,9 @@ export default function RiwayatAnalisis() {
     } else if (criteria === "tipe") {
       sortedData.sort((a, b) => a.analysisName.localeCompare(b.analysisName));
     }
-
+  
     setDataAnalisis(sortedData);
-
-  };
-
-
+  };  
 
   return (
     <div style={styles.pageContainer}>
@@ -401,7 +433,7 @@ export default function RiwayatAnalisis() {
           </div>
 
           <Grid container spacing={3}>
-            {dataAnalisis.map((data, index) => (
+            {dataAnalisis.map((data) => (
               <Grid item xs={12} sm={6} md={4} key={data.id}>
                 <Card
                   style={{
@@ -435,8 +467,8 @@ export default function RiwayatAnalisis() {
                       }}
                     >
                       {data.Laba !== undefined &&
-                        data.Laba !== null &&
-                        !isNaN(data.Laba) ? (
+                      data.Laba !== null &&
+                      !isNaN(data.Laba) ? (
                         <Typography
                           variant="h6"
                           style={{ ...styles.amount, textAlign: "center" }}
@@ -491,25 +523,30 @@ export default function RiwayatAnalisis() {
     </div>
   );
 
-
   function formatNumber(number: number): string {
     if (number >= 1000000) {
       const millions = number / 1000000;
-      return Number.isInteger(millions) ? `${millions} JT` : `${millions.toFixed(1)} JT`;
+      return Number.isInteger(millions)
+        ? `${millions} JT`
+        : `${millions.toFixed(1)} JT`;
     } else if (number >= 1000) {
       const thousands = number / 1000;
-      return Number.isInteger(thousands) ? `${thousands} K` : `${thousands.toFixed(1)} K`;
+      return Number.isInteger(thousands)
+        ? `${thousands} K`
+        : `${thousands.toFixed(1)} K`;
     } else {
       return number.toString();
     }
-  };
+  }
 
   function Popup({ open, onClose, data1 }: PopupProps) {
     if (!data1) return null;
 
     return (
       <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-        <DialogTitle style={styles.popupTitle}>{data1.analysisName}</DialogTitle>
+        <DialogTitle style={styles.popupTitle}>
+          {data1.analysisName}
+        </DialogTitle>
         <DialogContent style={styles.popupContent}>
           <Grid container spacing={5} justifyContent="center">
             {[0, 1].map((index) => (
@@ -519,20 +556,26 @@ export default function RiwayatAnalisis() {
                     <Grid container spacing={1}>
                       {/* Baris untuk Mos */}
                       <Grid item xs={5}>
-                        <Typography variant="body1" style={styles.labelText}>Mos</Typography>
+                        <Typography variant="body1" style={styles.labelText}>
+                          Mos
+                        </Typography>
                       </Grid>
-                      <Grid item xs={1} style={{ textAlign: 'center' }}>
+                      <Grid item xs={1} style={{ textAlign: "center" }}>
                         <Typography variant="body1">:</Typography>
                       </Grid>
                       <Grid item xs={6}>
-                        <Typography variant="body2">{data1.marginOfSafety}</Typography>
+                        <Typography variant="body2">
+                          {data1.marginOfSafety}
+                        </Typography>
                       </Grid>
 
                       {/* Baris untuk R/C Ratio */}
                       <Grid item xs={5}>
-                        <Typography variant="body1" style={styles.labelText}>R/C Ratio</Typography>
+                        <Typography variant="body1" style={styles.labelText}>
+                          R/C Ratio
+                        </Typography>
                       </Grid>
-                      <Grid item xs={1} style={{ textAlign: 'center' }}>
+                      <Grid item xs={1} style={{ textAlign: "center" }}>
                         <Typography variant="body1">:</Typography>
                       </Grid>
                       <Grid item xs={6}>
@@ -541,50 +584,107 @@ export default function RiwayatAnalisis() {
 
                       {/* Baris untuk BEP Harga */}
                       <Grid item xs={5}>
-                        <Typography variant="body1" style={styles.labelText}>BEP Harga</Typography>
+                        <Typography variant="body1" style={styles.labelText}>
+                          BEP Harga
+                        </Typography>
                       </Grid>
-                      <Grid item xs={1} style={{ textAlign: 'center' }}>
+                      <Grid item xs={1} style={{ textAlign: "center" }}>
                         <Typography variant="body1">:</Typography>
                       </Grid>
                       <Grid item xs={6}>
-                        <Typography variant="body2">{data1.bepHarga}</Typography>
+                        <Typography variant="body2">
+                          {data1.bepHarga}
+                        </Typography>
                       </Grid>
 
                       {/* Baris untuk BEP Hasil */}
                       <Grid item xs={5}>
-                        <Typography variant="body1" style={styles.labelText}>BEP Hasil</Typography>
+                        <Typography variant="body1" style={styles.labelText}>
+                          BEP Hasil
+                        </Typography>
                       </Grid>
-                      <Grid item xs={1} style={{ textAlign: 'center' }}>
+                      <Grid item xs={1} style={{ textAlign: "center" }}>
                         <Typography variant="body1">:</Typography>
                       </Grid>
                       <Grid item xs={6}>
-                        <Typography variant="body2">{data1.bepHasil}</Typography>
+                        <Typography variant="body2">
+                          {data1.bepHasil}
+                        </Typography>
                       </Grid>
 
                       {/* Baris untuk Laba */}
                       <Grid item xs={5}>
-                        <Typography variant="body1" style={styles.labelText}>Laba</Typography>
+                        <Typography variant="body1" style={styles.labelText}>
+                          Laba
+                        </Typography>
                       </Grid>
-                      <Grid item xs={1} style={{ textAlign: 'center' }}>
+                      <Grid item xs={1} style={{ textAlign: "center" }}>
                         <Typography variant="body1">:</Typography>
                       </Grid>
                       <Grid item xs={6}>
-                        <Typography variant="body2">Rp. {data1.Laba.toLocaleString("id-ID")}</Typography>
+                        <Typography variant="body2">
+                          Rp. {data1.Laba.toLocaleString("id-ID")}
+                        </Typography>
                       </Grid>
                     </Grid>
                   </CardContent>
                 </Card>
-
               </Grid>
             ))}
           </Grid>
 
-          <Grid container justifyContent="left" style={{ marginTop: '20px', width: '100%' }}>
-            <Grid item xs={10} md={8} lg={6}style={{ marginLeft: '15px' }}>
+          <Grid
+            container
+            justifyContent="left"
+            style={{ marginTop: "20px", width: "100%" }}
+          >
+            <Grid item xs={10} md={8} lg={6} style={{ marginLeft: "15px" }}>
               <AreaChart
-                style={{ width: '175%' }} // Mengatur grafik agar memenuhi lebar kolom
+                style={{ width: "175%" }} // Mengatur grafik agar memenuhi lebar kolom
                 className="flex items-center justify-center h-100"
                 data={chartDataPenetasan}
+                index="Prd"
+                categories={["Revenue", "Cost", "Laba"]}
+                valueFormatter={(number: number) => `${formatNumber(number)}`}
+                onValueChange={(v) => console.log(v)}
+                xAxisLabel="Periode"
+                yAxisLabel="Rp"
+                fill="solid"
+              />
+            </Grid>
+          </Grid>
+
+          <Grid
+            container
+            justifyContent="left"
+            style={{ marginTop: "20px", width: "100%" }}
+          >
+            <Grid item xs={10} md={8} lg={6} style={{ marginLeft: "15px" }}>
+              <AreaChart
+                style={{ width: "175%" }}
+                className="flex items-center justify-center h-100"
+                data={chartDataPenggemukan} // Data untuk chart penggemukan
+                index="Prd"
+                categories={["Revenue", "Cost", "Laba"]}
+                valueFormatter={(number: number) => `${formatNumber(number)}`}
+                onValueChange={(v) => console.log(v)}
+                xAxisLabel="Periode"
+                yAxisLabel="Rp"
+                fill="solid"
+              />
+            </Grid>
+          </Grid>
+
+          <Grid
+            container
+            justifyContent="left"
+            style={{ marginTop: "20px", width: "100%" }}
+          >
+            <Grid item xs={10} md={8} lg={6} style={{ marginLeft: "15px" }}>
+              <AreaChart
+                style={{ width: "175%" }}
+                className="flex items-center justify-center h-100"
+                data={chartDataLayer} // Data untuk chart layer
                 index="Prd"
                 categories={["Revenue", "Cost", "Laba"]}
                 valueFormatter={(number: number) => `${formatNumber(number)}`}
@@ -603,5 +703,5 @@ export default function RiwayatAnalisis() {
         </DialogActions>
       </Dialog>
     );
-  };
+  }
 }

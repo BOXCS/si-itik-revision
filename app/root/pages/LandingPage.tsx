@@ -34,10 +34,10 @@ const testimonials = [
   },
 ];
 
-type TimelineEntry = {
-  title: "Buat & Masuk Akun";
-  content: "Masuk AKun";
-};
+// type TimelineEntry = {
+//   title: "Buat & Masuk Akun";
+//   content: "Masuk AKun";
+// };
 
 // Teks untuk setiap slide
 const headers = ["Penetasan", "Penggemukan", "Layer"];
@@ -299,7 +299,13 @@ export default function LandingPage() {
         <div className="fima-container grid grid-cols-1 gap-6 sm:grid-cols-2">
           {/* Penetasan */}
           <div className="fima-box">
-            <img src="/assets/Penetasan-fima.png" alt="Penetasan" />
+            <Image
+              src="/assets/Penetasan-fima.png"
+              alt="Penetasan"
+              width={500} // Specify the width (you can adjust this value)
+              height={300} // Specify the height (you can adjust this value)
+              objectFit="cover" // Ensure the image covers the container proportionally
+            />
             <div className="fima-layer">
               <h4>Penetasan</h4>
               <p>Atur dan pantau proses penetasan telur itik dengan mudah.</p>
@@ -308,16 +314,30 @@ export default function LandingPage() {
 
           {/* Penggemukan */}
           <div className="fima-box">
-            <img src="/assets/penggemukan-fima.png" alt="Penggemukan" />
+            <Image
+              src="/assets/Penggemukan-fima.png"
+              alt="Penggemukan"
+              width={500} // Adjust width as needed
+              height={300} // Adjust height as needed
+              layout="intrinsic" // Ensures the image is responsive
+              className="fima-img" // Add a custom class for styling
+            />
             <div className="fima-layer">
-              <h4>Penggemukan</h4>
-              <p>Optimalkan pertumbuhan itik jantan dengan pencatatan</p>
+              <h4>Penetasan</h4>
+              <p>Atur dan pantau proses penetasan telur itik dengan mudah.</p>
             </div>
           </div>
 
           {/* Layer */}
           <div className="fima-box">
-            <img src="/assets/layer-fima.png" alt="Layer" />
+            <Image
+              src="/assets/layer-fima.png"
+              alt="Layer"
+              width={500} // Adjust width as needed
+              height={300} // Adjust height as needed
+              layout="intrinsic" // Ensures the image is responsive
+              className="fima-img" // Add a custom class for styling
+            />
             <div className="fima-layer">
               <h4>Layer</h4>
               <p>Pantau produksi telur itik betina dari layer dengan data</p>
@@ -326,9 +346,13 @@ export default function LandingPage() {
 
           {/* Analisis */}
           <div className="fima-box">
-            <img
+            <Image
               src="/assets/Laporan-fima.png"
               alt="Analisis dan Laporan Keuangan"
+              width={500} // Adjust width as needed
+              height={300} // Adjust height as needed
+              layout="intrinsic" // Ensures the image is responsive
+              className="fima-img" // Add a custom class for styling
             />
             <div className="fima-layer">
               <h4>Analisis dan Laporan Keuangan</h4>
@@ -364,7 +388,14 @@ export default function LandingPage() {
 
       <section className="footer-container flex flex-col items-center gap-10 sm:flex-row sm:items-start justify-between p-5 bg-[#CF5804]">
         <div className="logo-si-itik w-32">
-          <img src="/assets/logo-si-itik.svg" alt="Logo SI-ITIK" />
+          <Image
+            src="/assets/logo-si-itik.svg"
+            alt="Logo SI-ITIK"
+            width={500} // Adjust width as needed
+            height={300} // Adjust height as needed
+            layout="intrinsic" // Ensures the image is responsive
+            className="fima-img" // Add a custom class for styling
+          />
         </div>
 
         <div className="footer-social flex flex-col items-center sm:items-start gap-5">

@@ -17,11 +17,11 @@ import { SignupValidation } from "@/lib/validation";
 import { z } from "zod";
 import Loader from "@/components/shared/Loader";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
+import { FirebaseError } from "firebase/app";
 
 const SignUpPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -62,28 +62,40 @@ const SignUpPage = () => {
 
       // Arahkan pengguna ke halaman login setelah berhasil signup
       router.push("/auth/login");
-    } catch (error: any) {
-      console.error("Error creating user:", error.message);
+    } catch (error: unknown) {
+      console.error("Error creating user:", error);
 
-      // Tangani error berdasarkan kode dari Firebase
-      if (error.code === "auth/email-already-in-use") {
-        setErrorMessage("Email sudah terdaftar. Silakan gunakan email lain.");
+      // Check if the error is a FirebaseError (which includes the 'code' property)
+      if (error instanceof FirebaseError) {
+        switch (error.code) {
+          case "auth/email-already-in-use":
+            setErrorMessage(
+              "Email sudah terdaftar. Silakan gunakan email lain."
+            );
+            break;
+          default:
+            setErrorMessage("Terjadi kesalahan. Mohon coba lagi.");
+        }
+      } else if (error instanceof Error) {
+        // Handle generic errors that are not FirebaseError
+        setErrorMessage(`Terjadi kesalahan: ${error.message}`);
       } else {
-        setErrorMessage("Terjadi kesalahan. Mohon coba lagi.");
+        setErrorMessage("Terjadi kesalahan yang tidak diketahui.");
       }
     } finally {
       setIsLoading(false);
     }
   }
 
-
   return (
     <div className="w-full h-screen flex flex-1 justify-center items-center overflow-hidden">
       <div className="relative w-2/3 h-full hidden flex-col xl:block">
         <div className="absolute top-[25%] left-[10%] flex flex-col gap-5">
-          <img
+          <Image
             src="/assets/logo-si-itik.svg"
             alt="Logo SI_ITIK"
+            width={80}
+            height={80}
             className="w-20"
           />
           <h1 className="flex flex-col text-5xl font-bold text-white">
@@ -91,64 +103,80 @@ const SignUpPage = () => {
           </h1>
           <div className="benefit-point grid text-2xl font-semibold gap-5">
             <h2 className="text-white">
-              <img
+              <Image
                 src="/assets/point-benefit.svg"
                 alt="Point"
+                width={80}
+                height={80}
                 className="inline-block w-10 h-10 mr-2"
               />
               Pengelolaan terintegrasi
             </h2>
             <h2 className="text-white">
-              <img
+              <Image
                 src="/assets/point-benefit.svg"
                 alt="Point"
+                width={80}
+                height={80}
                 className="inline-block w-10 h-10 mr-2"
               />
               User Friendly
             </h2>
             <h2 className="text-white">
-              <img
+              <Image
                 src="/assets/point-benefit.svg"
                 alt="Point"
+                width={80}
+                height={80}
                 className="inline-block w-10 h-10 mr-2"
               />
               Analisis mendalam
             </h2>
             <h2 className="text-white">
-              <img
+              <Image
                 src="/assets/point-benefit.svg"
                 alt="Point"
+                width={80}
+                height={80}
                 className="inline-block w-10 h-10 mr-2"
               />
               Data finansial akurat
             </h2>
             <h2 className="text-white">
-              <img
+              <Image
                 src="/assets/point-benefit.svg"
                 alt="Point"
+                width={80}
+                height={80}
                 className="inline-block w-10 h-10 mr-2"
               />
               Fleksible
             </h2>
           </div>
           <div className="absolute top-[45%] items-end justify-end">
-            <img
+            <Image
               src="/assets/bebek.svg"
               alt="Logo SI_ITIK"
+              width={80}
+              height={80}
               className="hidden xl:block xl:ml-80 xl:mt-[-25px] object-contain"
             />
           </div>
           <div className="absolute top-[-20%] right-[-120%]">
-            <img
+            <Image
               src="/assets/elips.svg"
               alt="elips"
+              width={80}
+              height={80}
               className="w-[270px] h-[270px]"
             />
           </div>
           <div className="absolute top-[110%] left-[-50%]">
-            <img
+            <Image
               src="/assets/elips2.svg"
               alt="elips"
+              width={80}
+              height={80}
               className="ml-20"
             />
           </div>
@@ -191,7 +219,10 @@ const SignUpPage = () => {
                     <FormItem>
                       <FormLabel>Username</FormLabel>
                       <FormControl>
-                        <Input placeholder="Masukkan Username Anda" {...field} />
+                        <Input
+                          placeholder="Masukkan Username Anda"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -204,13 +235,16 @@ const SignUpPage = () => {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="Masukkan Password Anda" {...field} />
+                        <Input
+                          type="password"
+                          placeholder="Masukkan Password Anda"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
 
                 {errorMessage && (
                   <div className="text-red-500 mb-4">{errorMessage}</div> // Menampilkan pesan error

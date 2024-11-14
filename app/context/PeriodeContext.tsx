@@ -1,27 +1,45 @@
 import React, { createContext, useState, useContext, ReactNode } from "react";
 
-// Create the context
-const PeriodContext = createContext<any>(null);
+// Define types for the periods state and context value
+type PeriodsState = {
+  penetasan: string[];
+  penggemukan: string[];
+  layer: string[];
+};
 
-// Create the PeriodProvider component
+type PeriodContextType = {
+  periods: {
+    penetasan: string[];
+    penggemukan: string[];
+    layer: string[];
+  };
+  setPeriods: (feature: keyof PeriodsState, newPeriods: string[]) => void;
+};
+
+// Create the context with the correct type
+const PeriodContext = createContext<PeriodContextType | undefined>(undefined);
+
+// Create the PeriodProvider component with proper typing
 export const PeriodProvider = ({ children }: { children: ReactNode }) => {
-  const [periodsState, setPeriodsState] = useState<any>({
+  const [periodsState, setPeriodsState] = useState<PeriodsState>({
     penetasan: ["Periode 1"],
     penggemukan: ["Periode 1"],
     layer: ["Periode 1"],
   });
 
-  const setPeriods = (feature: string, newPeriods: string[]) => {
-    setPeriodsState((prevState: any) => ({
+  // Function to update periods state for a specific feature
+  const setPeriods = (feature: keyof PeriodsState, newPeriods: string[]) => {
+    setPeriodsState((prevState) => ({
       ...prevState,
       [feature]: newPeriods,
     }));
   };
 
-  const contextValue = (feature: string) => ({
-    periods: periodsState[feature],
-    setPeriods: (newPeriods: string[]) => setPeriods(feature, newPeriods),
-  });
+  // Define the context value with the correct typing
+  const contextValue = {
+    periods: periodsState,
+    setPeriods,
+  };
 
   return (
     <PeriodContext.Provider value={contextValue}>
@@ -30,11 +48,14 @@ export const PeriodProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Custom hook to use the PeriodContext
-export const usePeriod = (feature: string) => {
+// Custom hook to use the PeriodContext with proper typing
+export const usePeriod = (feature: keyof PeriodsState) => {
   const context = useContext(PeriodContext);
   if (!context) {
     throw new Error("usePeriod must be used within a PeriodProvider");
   }
-  return context(feature);
+  return {
+    periods: context.periods[feature],
+    setPeriods: context.setPeriods,
+  };
 };
