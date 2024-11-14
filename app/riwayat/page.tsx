@@ -5,9 +5,9 @@ import { AreaChart } from "@/components/ui/chart";
 // import { db } from "@/lib/firebase";
 import {
   collection,
-  doc,
+  // doc,
   getDocs,
-  getDoc,
+  // getDoc,
   query,
   where,
   Timestamp,

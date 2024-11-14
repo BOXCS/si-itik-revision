@@ -25,6 +25,26 @@ export const InfiniteMovingCards = ({
   const [start, setStart] = useState(false);
 
   const addAnimation = useCallback(() => {
+    const getDirection = () => {
+      if (containerRef.current) {
+        containerRef.current.style.setProperty(
+          "--animation-direction",
+          direction === "left" ? "forwards" : "reverse"
+        );
+      }
+    };
+
+    const getSpeed = () => {
+      if (containerRef.current) {
+        const duration =
+          speed === "fast" ? "20s" : speed === "normal" ? "40s" : "80s";
+        containerRef.current.style.setProperty(
+          "--animation-duration",
+          duration
+        );
+      }
+    };
+
     if (containerRef.current && scrollerRef.current) {
       const scrollerContent = Array.from(scrollerRef.current.children);
 
@@ -95,5 +115,5 @@ export const InfiniteMovingCards = ({
         ))}
       </ul>
     </div>
-  );  
+  );
 };
