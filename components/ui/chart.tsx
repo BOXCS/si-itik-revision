@@ -27,6 +27,7 @@ import {
 } from "@/components/chartUtils";
 import { useOnWindowResize } from "@/hooks/useOnWindowResize";
 import { cx } from "@/lib/utils";
+import { LineProps } from "recharts"; // Import the type from the library
 
 //#region Legend
 
@@ -39,7 +40,8 @@ interface DotProps {
   strokeLinejoin: string;
   strokeWidth: number;
   dataKey: string;
-  index?: number;
+  index?: number; // Optional if not always provided
+  payload?: any;
 }
 
 interface LegendPayload {
@@ -60,6 +62,15 @@ interface LegendItemProps {
   color: AvailableChartColorsKeys;
   onClick?: (name: string, color: AvailableChartColorsKeys) => void;
   activeLegend?: string;
+}
+
+interface LegendPayloadItem {
+  type: string;
+  value: string;
+  color?: string;
+  id?: string;
+  dataKey?: string;
+  payload?: Record<string, unknown>;
 }
 
 const LegendItem = ({
@@ -351,7 +362,9 @@ const ChartLegend = (
     setLegendHeight(calculateHeight(legendRef.current?.clientHeight));
   });
 
-  const legendPayload = payload.filter((item: any) => item.type !== "none");
+  const legendPayload = payload.filter(
+    (item: LegendPayloadItem) => item.type !== "none"
+  );
 
   const paddingLeft =
     legendPosition === "left" && yAxisWidth ? yAxisWidth - 8 : 0;
@@ -368,9 +381,9 @@ const ChartLegend = (
       )}
     >
       <Legend
-        categories={legendPayload.map((entry: any) => entry.value)}
+        categories={legendPayload.map((entry: LegendPayload) => entry.value)}
         colors={legendPayload
-          .map((entry: any) => categoryColors.get(entry.value))
+          .map((entry: LegendPayloadItem) => categoryColors.get(entry.value))
           .filter(
             (color): color is AvailableChartColorsKeys => color !== undefined
           )} // Filter out undefined
@@ -496,7 +509,7 @@ type BaseEventProps = {
 type AreaChartEventProps = BaseEventProps | null | undefined;
 
 interface AreaChartProps extends React.HTMLAttributes<HTMLDivElement> {
-  data: Record<string, any>[];
+  data: Record<string, number | string | boolean>[];
   index: string;
   categories: string[];
   colors?: AvailableChartColorsKeys[];
@@ -580,6 +593,19 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
     const prevActiveRef = React.useRef<boolean | undefined>(undefined);
     const prevLabelRef = React.useRef<string | undefined>(undefined);
 
+    interface DotItemData {
+      index: number;
+      dataKey: string;
+      payload: Record<string, any>; // You can make this more specific based on the payload structure
+    }
+
+    interface TooltipItem {
+      dataKey: string | number | undefined; // Updated to allow string, number, or undefined
+      value: number;
+      payload: Record<string, any>; // Adjusted based on your data structure
+      type: string;
+    }
+
     const getFillContent = ({
       fillType,
       activeDot,
@@ -618,10 +644,11 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
       return `${(value * 100).toFixed(0)}%`;
     }
 
-    function onDotClick(itemData: any, event: React.MouseEvent) {
+    function onDotClick(itemData: DotItemData, event: React.MouseEvent) {
       event.stopPropagation();
 
       if (!hasOnValueChange) return;
+
       if (
         (itemData.index === activeDot?.index &&
           itemData.dataKey === activeDot?.dataKey) ||
@@ -708,7 +735,10 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
               tick={{ transform: "translate(0, 6)" }}
               ticks={
                 startEndOnly
-                  ? [data[0][index], data[data.length - 1][index]]
+                  ? [data[0][index], data[data.length - 1][index]].filter(
+                      (tick) =>
+                        typeof tick === "string" || typeof tick === "number"
+                    )
                   : undefined
               }
               fill=""
@@ -774,18 +804,18 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
               offset={10}
               position={{ y: 0 }}
               content={({ active, payload, label }) => {
-                const cleanPayload: TooltipProps["payload"] = payload
-                  ? payload.map((item: any) => ({
-                      category: item.dataKey,
-                      value: item.value,
-                      index: item.payload[index],
-                      color: categoryColors.get(
-                        item.dataKey
-                      ) as AvailableChartColorsKeys,
-                      type: item.type,
-                      payload: item.payload,
-                    }))
-                  : [];
+                const cleanPayload: TooltipProps["payload"] = (
+                  payload || []
+                ).map((item) => ({
+                  category: item.dataKey as string, // Safely cast dataKey
+                  value: typeof item.value === "number" ? item.value : 0, // Ensure value is a number
+                  index: item.payload[index], // Ensure this is properly handled (check index)
+                  color: categoryColors.get(
+                    item.dataKey as string
+                  ) as AvailableChartColorsKeys, // Safely cast dataKey
+                  type: item.type || "none", // Fallback to "none" if type is undefined
+                  payload: item.payload,
+                }));
 
                 if (
                   tooltipCallback &&
@@ -887,7 +917,7 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
                         ? 0.3
                         : 1
                     }
-                    activeDot={(props: any) => {
+                    activeDot={(props: DotProps) => {
                       const {
                         cx: cxCoord,
                         cy: cyCoord,
@@ -897,6 +927,15 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
                         strokeWidth,
                         dataKey,
                       } = props;
+
+                      const validStrokeLinecap = (strokeLinecap || "round") as
+                        | "square"
+                        | "inherit"
+                        | "round"
+                        | "butt";
+                      const validStrokeLinejoin = (strokeLinejoin ||
+                        "round") as "inherit" | "round" | "miter" | "bevel";
+
                       return (
                         <Dot
                           className={cx(
@@ -914,14 +953,24 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
                           r={5}
                           fill=""
                           stroke={stroke}
-                          strokeLinecap={strokeLinecap}
-                          strokeLinejoin={strokeLinejoin}
+                          strokeLinecap={validStrokeLinecap} // Valid value
+                          strokeLinejoin={validStrokeLinejoin} // Valid value
                           strokeWidth={strokeWidth}
-                          onClick={(_, event) => onDotClick(props, event)}
+                          onClick={(event) => {
+                            // Pass the event first, then the item data
+                            onDotClick(
+                              {
+                                ...props,
+                                payload: props,
+                                index: props.index ?? 0,
+                              }, // Item data
+                              event as React.MouseEvent // Ensure the event is the correct type
+                            );
+                          }}
                         />
                       );
                     }}
-                    dot={(props: any) => {
+                    dot={(props: DotProps) => {
                       const {
                         stroke,
                         strokeLinecap,
@@ -932,6 +981,14 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
                         dataKey,
                         index,
                       } = props;
+
+                      const validStrokeLinecap = (strokeLinecap || "round") as
+                        | "square"
+                        | "inherit"
+                        | "round"
+                        | "butt";
+                      const validStrokeLinejoin = (strokeLinejoin ||
+                        "round") as "inherit" | "round" | "miter" | "bevel";
 
                       if (
                         (hasOnlyOneValueForKey(data, category) &&
@@ -950,8 +1007,8 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
                             r={5}
                             stroke={stroke}
                             fill=""
-                            strokeLinecap={strokeLinecap}
-                            strokeLinejoin={strokeLinejoin}
+                            strokeLinecap={validStrokeLinecap} // Use valid value
+                            strokeLinejoin={validStrokeLinejoin} // Use valid value
                             strokeWidth={strokeWidth}
                             className={cx(
                               "stroke-white dark:stroke-gray-950",
@@ -963,6 +1020,17 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
                                 "fill"
                               )
                             )}
+                            onClick={(event) => {
+                              // Pass the event first, then the item data
+                              onDotClick(
+                                {
+                                  ...props,
+                                  payload: props,
+                                  index: props.index ?? 0,
+                                }, // Item data
+                                event as React.MouseEvent // Ensure the event is the correct type
+                              );
+                            }}
                           />
                         );
                       }
@@ -1000,10 +1068,11 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
                     tooltipType="none"
                     strokeWidth={12}
                     connectNulls={connectNulls}
-                    onClick={(props: any, event) => {
+                    onClick={(props: LineProps, event: React.MouseEvent) => {
+                      // Use LineProps or appropriate type
                       event.stopPropagation();
                       const { name } = props;
-                      onCategoryClick(name);
+                      onCategoryClick(name ?? 'defaultCategory');
                     }}
                   />
                 ))
