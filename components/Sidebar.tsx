@@ -17,16 +17,16 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Sidebar, SidebarBody, SidebarLink } from "./ui/sidebar";
 import { useSearchParams } from "next/navigation";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/app/auth/Log_out/page";
+// import {
+//   Dialog,
+//   DialogClose,
+//   DialogContent,
+//   DialogDescription,
+//   DialogFooter,
+//   DialogHeader,
+//   DialogTitle,
+//   DialogTrigger,
+// } from "@/app/auth/Log_out/page";
 import { Button } from "./ui/button";
 // import { useRouter } from "next/navigation";
 
@@ -140,7 +140,7 @@ export function SidebarDemo({
           </div>
           <div>
             {/* Tombol Keluar yang memicu popup */}
-            <Dialog
+            {/* <Dialog
               open={isDialogOpen}
               onOpenChange={(open) => setIsDialogOpen(open)}
             >
@@ -189,7 +189,7 @@ export function SidebarDemo({
                   </DialogClose>
                 </DialogFooter>
               </DialogContent>
-            </Dialog>
+            </Dialog> */}
           </div>
         </SidebarBody>
       </Sidebar>
