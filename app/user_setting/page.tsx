@@ -3,7 +3,7 @@
 // Komponen SettingPage
 import { useRouter } from "next/navigation";
 import { SidebarDemo } from "@/components/Sidebar";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { deleteUser, signOut, updateProfile } from "firebase/auth";
 // import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { auth } from "@/lib/firebase";
@@ -266,6 +266,7 @@ function CardContainer() {
   };
 
   return (
+    <Suspense fallback={<div>Loading...</div>}>
     <div className="w-full p-4">
       <div className="max-w-[1500px] mx-auto h-[800px]">
         <div className="bg-white rounded-3xl shadow-lg p-8 relative w-full h-full">
@@ -448,5 +449,6 @@ function CardContainer() {
         </div>
       </div>
     </div>
+    </Suspense>
   );
 }
