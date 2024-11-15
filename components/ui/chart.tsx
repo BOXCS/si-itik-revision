@@ -31,7 +31,14 @@ import { LineProps } from "recharts"; // Import the type from the library
 
 //#region Legend
 
-// Type definitions
+// Define the type for the payload
+interface PayloadType {
+  value: number;
+  label: string;
+  timestamp: Date; // Example property
+}
+
+// Update DotProps with the specific type for payload
 interface DotProps {
   cx: number;
   cy: number;
@@ -41,7 +48,7 @@ interface DotProps {
   strokeWidth: number;
   dataKey: string;
   index?: number; // Optional if not always provided
-  payload?: any;
+  payload?: PayloadType; // Use a specific type instead of `any`
 }
 
 interface LegendPayload {
@@ -49,11 +56,11 @@ interface LegendPayload {
   type: string;
 }
 
-interface TooltipPayloadItem {
-  dataKey: string;
-  value: number;
-  payload: Record<string, unknown>;
-}
+// interface TooltipPayloadItem {
+//   dataKey: string;
+//   value: number;
+//   payload: Record<string, unknown>;
+// }
 
 //#region Legend
 
@@ -552,7 +559,7 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
       showYAxis = true,
       showGridLines = true,
       yAxisWidth = 56,
-      intervalType = "equidistantPreserveStart",
+      // intervalType = "equidistantPreserveStart",
       showTooltip = true,
       showLegend = true,
       autoMinValue = false,
@@ -596,15 +603,15 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
     interface DotItemData {
       index: number;
       dataKey: string;
-      payload: Record<string, any>; // You can make this more specific based on the payload structure
+      payload: Record<string, unknown>; // Using 'unknown' instead of 'any' for better type safety
     }
 
-    interface TooltipItem {
-      dataKey: string | number | undefined; // Updated to allow string, number, or undefined
-      value: number;
-      payload: Record<string, any>; // Adjusted based on your data structure
-      type: string;
-    }
+    // interface TooltipItem {
+    //   dataKey: string | number | undefined; // Updated to allow string, number, or undefined
+    //   value: number;
+    //   payload: Record<string, any>; // Adjusted based on your data structure
+    //   type: string;
+    // }
 
     const getFillContent = ({
       fillType,
@@ -957,15 +964,16 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
                           strokeLinejoin={validStrokeLinejoin} // Valid value
                           strokeWidth={strokeWidth}
                           onClick={(event) => {
-                            // Pass the event first, then the item data
-                            onDotClick(
-                              {
-                                ...props,
-                                payload: props,
-                                index: props.index ?? 0,
-                              }, // Item data
-                              event as React.MouseEvent // Ensure the event is the correct type
-                            );
+                            // Restructure props to ensure payload matches Record<string, unknown>
+                            const itemData: DotItemData = {
+                              ...props,
+                              payload: {
+                                dataKey: props.dataKey,
+                                // Add any other relevant properties you want in the payload
+                              },
+                              index: props.index ?? 0,
+                            };
+                            onDotClick(itemData, event as React.MouseEvent); // Ensure event is of correct type
                           }}
                         />
                       );
@@ -1021,15 +1029,16 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
                               )
                             )}
                             onClick={(event) => {
-                              // Pass the event first, then the item data
-                              onDotClick(
-                                {
-                                  ...props,
-                                  payload: props,
-                                  index: props.index ?? 0,
-                                }, // Item data
-                                event as React.MouseEvent // Ensure the event is the correct type
-                              );
+                              // Restructure props to ensure payload matches Record<string, unknown>
+                              const itemData: DotItemData = {
+                                ...props,
+                                payload: {
+                                  dataKey: props.dataKey,
+                                  // Add any other relevant properties you want in the payload
+                                },
+                                index: props.index ?? 0,
+                              };
+                              onDotClick(itemData, event as React.MouseEvent); // Ensure event is of correct type
                             }}
                           />
                         );
@@ -1072,7 +1081,7 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
                       // Use LineProps or appropriate type
                       event.stopPropagation();
                       const { name } = props;
-                      onCategoryClick(name ?? 'defaultCategory');
+                      onCategoryClick(name ?? "defaultCategory");
                     }}
                   />
                 ))
