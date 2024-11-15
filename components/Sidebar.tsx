@@ -30,19 +30,18 @@ import { useSearchParams } from "next/navigation";
 // import { Button } from "./ui/button";
 // import { useRouter } from "next/navigation";
 
-export function SidebarDemo({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export function SidebarDemo({ children }: Readonly<{ children: React.ReactNode }>) {
   const [open, setOpen] = useState(false);
   const [subMenuOpen, setSubMenuOpen] = useState(false);
-  // const [isDialogOpen, setIsDialogOpen] = useState(false);
   const searchParams = useSearchParams();
   const username = searchParams?.get("username") || "User";
+
+  const createLinkWithUsername = (href: string) => `${href}?username=${username}`;
 
   const links = [
     {
       label: "Beranda",
-      href: `/dashboard/?username=${username}`, // Beranda dengan username
+      href: createLinkWithUsername(`/dashboard`), // Beranda dengan username
       icon: (
         <IconBrandTabler className="text-neutral-700 dark:text-neutral-200 h-7 w-7 flex-shrink-0" />
       ),
@@ -63,22 +62,22 @@ export function SidebarDemo({
       subLinks: [
         {
           label: "Penetasan",
-          href: `/analisis/penetasan?username=${username}`,
+          href: createLinkWithUsername(`/analisis/penetasan`),
           icon: <IconAnalyzeFilled className="h-7 w-7 ml-3" />,
         },
         {
           label: "Penggemukan",
-          href: `/analisis/penggemukan?username=${username}`,
+          href: createLinkWithUsername(`/analisis/penggemukan`),
           icon: <IconAnalyzeFilled className="h-7 w-7 ml-3" />,
         },
         {
           label: "Layer",
-          href: `/analisis/layer?username=${username}`,
+          href: createLinkWithUsername(`/analisis/layer`),
           icon: <IconAnalyzeFilled className="h-7 w-7 ml-3" />,
         },
         {
           label: "test Data",
-          href: `/analisis/test?username=${username}`,
+          href: createLinkWithUsername(`/analisis/test`),
           icon: <IconAnalyzeFilled className="h-7 w-7 ml-3" />,
         },
       ],
@@ -86,14 +85,14 @@ export function SidebarDemo({
 
     {
       label: "Riwayat Analisis",
-      href: `/riwayat?username=${username}`, // Tambahkan username ke riwayat
+      href: createLinkWithUsername(`/riwayat`),
       icon: (
         <IconHistory className="text-neutral-700 dark:text-neutral-200 h-7 w-7 flex-shrink-0" />
       ),
     },
     {
       label: "Pengaturan",
-      href: `/user_setting?username=${username}`, // Tambahkan username ke pengaturan
+      href: createLinkWithUsername(`/user_setting`),
       icon: (
         <IconSettings2 className="text-neutral-700 dark:text-neutral-200 h-7 w-7 flex-shrink-0" />
       ),
