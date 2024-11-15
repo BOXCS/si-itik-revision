@@ -27,7 +27,7 @@ import { useSearchParams } from "next/navigation";
 //   DialogTitle,
 //   DialogTrigger,
 // } from "@/app/auth/Log_out/page";
-import { Button } from "./ui/button";
+// import { Button } from "./ui/button";
 // import { useRouter } from "next/navigation";
 
 export function SidebarDemo({
@@ -35,7 +35,7 @@ export function SidebarDemo({
 }: Readonly<{ children: React.ReactNode }>) {
   const [open, setOpen] = useState(false);
   const [subMenuOpen, setSubMenuOpen] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  // const [isDialogOpen, setIsDialogOpen] = useState(false);
   const searchParams = useSearchParams();
   const username = searchParams?.get("username") || "User";
 
