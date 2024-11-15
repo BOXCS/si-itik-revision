@@ -54,6 +54,14 @@ interface AnalysisPeriodData {
 }
 
 export default function Dashboard() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <DashboardContent />
+    </Suspense>
+  );
+}
+
+function DashboardContent() {
   const searchParams = useSearchParams();
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
