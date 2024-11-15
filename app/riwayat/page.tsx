@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { AreaChart } from "@/components/ui/chart";
 // import { db } from "@/lib/firebase";
 import {
@@ -395,7 +395,7 @@ export default function RiwayatAnalisis() {
   const handleSortChange = (event: SelectChangeEvent<string>) => {
     const criteria = event.target.value;
     setSortCriteria(criteria);
-  
+
     const sortedData = [...dataAnalisis]; // Use const instead of let
     if (criteria === "terbaru") {
       sortedData.sort((a, b) => b.created_at.seconds - a.created_at.seconds);
@@ -406,120 +406,122 @@ export default function RiwayatAnalisis() {
     } else if (criteria === "tipe") {
       sortedData.sort((a, b) => a.analysisName.localeCompare(b.analysisName));
     }
-  
+
     setDataAnalisis(sortedData);
-  };  
+  };
 
   return (
     <div style={styles.pageContainer}>
-      <SidebarDemo>
-        <div style={styles.contentContainer}>
-          <div style={styles.titleContainer}>
-            <h1 style={styles.title}>Halo, {username}</h1>
-            <FormControl variant="outlined" style={styles.sortControl}>
-              <InputLabel id="sort-label">Sort By</InputLabel>
-              <Select
-                labelId="sort-label"
-                value={sortCriteria}
-                onChange={handleSortChange}
-                label="Sort By"
-              >
-                <MenuItem value="terbaru">Terbaru</MenuItem>
-                <MenuItem value="terlama">Terlama</MenuItem>
-                <MenuItem value="laba">Laba Terbanyak</MenuItem>
-                <MenuItem value="tipe">Tipe Analisis</MenuItem>
-              </Select>
-            </FormControl>
-          </div>
-
-          <Grid container spacing={3}>
-            {dataAnalisis.map((data) => (
-              <Grid item xs={12} sm={6} md={4} key={data.id}>
-                <Card
-                  style={{
-                    ...styles.card,
-                    width: "300px", // Ukuran lebar tetap untuk desktop
-                    height: "200px", // Ukuran tinggi tetap untuk desktop
-                  }}
-                  onClick={() => handleCardClick(data)}
+      <Suspense fallback={<div>Loading...</div>}>
+        <SidebarDemo>
+          <div style={styles.contentContainer}>
+            <div style={styles.titleContainer}>
+              <h1 style={styles.title}>Halo, {username}</h1>
+              <FormControl variant="outlined" style={styles.sortControl}>
+                <InputLabel id="sort-label">Sort By</InputLabel>
+                <Select
+                  labelId="sort-label"
+                  value={sortCriteria}
+                  onChange={handleSortChange}
+                  label="Sort By"
                 >
-                  <CardContent
+                  <MenuItem value="terbaru">Terbaru</MenuItem>
+                  <MenuItem value="terlama">Terlama</MenuItem>
+                  <MenuItem value="laba">Laba Terbanyak</MenuItem>
+                  <MenuItem value="tipe">Tipe Analisis</MenuItem>
+                </Select>
+              </FormControl>
+            </div>
+
+            <Grid container spacing={3}>
+              {dataAnalisis.map((data) => (
+                <Grid item xs={12} sm={6} md={4} key={data.id}>
+                  <Card
                     style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      height: "180px",
+                      ...styles.card,
+                      width: "300px", // Ukuran lebar tetap untuk desktop
+                      height: "200px", // Ukuran tinggi tetap untuk desktop
                     }}
+                    onClick={() => handleCardClick(data)}
                   >
-                    <Grid container justifyContent="space-between">
-                      <Typography variant="body2" style={styles.time}>
-                        {data.created_at.toDate().toLocaleTimeString()}
-                      </Typography>
-                      <Typography variant="body2" style={styles.date}>
-                        {data.created_at.toDate().toLocaleDateString()}
-                      </Typography>
-                    </Grid>
-
-                    <div
+                    <CardContent
                       style={{
-                        flexGrow: 1,
                         display: "flex",
-                        alignItems: "center",
+                        flexDirection: "column",
+                        height: "180px",
                       }}
                     >
-                      {data.Laba !== undefined &&
-                      data.Laba !== null &&
-                      !isNaN(data.Laba) ? (
-                        <Typography
-                          variant="h6"
-                          style={{ ...styles.amount, textAlign: "center" }}
-                        >
-                          Rp. {data.Laba.toLocaleString("id-ID")}
+                      <Grid container justifyContent="space-between">
+                        <Typography variant="body2" style={styles.time}>
+                          {data.created_at.toDate().toLocaleTimeString()}
                         </Typography>
-                      ) : (
-                        <Typography
-                          variant="h6"
-                          style={{
-                            ...styles.amount,
-                            textAlign: "center",
-                            color: "red",
-                          }}
-                        >
-                          Laba tidak tersedia
+                        <Typography variant="body2" style={styles.date}>
+                          {data.created_at.toDate().toLocaleDateString()}
                         </Typography>
-                      )}
-                    </div>
+                      </Grid>
 
-                    <Typography
-                      variant="body1"
-                      style={{
-                        backgroundColor: "#FFD580",
-                        padding: "5px 10px",
-                        borderRadius: "9999px",
-                        textAlign: "center",
-                        display: "inline-block",
-                        marginTop: "10px",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {data.analysisName}
-                    </Typography>
+                      <div
+                        style={{
+                          flexGrow: 1,
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                      >
+                        {data.Laba !== undefined &&
+                        data.Laba !== null &&
+                        !isNaN(data.Laba) ? (
+                          <Typography
+                            variant="h6"
+                            style={{ ...styles.amount, textAlign: "center" }}
+                          >
+                            Rp. {data.Laba.toLocaleString("id-ID")}
+                          </Typography>
+                        ) : (
+                          <Typography
+                            variant="h6"
+                            style={{
+                              ...styles.amount,
+                              textAlign: "center",
+                              color: "red",
+                            }}
+                          >
+                            Laba tidak tersedia
+                          </Typography>
+                        )}
+                      </div>
 
-                    {/* <Typography variant="body2" style={styles.description}>
+                      <Typography
+                        variant="body1"
+                        style={{
+                          backgroundColor: "#FFD580",
+                          padding: "5px 10px",
+                          borderRadius: "9999px",
+                          textAlign: "center",
+                          display: "inline-block",
+                          marginTop: "10px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {data.analysisName}
+                      </Typography>
+
+                      {/* <Typography variant="body2" style={styles.description}>
                       ID Analisis: {data.analysisId}
                     </Typography> */}
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
 
-          <Popup
-            open={openPopup}
-            onClose={() => setOpenPopup(false)}
-            data1={selectedData}
-          />
-        </div>
-      </SidebarDemo>
+            <Popup
+              open={openPopup}
+              onClose={() => setOpenPopup(false)}
+              data1={selectedData}
+            />
+          </div>
+        </SidebarDemo>
+      </Suspense>
     </div>
   );
 
@@ -543,165 +545,169 @@ export default function RiwayatAnalisis() {
     if (!data1) return null;
 
     return (
-      <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-        <DialogTitle style={styles.popupTitle}>
-          {data1.analysisName}
-        </DialogTitle>
-        <DialogContent style={styles.popupContent}>
-          <Grid container spacing={5} justifyContent="center">
-            {[0, 1].map((index) => (
-              <Grid item xs={5} key={index}>
-                <Card style={styles.card}>
-                  <CardContent style={styles.cardContent}>
-                    <Grid container spacing={1}>
-                      {/* Baris untuk Mos */}
-                      <Grid item xs={5}>
-                        <Typography variant="body1" style={styles.labelText}>
-                          Mos
-                        </Typography>
-                      </Grid>
-                      <Grid item xs={1} style={{ textAlign: "center" }}>
-                        <Typography variant="body1">:</Typography>
-                      </Grid>
-                      <Grid item xs={6}>
-                        <Typography variant="body2">
-                          {data1.marginOfSafety}
-                        </Typography>
-                      </Grid>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
+          <DialogTitle style={styles.popupTitle}>
+            {data1.analysisName}
+          </DialogTitle>
+          <DialogContent style={styles.popupContent}>
+            <Grid container spacing={5} justifyContent="center">
+              {[0, 1].map((index) => (
+                <Grid item xs={5} key={index}>
+                  <Card style={styles.card}>
+                    <CardContent style={styles.cardContent}>
+                      <Grid container spacing={1}>
+                        {/* Baris untuk Mos */}
+                        <Grid item xs={5}>
+                          <Typography variant="body1" style={styles.labelText}>
+                            Mos
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={1} style={{ textAlign: "center" }}>
+                          <Typography variant="body1">:</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                          <Typography variant="body2">
+                            {data1.marginOfSafety}
+                          </Typography>
+                        </Grid>
 
-                      {/* Baris untuk R/C Ratio */}
-                      <Grid item xs={5}>
-                        <Typography variant="body1" style={styles.labelText}>
-                          R/C Ratio
-                        </Typography>
-                      </Grid>
-                      <Grid item xs={1} style={{ textAlign: "center" }}>
-                        <Typography variant="body1">:</Typography>
-                      </Grid>
-                      <Grid item xs={6}>
-                        <Typography variant="body2">{data1.rcRatio}</Typography>
-                      </Grid>
+                        {/* Baris untuk R/C Ratio */}
+                        <Grid item xs={5}>
+                          <Typography variant="body1" style={styles.labelText}>
+                            R/C Ratio
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={1} style={{ textAlign: "center" }}>
+                          <Typography variant="body1">:</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                          <Typography variant="body2">
+                            {data1.rcRatio}
+                          </Typography>
+                        </Grid>
 
-                      {/* Baris untuk BEP Harga */}
-                      <Grid item xs={5}>
-                        <Typography variant="body1" style={styles.labelText}>
-                          BEP Harga
-                        </Typography>
-                      </Grid>
-                      <Grid item xs={1} style={{ textAlign: "center" }}>
-                        <Typography variant="body1">:</Typography>
-                      </Grid>
-                      <Grid item xs={6}>
-                        <Typography variant="body2">
-                          {data1.bepHarga}
-                        </Typography>
-                      </Grid>
+                        {/* Baris untuk BEP Harga */}
+                        <Grid item xs={5}>
+                          <Typography variant="body1" style={styles.labelText}>
+                            BEP Harga
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={1} style={{ textAlign: "center" }}>
+                          <Typography variant="body1">:</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                          <Typography variant="body2">
+                            {data1.bepHarga}
+                          </Typography>
+                        </Grid>
 
-                      {/* Baris untuk BEP Hasil */}
-                      <Grid item xs={5}>
-                        <Typography variant="body1" style={styles.labelText}>
-                          BEP Hasil
-                        </Typography>
-                      </Grid>
-                      <Grid item xs={1} style={{ textAlign: "center" }}>
-                        <Typography variant="body1">:</Typography>
-                      </Grid>
-                      <Grid item xs={6}>
-                        <Typography variant="body2">
-                          {data1.bepHasil}
-                        </Typography>
-                      </Grid>
+                        {/* Baris untuk BEP Hasil */}
+                        <Grid item xs={5}>
+                          <Typography variant="body1" style={styles.labelText}>
+                            BEP Hasil
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={1} style={{ textAlign: "center" }}>
+                          <Typography variant="body1">:</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                          <Typography variant="body2">
+                            {data1.bepHasil}
+                          </Typography>
+                        </Grid>
 
-                      {/* Baris untuk Laba */}
-                      <Grid item xs={5}>
-                        <Typography variant="body1" style={styles.labelText}>
-                          Laba
-                        </Typography>
+                        {/* Baris untuk Laba */}
+                        <Grid item xs={5}>
+                          <Typography variant="body1" style={styles.labelText}>
+                            Laba
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={1} style={{ textAlign: "center" }}>
+                          <Typography variant="body1">:</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                          <Typography variant="body2">
+                            Rp. {data1.Laba.toLocaleString("id-ID")}
+                          </Typography>
+                        </Grid>
                       </Grid>
-                      <Grid item xs={1} style={{ textAlign: "center" }}>
-                        <Typography variant="body1">:</Typography>
-                      </Grid>
-                      <Grid item xs={6}>
-                        <Typography variant="body2">
-                          Rp. {data1.Laba.toLocaleString("id-ID")}
-                        </Typography>
-                      </Grid>
-                    </Grid>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+
+            <Grid
+              container
+              justifyContent="left"
+              style={{ marginTop: "20px", width: "100%" }}
+            >
+              <Grid item xs={10} md={8} lg={6} style={{ marginLeft: "15px" }}>
+                <AreaChart
+                  style={{ width: "175%" }} // Mengatur grafik agar memenuhi lebar kolom
+                  className="flex items-center justify-center h-100"
+                  data={chartDataPenetasan}
+                  index="Prd"
+                  categories={["Revenue", "Cost", "Laba"]}
+                  valueFormatter={(number: number) => `${formatNumber(number)}`}
+                  onValueChange={(v) => console.log(v)}
+                  xAxisLabel="Periode"
+                  yAxisLabel="Rp"
+                  fill="solid"
+                />
               </Grid>
-            ))}
-          </Grid>
-
-          <Grid
-            container
-            justifyContent="left"
-            style={{ marginTop: "20px", width: "100%" }}
-          >
-            <Grid item xs={10} md={8} lg={6} style={{ marginLeft: "15px" }}>
-              <AreaChart
-                style={{ width: "175%" }} // Mengatur grafik agar memenuhi lebar kolom
-                className="flex items-center justify-center h-100"
-                data={chartDataPenetasan}
-                index="Prd"
-                categories={["Revenue", "Cost", "Laba"]}
-                valueFormatter={(number: number) => `${formatNumber(number)}`}
-                onValueChange={(v) => console.log(v)}
-                xAxisLabel="Periode"
-                yAxisLabel="Rp"
-                fill="solid"
-              />
             </Grid>
-          </Grid>
 
-          <Grid
-            container
-            justifyContent="left"
-            style={{ marginTop: "20px", width: "100%" }}
-          >
-            <Grid item xs={10} md={8} lg={6} style={{ marginLeft: "15px" }}>
-              <AreaChart
-                style={{ width: "175%" }}
-                className="flex items-center justify-center h-100"
-                data={chartDataPenggemukan} // Data untuk chart penggemukan
-                index="Prd"
-                categories={["Revenue", "Cost", "Laba"]}
-                valueFormatter={(number: number) => `${formatNumber(number)}`}
-                onValueChange={(v) => console.log(v)}
-                xAxisLabel="Periode"
-                yAxisLabel="Rp"
-                fill="solid"
-              />
+            <Grid
+              container
+              justifyContent="left"
+              style={{ marginTop: "20px", width: "100%" }}
+            >
+              <Grid item xs={10} md={8} lg={6} style={{ marginLeft: "15px" }}>
+                <AreaChart
+                  style={{ width: "175%" }}
+                  className="flex items-center justify-center h-100"
+                  data={chartDataPenggemukan} // Data untuk chart penggemukan
+                  index="Prd"
+                  categories={["Revenue", "Cost", "Laba"]}
+                  valueFormatter={(number: number) => `${formatNumber(number)}`}
+                  onValueChange={(v) => console.log(v)}
+                  xAxisLabel="Periode"
+                  yAxisLabel="Rp"
+                  fill="solid"
+                />
+              </Grid>
             </Grid>
-          </Grid>
 
-          <Grid
-            container
-            justifyContent="left"
-            style={{ marginTop: "20px", width: "100%" }}
-          >
-            <Grid item xs={10} md={8} lg={6} style={{ marginLeft: "15px" }}>
-              <AreaChart
-                style={{ width: "175%" }}
-                className="flex items-center justify-center h-100"
-                data={chartDataLayer} // Data untuk chart layer
-                index="Prd"
-                categories={["Revenue", "Cost", "Laba"]}
-                valueFormatter={(number: number) => `${formatNumber(number)}`}
-                onValueChange={(v) => console.log(v)}
-                xAxisLabel="Periode"
-                yAxisLabel="Rp"
-                fill="solid"
-              />
+            <Grid
+              container
+              justifyContent="left"
+              style={{ marginTop: "20px", width: "100%" }}
+            >
+              <Grid item xs={10} md={8} lg={6} style={{ marginLeft: "15px" }}>
+                <AreaChart
+                  style={{ width: "175%" }}
+                  className="flex items-center justify-center h-100"
+                  data={chartDataLayer} // Data untuk chart layer
+                  index="Prd"
+                  categories={["Revenue", "Cost", "Laba"]}
+                  valueFormatter={(number: number) => `${formatNumber(number)}`}
+                  onValueChange={(v) => console.log(v)}
+                  xAxisLabel="Periode"
+                  yAxisLabel="Rp"
+                  fill="solid"
+                />
+              </Grid>
             </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose} color="primary">
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={onClose} color="primary">
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Suspense>
     );
   }
 }

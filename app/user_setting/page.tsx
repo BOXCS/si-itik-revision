@@ -99,6 +99,7 @@ export default function SettingPage() {
   // const router = useRouter();
   return (
     <div className="w-full min-h-screen bg-gray-100 flex">
+      <Suspense fallback={<div>Loading...</div>}>
       <SidebarDemo>
         <div className="flex-1 flex flex-col p-10">
           <h1 className="text-start text-3xl font-bold text-black mb-8">
@@ -107,6 +108,7 @@ export default function SettingPage() {
           <CardContainer />
         </div>
       </SidebarDemo>
+      </Suspense>
     </div>
   );
 }
