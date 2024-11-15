@@ -1090,18 +1090,18 @@ img {
 
   .fima-container .fima-box {
     height: 150px;
-    width: 350px;
+    width: 380px;
     right: 10px;
     border-radius: 1.5rem;
   }
 
   .fima-layer h4 {
-    font-size: 1.7rem;
+    font-size: 1.0rem;
     font-weight: 600;
   }
 
   .fima-layer p {
-    font-size: 1rem;
+    font-size: 0.7rem;
   }
 
   /* .footer-container {

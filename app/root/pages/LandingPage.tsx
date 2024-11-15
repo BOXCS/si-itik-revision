@@ -169,7 +169,7 @@ export default function LandingPage() {
               <a href="#">Unduh Aplikasi Seluler</a>
             </li>
             <li>
-              <a href="#">Login</a>
+              <a href="/auth/login">Login</a>
             </li>
           </ul>
         </div>
@@ -331,7 +331,7 @@ export default function LandingPage() {
           {/* Layer */}
           <div className="fima-box">
             <Image
-              src="/assets/layer-fima.png"
+              src="/assets/Layer-fima.png"
               alt="Layer"
               width={500} // Adjust width as needed
               height={300} // Adjust height as needed
