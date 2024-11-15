@@ -260,7 +260,7 @@ export default function LandingPage() {
               <div className="card-content">
                 <h3 className="text-2xl font-semibold">Menganalisis</h3>
                 <p className={`mt-2 ${isOpen[1] ? "show" : "hidden"}`}>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elis.
                 </p>
               </div>
               <button
