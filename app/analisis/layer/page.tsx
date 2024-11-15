@@ -1,7 +1,7 @@
 "use client";
 
 import { SidebarDemo } from "@/components/Sidebar";
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import "@/app/analisis.css";
 import HorizontalTimeline from "@/components/HorizontalTimeline";
 import { useToast } from "@/hooks/use-toast";
@@ -409,6 +409,7 @@ const LayerPage = () => {
 
   return (
     <div className="w-full min-h-screen bg-gray-100 flex">
+      <Suspense fallback={<div>Loading...</div>}>
       {/* Sidebar */}
       <SidebarDemo>
         {/* Main Content */}
@@ -1337,6 +1338,7 @@ const LayerPage = () => {
           </div>
         </div>
       </SidebarDemo>
+      </Suspense>
     </div>
   );
 };

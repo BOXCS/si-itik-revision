@@ -2,7 +2,7 @@
 
 import { SidebarDemo } from "@/components/Sidebar";
 import { useUser } from "@/app/context/UserContext";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import HorizontalTimeline from "@/components/HorizontalTimeline";
 import "@/app/analisis.css";
 import {
@@ -376,6 +376,7 @@ const PenetasanPage = () => {
 
   return (
     <div className="w-full min-h-screen bg-gray-100 flex flex-col md:flex-row">
+      <Suspense fallback={<div>Loading...</div>}>
       {/* Sidebar */}
       <SidebarDemo>
         {/* Main Content */}
@@ -1240,6 +1241,7 @@ const PenetasanPage = () => {
           </div>
         </div>
       </SidebarDemo>
+      </Suspense>
     </div>
   );
 };

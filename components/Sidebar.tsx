@@ -30,13 +30,16 @@ import { useSearchParams } from "next/navigation";
 // import { Button } from "./ui/button";
 // import { useRouter } from "next/navigation";
 
-export function SidebarDemo({ children }: Readonly<{ children: React.ReactNode }>) {
+export function SidebarDemo({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   const [open, setOpen] = useState(false);
   const [subMenuOpen, setSubMenuOpen] = useState(false);
   const searchParams = useSearchParams();
   const username = searchParams?.get("username") || "User";
 
-  const createLinkWithUsername = (href: string) => `${href}?username=${username}`;
+  const createLinkWithUsername = (href: string) =>
+    `${href}?username=${username}`;
 
   const links = [
     {
@@ -136,59 +139,6 @@ export function SidebarDemo({ children }: Readonly<{ children: React.ReactNode }
                 </div>
               ))}
             </div>
-          </div>
-          <div>
-            {/* Tombol Keluar yang memicu popup */}
-            {/* <Dialog
-              open={isDialogOpen}
-              onOpenChange={(open) => setIsDialogOpen(open)}
-            >
-              <DialogTrigger asChild>
-                <SidebarLink
-                  link={{
-                    label: "Keluar",
-                    href: "#",
-                    icon: (
-                      <Image
-                        src="/assets/sign-out-fill.svg"
-                        className="h-7 w-7 flex-shrink-0 rounded-full"
-                        width={50}
-                        height={50}
-                        alt="Avatar"
-                      />
-                    ),
-                  }}
-                />
-              </DialogTrigger>
-              <DialogContent className="lg:max-w-lg">
-                <DialogHeader>
-                  <DialogTitle className="text-center">
-                    Konfirmasi Logout
-                  </DialogTitle>
-                  <DialogDescription className="text-center mt-1 text-lg leading-6">
-                    Apakah kamu yakin ingin Logout.
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter className="mt-6">
-                  <DialogClose asChild>
-                    <Button
-                      className="mt-2 w-full lg:mt-0 lg:w-fit bg-[#E4E4E4] hover:bg-[#C9C8C8]"
-                      variant="secondary"
-                      onClick={() => setIsDialogOpen(false)} // Menutup dialog saat tombol diklik
-                    >
-                      Batal
-                    </Button>
-                  </DialogClose>
-                  <DialogClose asChild>
-                    <Link href="/auth/login">
-                      <Button className="w-full lg:w-fit bg-orange-500 text-white hover:bg-orange-600">
-                        Logout!
-                      </Button>
-                    </Link>
-                  </DialogClose>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog> */}
           </div>
         </SidebarBody>
       </Sidebar>
