@@ -100,7 +100,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="w-full h-screen flex flex-1 justify-center items-center overflow-hidden">
+    <div className="w-full h-screen flex flex-1 justify-center items-center overflow-auto md:overflow-hidden">
       <div className="relative w-2/3 h-full hidden flex-col xl:block">
         <div className="absolute top-[25%] left-[10%] flex flex-col gap-5">
           <Image
@@ -204,8 +204,8 @@ const LoginPage = () => {
           </button>
 
           <div className="w-full flex flex-col mb-10 items-center justify-center">
-            <h1 className="text-6xl text-[#060606] font-bold">Halo!</h1>
-            <p className="text-2xl">Masukkan Informasi Akun</p>
+            <h1 className="text-4xl text-[#060606] font-bold md:text-6xl">Halo!</h1>
+            <p className="text-base md:text-2xl">Masukkan Informasi Akun</p>
           </div>
 
           <div className="w-full flex flex-col">
