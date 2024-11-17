@@ -521,7 +521,7 @@ const PenetasanPage = () => {
                   <div className="flex flex-col space-y-6 md:space-y-8">
                     {/* First Calculator Section */}
                     <div className="grid grid-cols-1 md:grid-cols-7 gap-2 items-center">
-                      <div className="hidden md:flex items-center justify-center font-semibold text-xl md:text-2xl">
+                    <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
                         (
                       </div>
 
@@ -539,7 +539,7 @@ const PenetasanPage = () => {
                         />
                       </div>
 
-                      <div className="hidden md:flex items-center justify-center font-semibold text-xl">
+                      <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
                         /
                       </div>
 
@@ -557,15 +557,15 @@ const PenetasanPage = () => {
                         />
                       </div>
 
-                      <div className="hidden md:flex items-center justify-center font-semibold text-xl md:text-2xl">
+                      <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
                         )
                       </div>
 
-                      <div className="hidden md:flex items-center justify-center font-semibold text-xl">
+                      <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
                         ×
                       </div>
 
-                      <div className="col-span-1">
+                      <div className="col-span-1 md:col-span-2">
                         <label className="font-semibold text-sm md:text-base mb-1 block">
                           Persentase
                         </label>
@@ -577,11 +577,11 @@ const PenetasanPage = () => {
                         />
                       </div>
 
-                      <div className="flex items-center justify-center font-semibold text-xl">
+                      <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
                         =
                       </div>
 
-                      <div className="col-span-1">
+                      <div className="col-span-1 md:col-span-2">
                         <label className="font-semibold text-sm md:text-base mb-1 block">
                           Persentase Menetas
                         </label>
@@ -608,7 +608,7 @@ const PenetasanPage = () => {
                         />
                       </div>
 
-                      <div className="hidden md:flex items-center justify-center font-semibold text-xl">
+                      <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
                         ×
                       </div>
 
@@ -624,7 +624,7 @@ const PenetasanPage = () => {
                         />
                       </div>
 
-                      <div className="hidden md:flex items-center justify-center font-semibold text-xl">
+                      <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
                         =
                       </div>
 
@@ -655,7 +655,7 @@ const PenetasanPage = () => {
                         />
                       </div>
 
-                      <div className="hidden md:flex items-center justify-center font-semibold text-xl">
+                      <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
                         ×
                       </div>
 
@@ -666,7 +666,7 @@ const PenetasanPage = () => {
                         <div className="flex items-center border border-gray-300 rounded-md">
                           <span className="p-2 bg-gray-100">Rp.</span>
                           <input
-                            type="text"
+                            type="number"
                             value={formatNumber(hargaDOD)}
                             onChange={handleInputChange(setHargaDOD)}
                             onBlur={(e) =>
@@ -682,7 +682,7 @@ const PenetasanPage = () => {
                         </div>
                       </div>
 
-                      <div className="hidden md:flex items-center justify-center font-semibold text-xl">
+                      <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
                         =
                       </div>
 
@@ -740,7 +740,7 @@ const PenetasanPage = () => {
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <span className="p-2 bg-gray-100">Rp.</span>
                             <input
-                              type="text"
+                              type="number"
                               value={formatNumber(sewaKandang)}
                               onChange={handleInputChange(setSewaKandang)}
                               onBlur={(e) =>
@@ -767,7 +767,7 @@ const PenetasanPage = () => {
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <span className="p-2 bg-gray-100">Rp.</span>
                             <input
-                              type="text"
+                              type="number"
                               value={formatNumber(penyusutanPeralatan)}
                               onChange={handleInputChange(
                                 setPenyusutanPeralatan
@@ -785,7 +785,7 @@ const PenetasanPage = () => {
                           </div>
                         </div>
 
-                        <div className="hidden md:flex items-center justify-center font-semibold text-xl">
+                        <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
                           =
                         </div>
 
@@ -822,7 +822,7 @@ const PenetasanPage = () => {
                           </div>
                         </div>
 
-                        <div className="hidden md:flex items-center justify-center font-semibold text-xl">
+                        <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
                           ×
                         </div>
 
@@ -838,7 +838,7 @@ const PenetasanPage = () => {
                           />
                         </div>
 
-                        <div className="hidden md:flex items-center justify-center font-semibold text-xl">
+                        <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
                           =
                         </div>
 
@@ -869,66 +869,95 @@ const PenetasanPage = () => {
                       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
                         <div className="col-span-1">
                           <label className="font-semibold text-sm md:text-base mb-1 block">
-                            Jumlah Telur Menetas
+                            Biaya Tenaga Kerja
                           </label>
-                          <input
-                            type="number"
-                            value={jumlahTelurMenetas}
-                            onChange={(e) =>
-                              setJumlahTelurMenetas(parseFloat(e.target.value))
-                            }
-                            className="w-full border border-gray-300 p-2 rounded-md"
-                          />
+                          <div className="flex items-center border border-gray-300 rounded-md">
+                            <span className="p-2 bg-gray-100">Rp.</span>
+                            <input
+                              type="number"
+                              value={formatNumber(biayaTenagaKerja)}
+                              onChange={handleInputChange(setBiayaTenagaKerja)}
+                              onBlur={(e) =>
+                                setBiayaTenagaKerja(
+                                  parseFloat(
+                                    e.target.value.replace(/[^0-9]/g, "")
+                                  )
+                                )
+                              }
+                              className="w-full border border-gray-300 p-2 rounded-md"
+                            />
+                          </div>
                         </div>
 
-                        <div className="hidden md:flex items-center justify-center font-semibold text-xl">
-                          /
+                        <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                          +
                         </div>
 
                         <div className="col-span-1">
                           <label className="font-semibold text-sm md:text-base mb-1 block">
-                            Jumlah Telur (Butir)
+                            Biaya Listrik
                           </label>
-                          <input
-                            type="number"
-                            value={jumlahTelur}
-                            onChange={(e) =>
-                              setJumlahTelur(parseFloat(e.target.value))
-                            }
-                            className="w-full border border-gray-300 p-2 rounded-md"
-                          />
+                          <div className="flex items-center border border-gray-300 rounded-md">
+                            <span className="p-2 bg-gray-100">Rp.</span>
+                            <input
+                              type="number"
+                              value={formatNumber(biayaListrik)}
+                              onChange={handleInputChange(setBiayaListrik)}
+                              onBlur={(e) =>
+                                setBiayaListrik(
+                                  parseFloat(
+                                    e.target.value.replace(/[^0-9]/g, "")
+                                  )
+                                )
+                              }
+                              className="w-full border border-gray-300 p-2 rounded-md"
+                            />
+                          </div>
                         </div>
 
-                        <div className="hidden md:flex items-center justify-center font-semibold text-xl">
-                          ×
+                        <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                          +
                         </div>
 
                         <div className="col-span-1">
                           <label className="font-semibold text-sm md:text-base mb-1 block">
-                            Persentase
+                            Biaya OVK
                           </label>
-                          <input
-                            type="text"
-                            value="100%"
-                            readOnly
-                            className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
-                          />
+                          <div className="flex items-center border border-gray-300 rounded-md">
+                            <span className="p-2 bg-gray-100">Rp.</span>
+                            <input
+                              type="number"
+                              value={formatNumber(biayaOvk)}
+                              onChange={handleInputChange(setBiayaOvk)}
+                              onBlur={(e) =>
+                                setBiayaOvk(
+                                  parseFloat(
+                                    e.target.value.replace(/[^0-9]/g, "")
+                                  )
+                                )
+                              }
+                              className="w-full border border-gray-300 p-2 rounded-md"
+                            />
+                          </div>
                         </div>
 
-                        <div className="flex items-center justify-center font-semibold text-xl">
+                        <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
                           =
                         </div>
 
                         <div className="col-span-1 md:col-span-3">
                           <label className="font-semibold text-sm md:text-base mb-1 block">
-                            Persentase Menetas
+                            Biaya Operasional
                           </label>
-                          <input
-                            type="text"
-                            value={`${persentase.toFixed(0)}%`}
-                            readOnly
-                            className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
-                          />
+                          <div className="flex items-center border border-gray-300 rounded-md">
+                            <span className="p-2 bg-gray-100">Rp.</span>
+                            <input
+                              type="text"
+                              value={formatNumber(biayaOperasional)}
+                              readOnly
+                              className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -953,9 +982,9 @@ const PenetasanPage = () => {
                                 readOnly
                                 className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
                               />
-                              <span className="p-2 bg-gray-100 rounded-md">
+                              {/* <span className="p-2 bg-gray-100 rounded-md">
                                 butir
-                              </span>
+                              </span> */}
                             </div>
                           </div>
 
