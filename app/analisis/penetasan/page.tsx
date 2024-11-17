@@ -496,7 +496,7 @@ const PenetasanPage = () => {
             </div>
 
             {/* Kontainer Form */}
-            <div className="form-container bg-white overflow-y-auto overflow-x-auto p-8 shadow-lg rounded-lg max-w-7xl w-full h-full sm:h-auto sm:w-full flex flex-col">
+            <div className="form-container bg-white overflow-y-auto overflow-x-hidden p-8 shadow-lg rounded-lg max-w-7xl w-full h-full sm:h-auto sm:w-full flex flex-col">
               {/* Horizontal Timeline */}
               <div className="w-full flex justify-center mb-6">
                 <HorizontalTimeline
@@ -722,297 +722,300 @@ const PenetasanPage = () => {
                     Data Pengeluaran
                   </h2>
                   {/* Bagian Fixed Cost */}
-                  <div className="w-full px-4">
-                    {/* Fixed Cost Header */}
-                    <div className="text-center mb-6">
-                      <h3 className="font-extrabold text-2xl md:text-3xl">
-                        Fixed Cost
-                      </h3>
-                    </div>
-
-                    {/* First Row - Input Fields */}
-                    <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 mb-8 justify-center">
-                      {/* Sewa Kandang */}
-                      <div className="w-full md:w-auto">
-                        <label className="font-semibold mb-2 block">
-                          Sewa Kandang
-                        </label>
-                        <div className="flex items-center border border-gray-300 rounded-md">
-                          <span className="p-2 bg-gray-100">Rp.</span>
-                          <input
-                            type="text"
-                            value={formatNumber(sewaKandang)}
-                            onChange={handleInputChange(setSewaKandang)}
-                            onBlur={(e) =>
-                              setSewaKandang(
-                                parseFloat(
-                                  e.target.value.replace(/[^0-9]/g, "")
-                                )
-                              )
-                            }
-                            className="border-0 p-2 rounded-md flex-1"
-                            placeholder="Masukkan harga DOD"
-                          />
-                        </div>
+                  <div className="flex flex-col space-y-6 md:space-y-8">
+                    <div className="w-full px-4">
+                      {/* Fixed Cost Header */}
+                      <div className="text-center mb-6">
+                        <h3 className="font-extrabold text-2xl md:text-3xl">
+                          Fixed Cost
+                        </h3>
                       </div>
 
-                      {/* Plus Sign */}
-                      <div className="hidden md:flex items-center font-semibold text-2xl">
-                        +
-                      </div>
-
-                      {/* Penyusutan Peralatan */}
-                      <div className="w-full md:w-auto">
-                        <label className="font-semibold mb-2 block">
-                          Penyusutan Peralatan
-                        </label>
-                        <div className="flex items-center border border-gray-300 rounded-md">
-                          <span className="p-2 bg-gray-100">Rp.</span>
-                          <input
-                            type="text"
-                            value={formatNumber(penyusutanPeralatan)}
-                            onChange={handleInputChange(setPenyusutanPeralatan)}
-                            onBlur={(e) =>
-                              setPenyusutanPeralatan(
-                                parseFloat(
-                                  e.target.value.replace(/[^0-9]/g, "")
-                                )
-                              )
-                            }
-                            className="border-0 p-2 rounded-md flex-1"
-                            placeholder="Masukkan Penyusutan Peralatan"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Equals Sign */}
-                      <div className="flex items-center font-semibold text-2xl">
-                        =
-                      </div>
-
-                      {/* Total Biaya */}
-                      <div className="w-full md:w-auto">
-                        <label className="font-semibold mb-2 block">
-                          Total Biaya
-                        </label>
-                        <div className="flex items-center border border-gray-300 rounded-md">
-                          <span className="p-2 bg-gray-100">Rp.</span>
-                          <input
-                            type="text"
-                            value={formatNumber(totalBiaya)}
-                            readOnly
-                            className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Second Row - Calculation */}
-                    <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 justify-center">
-                      {/* Total Biaya */}
-                      <div className="w-full md:w-auto">
-                        <label className="font-semibold mb-2 block">
-                          Total Biaya
-                        </label>
-                        <div className="flex items-center border border-gray-300 rounded-md">
-                          <span className="p-2 bg-gray-100">Rp.</span>
-                          <input
-                            type="text"
-                            value={formatNumber(totalBiaya)}
-                            readOnly
-                            className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Multiplication Sign */}
-                      <div className="hidden md:flex items-center font-semibold text-2xl">
-                        ×
-                      </div>
-
-                      {/* Jumlah Hari */}
-                      <div className="w-full md:w-auto">
-                        <label className="font-semibold mb-2 block">
-                          Jumlah hari
-                        </label>
-                        <input
-                          type="text"
-                          value="28 Hari"
-                          readOnly
-                          className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed w-full"
-                        />
-                      </div>
-
-                      {/* Equals Sign */}
-                      <div className="flex items-center font-semibold text-2xl">
-                        =
-                      </div>
-
-                      {/* Total Fixed Cost */}
-                      <div className="w-full md:w-auto">
-                        <label className="font-semibold mb-2 block">
-                          Total Fixed Cost
-                        </label>
-                        <div className="flex items-center border border-gray-300 rounded-md">
-                          <span className="p-2 bg-gray-100">Rp.</span>
-                          <input
-                            type="text"
-                            value={formatNumber(totalFixedCost)}
-                            readOnly
-                            className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Bagian Biaya Operasional */}
-                  <div className="w-full px-4">
-                    <div className="text-center mb-6 mt-10">
-                      <h3 className="font-extrabold text-2xl md:text-3xl">
-                        Jumlah Biaya Operasional
-                      </h3>
-                    </div>
-                    <div className="space-y-8">
-                      <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 mb-8">
-                        <div className="w-full md:w-auto">
-                          <label className="font-semibold mb-2 block">
-                            Biaya Tenaga Kerja
+                      {/* First Row - Input Fields */}
+                      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Sewa Kandang
                           </label>
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <span className="p-2 bg-gray-100">Rp.</span>
                             <input
                               type="text"
-                              value={
-                                biayaTenagaKerja
-                                  ? formatNumber(biayaTenagaKerja)
-                                  : ""
-                              }
-                              onChange={handleInputChange(setBiayaTenagaKerja)}
+                              value={formatNumber(sewaKandang)}
+                              onChange={handleInputChange(setSewaKandang)}
                               onBlur={(e) =>
-                                setBiayaTenagaKerja(
+                                setSewaKandang(
                                   parseFloat(
                                     e.target.value.replace(/[^0-9]/g, "")
-                                  ) || 0
+                                  )
                                 )
                               }
-                              className="border border-white p-2 rounded-md"
+                              className="w-full border border-gray-300 p-2 rounded-md"
+                              placeholder="harga sewa kandang"
                             />
                           </div>
                         </div>
 
-                        <div className="hidden md:flex items-center font-semibold text-2xl">
-                          +
-                        </div>
-
-                        <div className="w-full md:w-auto">
-                          <label className="font-semibold mb-2 block">
-                            Biaya Listrik
-                          </label>
-                          <div className="flex items-center border border-gray-300 rounded-md">
-                            <span className="p-2 bg-gray-100">Rp.</span>
-                            <input
-                              type="text"
-                              value={
-                                biayaListrik ? formatNumber(biayaListrik) : ""
-                              } // Format angka saat render
-                              onChange={handleInputChange(setBiayaListrik)} // Panggil setter dinamis
-                              onBlur={(e) =>
-                                setBiayaListrik(
-                                  parseFloat(
-                                    e.target.value.replace(/[^0-9]/g, "")
-                                  ) || 0
-                                )
-                              } // Set angka mentah saat blur
-                              className="border border-white p-2 rounded-md"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="hidden md:flex items-center font-semibold text-2xl">
-                          +
-                        </div>
-
-                        <div className="w-full md:w-auto">
-                          <label className="font-semibold mb-2 block">
-                            Biaya OVK
-                          </label>
-                          <div className="flex items-center border border-gray-300 rounded-md">
-                            <span className="p-2 bg-gray-100">Rp.</span>
-                            <input
-                              type="text"
-                              value={biayaOvk ? formatNumber(biayaOvk) : ""}
-                              onChange={handleInputChange(setBiayaOvk)}
-                              onBlur={(e) =>
-                                setBiayaOvk(
-                                  parseFloat(
-                                    e.target.value.replace(/[^0-9]/g, "")
-                                  ) || 0
-                                )
-                              }
-                              className="border border-white p-2 rounded-md"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="flex items-center font-semibold text-2xl">
-                          =
-                        </div>
-
-                        <div className="w-full md:w-auto">
-                          <label className="font-semibold mb-2 block">
-                            Biaya Operasional
-                          </label>
-                          <div className="flex items-center border border-gray-300 rounded-md">
-                            <span className="p-2 bg-gray-100">Rp.</span>
-                            <input
-                              type="text"
-                              value={formatNumber(biayaOperasional)}
-                              readOnly
-                              className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 mb-8 justify-center">
-                        <div className="w-full md:w-auto">
-                          <label className="font-semibold mb-2 block">
-                            Biaya Operasional
-                          </label>
-                          <div className="flex items-center border border-gray-300 rounded-md">
-                            <span className="p-2 bg-gray-100">Rp.</span>
-                            <input
-                              type="text"
-                              value={formatNumber(biayaOperasional)}
-                              readOnly
-                              className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
-                            />
-                          </div>
-                        </div>
-
-                        <div className="hidden md:flex items-center font-semibold text-2xl">
+                        <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
                           ×
                         </div>
 
                         <div className="col-span-1">
-                          <label className="font-semibold mb-2 block">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Penyusutan Peralatan
+                          </label>
+                          <div className="flex items-center border border-gray-300 rounded-md">
+                            <span className="p-2 bg-gray-100">Rp.</span>
+                            <input
+                              type="text"
+                              value={formatNumber(penyusutanPeralatan)}
+                              onChange={handleInputChange(
+                                setPenyusutanPeralatan
+                              )}
+                              onBlur={(e) =>
+                                setPenyusutanPeralatan(
+                                  parseFloat(
+                                    e.target.value.replace(/[^0-9]/g, "")
+                                  )
+                                )
+                              }
+                              className="w-full border border-gray-300 p-2 rounded-md"
+                              placeholder="Masukkan Penyusutan Peralatan"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="hidden md:flex items-center justify-center font-semibold text-xl">
+                          =
+                        </div>
+
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Total Biaya
+                          </label>
+                          <div className="flex items-center border border-gray-300 rounded-md">
+                            <span className="p-2 bg-gray-100">Rp.</span>
+                            <input
+                              type="text"
+                              value={formatNumber(totalBiaya)}
+                              readOnly
+                              className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Second Row - Calculation */}
+                      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mt-5 items-center">
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Total Biaya
+                          </label>
+                          <div className="flex items-center border border-gray-300 rounded-md">
+                            <span className="p-2 bg-gray-100">Rp.</span>
+                            <input
+                              type="text"
+                              value={formatNumber(totalBiaya)}
+                              readOnly
+                              className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="hidden md:flex items-center justify-center font-semibold text-xl">
+                          ×
+                        </div>
+
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
                             Jumlah hari
                           </label>
                           <input
                             type="text"
                             value={"28 Hari"}
                             readOnly
-                            className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                            className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
                           />
                         </div>
 
-                        <div className="flex items-center font-semibold text-2xl">
+                        <div className="hidden md:flex items-center justify-center font-semibold text-xl">
                           =
                         </div>
 
-                        <div className="w-full md:w-auto">
-                          <label className="font-semibold mb-2 block">
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Total Fixed Cost
+                          </label>
+                          <div className="flex items-center border border-gray-300 rounded-md">
+                            <span className="p-2 bg-gray-100">Rp.</span>
+                            <input
+                              type="text"
+                              value={formatNumber(totalFixedCost)}
+                              readOnly
+                              className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bagian Biaya Operasional */}
+                    <div className="w-full px-4">
+                      <div className="text-center mb-6 mt-10">
+                        <h3 className="font-extrabold text-2xl md:text-3xl">
+                          Jumlah Biaya Operasional
+                        </h3>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Jumlah Telur Menetas
+                          </label>
+                          <input
+                            type="number"
+                            value={jumlahTelurMenetas}
+                            onChange={(e) =>
+                              setJumlahTelurMenetas(parseFloat(e.target.value))
+                            }
+                            className="w-full border border-gray-300 p-2 rounded-md"
+                          />
+                        </div>
+
+                        <div className="hidden md:flex items-center justify-center font-semibold text-xl">
+                          /
+                        </div>
+
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Jumlah Telur (Butir)
+                          </label>
+                          <input
+                            type="number"
+                            value={jumlahTelur}
+                            onChange={(e) =>
+                              setJumlahTelur(parseFloat(e.target.value))
+                            }
+                            className="w-full border border-gray-300 p-2 rounded-md"
+                          />
+                        </div>
+
+                        <div className="hidden md:flex items-center justify-center font-semibold text-xl">
+                          ×
+                        </div>
+
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Persentase
+                          </label>
+                          <input
+                            type="text"
+                            value="100%"
+                            readOnly
+                            className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                          />
+                        </div>
+
+                        <div className="flex items-center justify-center font-semibold text-xl">
+                          =
+                        </div>
+
+                        <div className="col-span-1 md:col-span-3">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Persentase Menetas
+                          </label>
+                          <input
+                            type="text"
+                            value={`${persentase.toFixed(0)}%`}
+                            readOnly
+                            className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bagian Jumlah Pembelian Telur */}
+                    <div className="flex flex-col space-y-6 md:space-y-8">
+                      <div className="w-full px-4">
+                        <div className="text-center mb-6 mt-10">
+                          <h3 className="font-extrabold text-2xl md:text-3xl">
+                            Jumlah Pembelian Telur
+                          </h3>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+                          <div className="col-span-1">
+                            <label className="font-semibold text-sm md:text-base mb-1 block">
+                              Jumlah Telur (Butir)
+                            </label>
+                            <div className="flex items-center border border-gray-300 rounded-md">
+                              <input
+                                type="text"
+                                value={jumlahTelur}
+                                readOnly
+                                className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                              />
+                              <span className="p-2 bg-gray-100 rounded-md">
+                                butir
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                            ×
+                          </div>
+
+                          <div className="col-span-1">
+                            <label className="font-semibold text-sm md:text-base mb-1 block">
+                              Harga Telur
+                            </label>
+                            <div className="flex items-center border border-gray-300 rounded-md">
+                              <span className="p-2 bg-gray-100">Rp.</span>
+                              <input
+                                type="text"
+                                value={formatNumber(hargaTelur)}
+                                onChange={handleInputChange(setHargaTelur)}
+                                onBlur={(e) =>
+                                  setHargaTelur(
+                                    parseFloat(
+                                      e.target.value.replace(/[^0-9]/g, "")
+                                    ) || 0
+                                  )
+                                }
+                                className="w-full border border-gray-300 p-2 rounded-md"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                            =
+                          </div>
+
+                          <div className="col-span-1">
+                            <label className="font-semibold text-sm md:text-base mb-1 block">
+                              Total Biaya Pembelian Telur
+                            </label>
+                            <div className="flex items-center border border-gray-300 rounded-md">
+                              <span className="p-2 bg-gray-100">Rp.</span>
+                              <input
+                                type="text"
+                                value={formatNumber(totalBiayaPembelianTelur)}
+                                readOnly
+                                className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed" // border-0 untuk menghapus border input
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="w-full px-4">
+                      <div className="text-center mb-6 mt-10">
+                        <h3 className="font-extrabold text-2xl md:text-3xl">
+                          Variable Cost
+                        </h3>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
                             Total Biaya Operasional
                           </label>
                           <div className="flex items-center border border-gray-300 rounded-md">
@@ -1021,200 +1024,109 @@ const PenetasanPage = () => {
                               type="text"
                               value={formatNumber(totalBiayaOperasional)}
                               readOnly
-                              className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
+                              className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed" // border-0 untuk menghapus border input
+                            />
+                          </div>
+                        </div>
+
+                        <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                          +
+                        </div>
+
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Total Biaya Pembelian Telur
+                          </label>
+                          <div className="flex items-center border border-gray-300 rounded-md">
+                            <span className="p-2 bg-gray-100">Rp.</span>
+                            <input
+                              type="text"
+                              value={formatNumber(totalBiayaPembelianTelur)}
+                              readOnly
+                              className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed" // border-0 untuk menghapus border input
+                            />
+                          </div>
+                        </div>
+
+                        <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                          =
+                        </div>
+
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Total Variable Cost
+                          </label>
+                          <div className="flex items-center border border-gray-300 rounded-md">
+                            <span className="p-2 bg-gray-100">Rp.</span>
+                            <input
+                              type="text"
+                              value={formatNumber(totalVariableCost)}
+                              readOnly
+                              className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed" // border-0 untuk menghapus border input
                             />
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Bagian Jumlah Pembelian Telur */}
-                  <div className="w-full px-4">
-                    <div className="text-center mb-6 mt-10">
-                      <h3 className="font-extrabold text-2xl md:text-3xl">
-                        Jumlah Pembelian Telur
-                      </h3>
-                    </div>
-                    <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 mb-8">
-                      <div className="col-span-1">
-                        <label className="font-semibold mb-2 block">
-                          Jumlah Telur (Butir)
-                        </label>
-                        <input
-                          type="text"
-                          value={jumlahTelur}
-                          readOnly
-                          className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
-                        />
+                    <div className="w-full px-4">
+                      <div className="text-center mb-6 mt-10">
+                        <h3 className="font-extrabold text-2xl md:text-3xl">
+                          Data Pengeluaran
+                        </h3>
                       </div>
-
-                      <div className="hidden md:flex items-center font-semibold text-2xl">
-                        ×
-                      </div>
-
-                      <div className="w-full md:w-auto">
-                        <label className="font-semibold mb-2 block">
-                          Harga Telur
-                        </label>
-                        <div className="flex items-center border border-gray-300 rounded-md">
-                          <span className="p-2 bg-gray-100">Rp.</span>
-                          <input
-                            type="text"
-                            value={hargaTelur ? formatNumber(hargaTelur) : ""}
-                            onChange={handleInputChange(setHargaTelur)}
-                            onBlur={(e) =>
-                              setHargaTelur(
-                                parseFloat(
-                                  e.target.value.replace(/[^0-9]/g, "")
-                                ) || 0
-                              )
-                            }
-                            className="flex items-center border border-white p-2 rounded-md"
-                          />
+                      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Total Variable Cost
+                          </label>
+                          <div className="flex items-center border border-gray-300 rounded-md">
+                            <span className="p-2 bg-gray-100">Rp.</span>
+                            <input
+                              type="text"
+                              value={formatNumber(totalVariableCost)}
+                              readOnly
+                              className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed" // border-0 untuk menghapus border input
+                            />
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="hidden md:flex items-center font-semibold text-2xl">
-                        =
-                      </div>
-
-                      <div className="flex flex-col w-full md:w-auto">
-                        <label className="font-semibold">
-                          Total Biaya Pembelian Telur
-                        </label>
-                        <div className="flex items-center border border-gray-300 rounded-md">
-                          <span className="p-2 bg-gray-100">Rp.</span>
-                          <input
-                            type="text"
-                            value={formatNumber(totalBiayaPembelianTelur)}
-                            readOnly
-                            className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
-                          />
+                        <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                          +
                         </div>
-                      </div>
-                    </div>
-                  </div>
 
-                  <div className="w-full px-4">
-                    <div className="text-center mb-6 mt-10">
-                      <h3 className="font-extrabold text-2xl md:text-3xl">
-                        Variable Cost
-                      </h3>
-                    </div>
-                    <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 mb-8">
-                      <div className="w-full md:w-auto">
-                        <label className="font-semibold mb-2 block">
-                          Total Biaya Operasional
-                        </label>
-                        <div className="flex items-center border border-gray-300 rounded-md">
-                          <span className="p-2 bg-gray-100">Rp.</span>
-                          <input
-                            type="text"
-                            value={formatNumber(totalBiayaOperasional)}
-                            readOnly
-                            className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
-                          />
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Total Fixed Cost
+                          </label>
+                          <div className="flex items-center border border-gray-300 rounded-md">
+                            <span className="p-2 bg-gray-100">Rp.</span>
+                            <input
+                              type="text"
+                              value={formatNumber(totalFixedCost)}
+                              readOnly
+                              className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed" // border-0 untuk menghapus border input
+                            />
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="hidden md:flex items-center font-semibold text-2xl">
-                        +
-                      </div>
-
-                      <div className="w-full md:w-auto">
-                        <label className="font-semibold">
-                          Total Biaya Pembelian Telur
-                        </label>
-                        <div className="flex items-center border border-gray-300 rounded-md">
-                          <span className="p-2 bg-gray-100">Rp.</span>
-                          <input
-                            type="text"
-                            value={formatNumber(totalBiayaPembelianTelur)}
-                            readOnly
-                            className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
-                          />
+                        <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                          =
                         </div>
-                      </div>
 
-                      <div className="hidden md:flex items-center font-semibold text-2xl">
-                        =
-                      </div>
-
-                      <div className="flex flex-col w-full md:w-auto">
-                        <label className="font-semibold">
-                          Total Variable Cost
-                        </label>
-                        <div className="flex items-center border border-gray-300 rounded-md">
-                          <span className="p-2 bg-gray-100">Rp.</span>
-                          <input
-                            type="text"
-                            value={formatNumber(totalVariableCost)}
-                            readOnly
-                            className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="w-full px-4">
-                    <div className="text-center mb-6 mt-10">
-                      <h3 className="font-extrabold text-2xl md:text-3xl">
-                        Data Pengeluaran
-                      </h3>
-                    </div>
-                    <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 mb-8">
-                      <div className="w-full md:w-auto">
-                        <label className="font-semibold mb-2 block">
-                          Total Variable Cost
-                        </label>
-                        <div className="flex items-center border border-gray-300 rounded-md">
-                          <span className="p-2 bg-gray-100">Rp.</span>
-                          <input
-                            type="text"
-                            value={formatNumber(totalVariableCost)}
-                            readOnly
-                            className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
-                          />
-                        </div>
-                      </div>
-
-                      <div className="hidden md:flex items-center font-semibold text-2xl">
-                        +
-                      </div>
-
-                      <div className="w-full md:w-auto">
-                        <label className="font-semibold mb-2 block">
-                          Total Fixed Cost
-                        </label>
-                        <div className="flex items-center border border-gray-300 rounded-md">
-                          <span className="p-2 bg-gray-100">Rp.</span>
-                          <input
-                            type="text"
-                            value={formatNumber(totalFixedCost)}
-                            readOnly
-                            className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
-                          />
-                        </div>
-                      </div>
-
-                      <div className="hidden md:flex items-center font-semibold text-2xl">
-                        =
-                      </div>
-
-                      <div className="w-full md:w-auto">
-                        <label className="font-semibold mb-2 block">
-                          Total Cost
-                        </label>
-                        <div className="flex items-center border border-gray-300 rounded-md">
-                          <span className="p-2 bg-orange-200">Rp.</span>
-                          <input
-                            type="text"
-                            value={formatNumber(totalCost)}
-                            readOnly
-                            className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-orange-100" // border-0 untuk menghapus border input
-                          />
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Total Cost
+                          </label>
+                          <div className="flex items-center border border-gray-300 rounded-md">
+                            <span className="p-2 bg-orange-200">Rp.</span>
+                            <input
+                              type="text"
+                              value={formatNumber(totalCost)}
+                              readOnly
+                              className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1240,15 +1152,13 @@ const PenetasanPage = () => {
 
               {/* Form Hasil Analisis */}
               {currentForm === "HasilAnalisis" && (
-                <div>
-                  <div className="flex flex-col w-full px-4 md:px-6 py-4">
-                    <h2 className="text-lg md:text-xl font-extrabold mb-4 md:mb-6">
-                      Hasil Analisis
-                    </h2>
-                  </div>
+                <div className="flex flex-col w-full px-4 md:px-6 py-4">
+                  <h2 className="text-lg md:text-xl font-extrabold mb-4 md:mb-6">
+                    Hasil Analisis
+                  </h2>
 
-                  <div className="grid grid-cols-1 md:grid-cols-7 gap-4 items-center justify-center">
-                    <div className="col-span-1 md:col-span-2">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center justify-center">
+                    <div className="col-span-1">
                       <label className="font-semibold text-sm md:text-base mb-1 block">
                         Margin Of Safety (MOS)
                       </label>
@@ -1257,13 +1167,13 @@ const PenetasanPage = () => {
                           type="text"
                           value={formatNumber(marginOfSafety)}
                           readOnly
-                          className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
+                          className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
                         />
                         <span className="p-2 bg-orange-200">%</span>
                       </div>
                     </div>
 
-                    <div className="col-span-1 md:col-span-2">
+                    <div className="col-span-1">
                       <label className="font-semibold text-sm md:text-base mb-1 block">
                         R/C Ratio
                       </label>
@@ -1272,12 +1182,12 @@ const PenetasanPage = () => {
                           type="text"
                           value={rcRatio.toFixed(2)}
                           readOnly
-                          className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
+                          className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
                         />
                       </div>
                     </div>
 
-                    <div className="col-span-1 md:col-span-2">
+                    <div className="col-span-1">
                       <label className="font-semibold text-sm md:text-base mb-1 block">
                         BEP Harga
                       </label>
@@ -1287,14 +1197,14 @@ const PenetasanPage = () => {
                           type="text"
                           value={formatNumber(bepHarga)}
                           readOnly
-                          className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
+                          className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
                         />
                       </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-7 gap-4 mt-5 items-center justify-center">
-                    <div className="col-span-1 md:col-span-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5 items-center justify-center">
+                    <div className="col-span-1">
                       <label className="font-semibold text-sm md:text-base mb-1 block">
                         BEP Unit
                       </label>
@@ -1303,12 +1213,12 @@ const PenetasanPage = () => {
                           type="text"
                           value={formatNumber(bepHasil)}
                           readOnly
-                          className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
+                          className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
                         />
                         <span className="p-2 bg-orange-200">Ekor</span>
                       </div>
                     </div>
-                    <div className="col-span-1 md:col-span-2">
+                    <div className="col-span-1">
                       <label className="font-semibold text-sm md:text-base mb-1 block">
                         Laba
                       </label>
@@ -1318,7 +1228,7 @@ const PenetasanPage = () => {
                           type="text"
                           value={formatNumber(laba)}
                           readOnly
-                          className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
+                          className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
                         />
                       </div>
                     </div>
