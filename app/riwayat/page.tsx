@@ -3,7 +3,7 @@
 import React, { useState, useEffect, ChangeEvent } from "react";
 import { AreaChart } from "@/components/ui/chart";
 import { db } from "@/lib/firebase"; // Import db Firebase yang telah dikonfigurasi
-import { collection,doc, getDocs, getDoc,query, where, Timestamp, orderBy, } from "firebase/firestore";
+import { collection, doc, getDocs, getDoc, query, where, Timestamp, orderBy, } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area } from 'recharts';
 import { firestore, auth } from "@/lib/firebase";
@@ -51,6 +51,17 @@ type PopupProps = {
     totalCost: number;
     periode: string;
   } | null;
+  data2: {
+    analysisName: string;
+    marginOfSafety: number;
+    rcRatio: number;
+    bepHarga: number;
+    bepHasil: number;
+    Laba: number;
+    totalRevenue: number;
+    totalCost: number;
+    periode: string;
+  } | null;
 };
 
 const styles = {
@@ -84,15 +95,14 @@ const styles = {
   card: {
     backgroundColor: "#FFFFFF",
     borderRadius: "12px",
-    boxShadow: "0px 8px 16px rgba(255, 153, 51, 0.5)", // Light orange shadow
-    padding: "20px",
+    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+    padding: "15px",
     cursor: "pointer",
-    transition: "transform 0.2s, box-shadow 0.2s",
-    width: "300px", // Card width
-    height: "200px", // Card height
+    transition: "transform 0.2s",
+    width: "300px", // Atur lebar card
+    height: "200px", // Atur tinggi card
     "&:hover": {
       transform: "scale(1.02)",
-      boxShadow: "0px 12px 24px rgba(255, 153, 51, 0.7)", // Darker orange shadow on hover
 
     },
   },
@@ -400,38 +410,109 @@ export default function RiwayatAnalisis() {
             </FormControl>
           </div>
 
-          <Grid container spacing={3}>
+          <Grid container spacing={4}>
             {dataAnalisis.map((data, index) => (
-              <Grid item xs={12} sm={6} md={4} key={data.id}>
+              <Grid item xs={12} sm={3} md={2} key={data.id}>
                 <Card
                   style={{
                     ...styles.card,
-                    width: "300px", // Ukuran lebar tetap untuk desktop
+                    width: "250px", // Ukuran lebar tetap untuk desktop
                     height: "200px", // Ukuran tinggi tetap untuk desktop
                   }}
                   onClick={() => handleCardClick(data)}
                 >
                   <CardContent
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      height: "180px",
-                    }}
+                  // style={{
+                  //   display: "flex",
+                  //   flexDirection: "column",
+                  //   alignItems: "flex-start",
+                  //   padding: "12px",
+                  //   borderRadius: "8px",
+                  //   boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.1)",
+                  //   backgroundColor: "#FFFFFF",
+                  //   width: "100%",
+                  // }}
                   >
-                    <Grid container justifyContent="space-between">
-                      <Typography variant="body2" style={styles.time}>
-                        {data.created_at.toDate().toLocaleTimeString()}
-                      </Typography>
-                      <Typography variant="body2" style={styles.date}>
-                        {data.created_at.toDate().toLocaleDateString()}
-                      </Typography>
-                    </Grid>
+                    {/* Judul Analisis */}
+                    <Typography
+                      variant="h6"
+                      style={{
+                        fontWeight: "bold",
+                        fontSize: "14px",
+                        marginBottom: "6px",
+                        color: "#333",
+                        textAlign: "left",
+                        width: "100%",
+                      }}
+                    >
+                      {data.analysisName}
+                    </Typography>
 
+                    {/* Garis Pemisah */}
                     <div
                       style={{
-                        flexGrow: 1,
+                        width: "100%",
+                        height: "1px",
+                        backgroundColor: "#E0E0E0",
+                        margin: "6px 0",
+                      }}
+                    />
+
+                    {/* Ikon di kiri dan Tombol "Lihat detail" di kanan */}
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        width: "100%",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      <img
+                        src={
+                          data.analysisName === "Detail Penetasan"
+                            ? "/assets/Group.png"
+                            : data.analysisName === "Detail Layer"
+                              ? "/assets/Group 109.png"
+                              : data.analysisName === "Detail Penggemukan"
+                                ? "/assets/Duck.png"
+                                : "/images/default-icon.png" // Jika ada jenis yang tidak terdaftar
+                        }
+                        alt="Ikon Analisis"
+                        style={{ width: "40px", height: "40px", marginRight: "8px" }}
+                      />
+                      <Button
+                        variant="contained"
+                        style={{
+                          backgroundColor: "#FF8A00",
+                          color: "#FFFFFF",
+                          fontWeight: "bold",
+                          borderRadius: "12px",
+                          padding: "2px 10px",
+                          fontSize: "10px",
+                        }}
+                      >
+                        Lihat detail
+                      </Button>
+                    </div>
+
+                    {/* Garis Pemisah */}
+                    <div
+                      style={{
+                        width: "100%",
+                        height: "1px",
+                        backgroundColor: "#E0E0E0",
+                        margin: "6px 0",
+                      }}
+                    />
+
+                    {/* Laba */}
+                    <div
+                      style={{
                         display: "flex",
                         alignItems: "center",
+                        width: "100%",
+                        marginBottom: "10px",
                       }}
                     >
                       {data.Laba !== undefined &&
@@ -439,7 +520,12 @@ export default function RiwayatAnalisis() {
                         !isNaN(data.Laba) ? (
                         <Typography
                           variant="h6"
-                          style={{ ...styles.amount, textAlign: "center" }}
+                          style={{
+                            color: "#333",
+                            fontSize: "13px",
+                            fontWeight: "bold",
+                            textAlign: "left",
+                          }}
                         >
                           Rp. {data.Laba.toLocaleString("id-ID")}
                         </Typography>
@@ -447,9 +533,10 @@ export default function RiwayatAnalisis() {
                         <Typography
                           variant="h6"
                           style={{
-                            ...styles.amount,
-                            textAlign: "center",
                             color: "red",
+                            fontSize: "13px",
+                            fontWeight: "bold",
+                            textAlign: "left",
                           }}
                         >
                           Laba tidak tersedia
@@ -457,25 +544,37 @@ export default function RiwayatAnalisis() {
                       )}
                     </div>
 
-                    <Typography
-                      variant="body1"
+                    {/* Garis Pemisah */}
+                    <div
                       style={{
-                        backgroundColor: "#FFD580",
-                        padding: "5px 10px",
-                        borderRadius: "9999px",
-                        textAlign: "center",
-                        display: "inline-block",
-                        marginTop: "10px",
-                        fontWeight: "bold",
+                        width: "100%",
+                        height: "1px",
+                        backgroundColor: "#E0E0E0",
+                        margin: "6px 0",
                       }}
-                    >
-                      {data.analysisName}
-                    </Typography>
+                    />
 
-                    {/* <Typography variant="body2" style={styles.description}>
-                      ID Analisis: {data.analysisId}
-                    </Typography> */}
+                    {/* Waktu dan Tanggal */}
+                    <Grid container justifyContent="space-between" style={{ width: "100%" }}>
+                      <Grid item>
+                        <Typography
+                          variant="body2"
+                          style={{ color: "#333", fontSize: "11px", textAlign: "left" }}
+                        >
+                          {data.created_at.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </Typography>
+                      </Grid>
+                      <Grid item>
+                        <Typography
+                          variant="body2"
+                          style={{ color: "#333", fontSize: "11px", textAlign: "left" }}
+                        >
+                          {data.created_at.toDate().toLocaleDateString("id-ID")}
+                        </Typography>
+                      </Grid>
+                    </Grid>
                   </CardContent>
+
                 </Card>
               </Grid>
             ))}
@@ -485,6 +584,7 @@ export default function RiwayatAnalisis() {
             open={openPopup}
             onClose={() => setOpenPopup(false)}
             data1={selectedData}
+            data2={selectedData}
           />
         </div>
       </SidebarDemo>
@@ -504,8 +604,8 @@ export default function RiwayatAnalisis() {
     }
   };
 
-  function Popup({ open, onClose, data1 }: PopupProps) {
-    if (!data1) return null;
+  function Popup({ open, onClose, data1, data2 }: PopupProps) {
+    if (!data1 || !data2 ) return null;
 
     return (
       <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
@@ -525,7 +625,7 @@ export default function RiwayatAnalisis() {
                         <Typography variant="body1">:</Typography>
                       </Grid>
                       <Grid item xs={6}>
-                        <Typography variant="body2">{data1.marginOfSafety}</Typography>
+                        <Typography variant="body2">{Math.round(data2.marginOfSafety)}</Typography>
                       </Grid>
 
                       {/* Baris untuk R/C Ratio */}
@@ -536,7 +636,7 @@ export default function RiwayatAnalisis() {
                         <Typography variant="body1">:</Typography>
                       </Grid>
                       <Grid item xs={6}>
-                        <Typography variant="body2">{data1.rcRatio}</Typography>
+                        <Typography variant="body2">{Math.round(data2.rcRatio)}</Typography>
                       </Grid>
 
                       {/* Baris untuk BEP Harga */}
@@ -547,7 +647,7 @@ export default function RiwayatAnalisis() {
                         <Typography variant="body1">:</Typography>
                       </Grid>
                       <Grid item xs={6}>
-                        <Typography variant="body2">{data1.bepHarga}</Typography>
+                        <Typography variant="body2">{Math.round(data2.bepHarga)}</Typography>
                       </Grid>
 
                       {/* Baris untuk BEP Hasil */}
@@ -558,7 +658,7 @@ export default function RiwayatAnalisis() {
                         <Typography variant="body1">:</Typography>
                       </Grid>
                       <Grid item xs={6}>
-                        <Typography variant="body2">{data1.bepHasil}</Typography>
+                        <Typography variant="body2">{Math.round(data2.bepHasil)}</Typography>
                       </Grid>
 
                       {/* Baris untuk Laba */}
@@ -569,7 +669,7 @@ export default function RiwayatAnalisis() {
                         <Typography variant="body1">:</Typography>
                       </Grid>
                       <Grid item xs={6}>
-                        <Typography variant="body2">Rp. {data1.Laba.toLocaleString("id-ID")}</Typography>
+                        <Typography variant="body2">Rp. {data2.Laba.toLocaleString("id-ID")}</Typography>
                       </Grid>
                     </Grid>
                   </CardContent>
@@ -580,7 +680,7 @@ export default function RiwayatAnalisis() {
           </Grid>
 
           <Grid container justifyContent="left" style={{ marginTop: '20px', width: '100%' }}>
-            <Grid item xs={10} md={8} lg={6}style={{ marginLeft: '15px' }}>
+            <Grid item xs={10} md={8} lg={6} style={{ marginLeft: '15px' }}>
               <AreaChart
                 style={{ width: '175%' }} // Mengatur grafik agar memenuhi lebar kolom
                 className="flex items-center justify-center h-100"
@@ -605,4 +705,4 @@ export default function RiwayatAnalisis() {
     );
   };
 }
-//kurang menampilkan data id periode
+//kurang menampilkan

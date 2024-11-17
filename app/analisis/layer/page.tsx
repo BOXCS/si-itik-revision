@@ -1,10 +1,10 @@
 "use client";
 
 import { SidebarDemo } from "@/components/Sidebar";
+import { useUser } from "@/app/context/UserContext";
 import React, { useEffect, useState } from "react";
-import "@/app/analisis.css";
 import HorizontalTimeline from "@/components/HorizontalTimeline";
-import { useToast } from "@/hooks/use-toast";
+import "@/app/analisis.css";
 import {
   doc,
   addDoc,
@@ -12,16 +12,22 @@ import {
   DocumentReference,
   Timestamp,
 } from "firebase/firestore";
+import { useToast } from "@/hooks/use-toast";
+import { IconMenu2, IconX } from "@tabler/icons-react";
 import { firestore } from "@/lib/firebase";
-import { useUser } from "@/app/context/UserContext";
 import { useNavigate } from 'react-router-dom';
+
+
+interface TabSelectionProps {
+  setSelectedPeriod: (period: string) => void; // Mengatur tipe untuk setSelectedPeriod
+}
 
 // interface TabSelectionProps
 
 const LayerPage = () => {
   const initialPeriods = JSON.parse(
     (typeof window !== "undefined" && localStorage.getItem("periods")) ||
-      '["Periode 1"]'
+    '["Periode 1"]'
   );
 
   const { toast } = useToast();
@@ -29,13 +35,16 @@ const LayerPage = () => {
   const [selectedPeriod, setSelectedPeriod] = useState(periods[0]);
   const [periode, setPeriode] = useState(periods[0]);
   const { user } = useUser(); // Pindahkan di sini
+  const [disabledPeriods, setDisabledPeriods] = useState<string[]>([]);
 
-   // Tambahkan state untuk mengatur status analisis baru
-   const [isNewAnalysis, setIsNewAnalysis] = useState(false);
-   const [newAnalysisDocRef, setNewAnalysisDocRef] =
-     useState<DocumentReference | null>(null);
- 
-   const [currentForm, setCurrentForm] = useState("Penerimaan");
+  // Tambahkan state untuk mengatur status analisis baru
+  const [isOpen, setIsOpen] = useState(false);
+  const [isNewAnalysis, setIsNewAnalysis] = useState(false);
+  const [newAnalysisDocRef, setNewAnalysisDocRef] =
+    useState<DocumentReference | null>(null);
+
+  // State untuk form visibility
+  const [currentForm, setCurrentForm] = useState("Penerimaan");
 
   // States untuk Penerimaan form
   const [jumlahTelurDihasilkan, setJumlahTelurDihasilkan] = useState<number>(0);
@@ -47,10 +56,7 @@ const LayerPage = () => {
   const [jumlahSatuPeriode, setJumlahSatuPeriode] = useState<number>(0);
   const [hargaTelur, setHargaTelur] = useState<number>(0);
   const [totalRevenue, setTotalRevenue] = useState<number>(0);
-  
-  const [jumlahTelurMenetas, setJumlahTelurMenetas] = useState<number>(0);
 
-  
   // States untuk Pengeluaran form
   const [sewaKandang, setSewaKandang] = useState<number>(0);
   const [penyusutanItik, setPenyusutanItik] = useState<number>(0);
@@ -65,7 +71,6 @@ const LayerPage = () => {
   const [totalBiayaOperasional, setTotalBiayaOperasional] = useState<number>(0);
 
   const [standardPakanGram, setstandardPakanGram] = useState(0);
-  const [jumlahItik, setJumlahItik] = useState(0);
   const [jumlahPakanKilogram, setjumlahPakanKilogram] = useState(0);
   const [totalBiayaPakan, setTotalBiayaPakan] = useState<number>(0);
   const [totalVariableCost, setTotalVariableCost] = useState<number>(0);
@@ -106,6 +111,10 @@ const LayerPage = () => {
       setNewAnalysisDocRef(docRef); // Simpan referensi dokumen
       localStorage.setItem("activeDocRef", docRef.id); // Simpan ID dokumen ke localStorage
       setIsNewAnalysis(true);
+
+      // Atur periode kembali ke "Periode 1"
+      setPeriode("Periode 1");
+      setSelectedPeriod("Periode 1");
 
       toast({
         title: "Sukses",
@@ -170,80 +179,55 @@ const LayerPage = () => {
           laba,
         },
       };
- // Jika isNewAnalysis adalah true, simpan ke dokumen baru
- if (newAnalysisDocRef) {
-  await addDoc(
-    collection(newAnalysisDocRef, "analisis_periode"),
-    periodeData
-  );
-} else {
-  // Buat dokumen baru jika tidak ada referensi sebelumnya
-  const docRef = await addDoc(collection(firestore, "detail_layer"), {
-    userId: user.email || user.username,
-    created_at: Timestamp.now(),
-  });
+      // Jika isNewAnalysis adalah true, simpan ke dokumen baru
+      if (newAnalysisDocRef) {
+        await addDoc(
+          collection(newAnalysisDocRef, "analisis_periode"),
+          periodeData
+        );
+      } else {
+        // Buat dokumen baru jika tidak ada referensi sebelumnya
+        const docRef = await addDoc(collection(firestore, "detail_layer"), {
+          userId: user.email || user.username,
+          created_at: Timestamp.now(),
+        });
 
-  await addDoc(collection(docRef, "analisis_periode"), periodeData);
-  setNewAnalysisDocRef(docRef);
-  localStorage.setItem("activeDocRef", docRef.id);
-}
+        await addDoc(collection(docRef, "analisis_periode"), periodeData);
+        setNewAnalysisDocRef(docRef);
+        localStorage.setItem("activeDocRef", docRef.id);
+      }
 
-toast({
-  title: "Sukses",
-  description: "Data berhasil disimpan!",
-});
-} catch (error) {
-console.error("Error adding document: ", error);
-toast({
-  title: "Gagal",
-  description: "Gagal menambahkan data!",
-  variant: "destructive",
-});
-}
-};
+  // Tambahkan periode ke dalam disabledPeriods
+  setDisabledPeriods((prev) => [...prev, selectedPeriod]);
 
-useEffect(() => {
-// Simpan periode ke local storage setiap kali `periods` berubah
-localStorage.setItem("periods", JSON.stringify(periods));
-}, [periods]);
-
-useEffect(() => {
-const storedDocRef = localStorage.getItem("activeDocRef");
-if (storedDocRef) {
-const docRef = doc(firestore, "detail_layer", storedDocRef);
-setNewAnalysisDocRef(docRef);
-}
-}, []);
-
-const handleNextForm = () => {
-  if (currentForm === "Penerimaan") {
-    setCurrentForm("Pengeluaran");
-  } else if (currentForm === "Pengeluaran") {
-    setCurrentForm("HasilAnalisis");
-  }
-};
-
-const handleBackForm = () => {
-  if (currentForm === "Pengeluaran") {
-    setCurrentForm("Penerimaan");
-  } else if (currentForm === "HasilAnalisis") {
-    setCurrentForm("Pengeluaran");
-  }
-};
-
-// Fungsi untuk format angka ke Rupiah
-const formatNumber = (number: number) => {
-  return new Intl.NumberFormat("id-ID", {
-    minimumFractionDigits: 0, // Menghilangkan desimal
-  }).format(number);
-};
-
-const handleInputChange =
-  (setter: React.Dispatch<React.SetStateAction<number>>) =>
-  (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9]/g, ""); // Menghapus karakter non-angka
-    setter(value ? parseFloat(value) : 0); // Jika nilai ada, set sebagai angka
+      toast({
+        title: "Sukses",
+        description: "Data berhasil disimpan!",
+      });
+    } catch (error) {
+      console.error("Error adding document: ", error);
+      toast({
+        title: "Gagal",
+        description: "Gagal menambahkan data!",
+        variant: "destructive",
+      });
+    }
   };
+
+  useEffect(() => {
+    // Simpan periode ke local storage setiap kali `periods` berubah
+    localStorage.setItem("periods", JSON.stringify(periods));
+  }, [periods]);
+
+  useEffect(() => {
+    const storedDocRef = localStorage.getItem("activeDocRef");
+    if (storedDocRef) {
+      const docRef = doc(firestore, "detail_layer", storedDocRef);
+      setNewAnalysisDocRef(docRef);
+    }
+  }, []);
+
+  
 
   // Rumus Penerimaan
   useEffect(() => {
@@ -298,7 +282,7 @@ const handleInputChange =
   useEffect(() => {
     const totalBiayaPakan = jumlahPakanKilogram * 180;
     setTotalBiayaPakan(totalBiayaPakan);
-  }, [totalBiayaPakan,jumlahPakanKilogram]);
+  }, [totalBiayaPakan, jumlahPakanKilogram]);
 
   useEffect(() => {
     const totalVariableCost = totalBiayaOperasional + totalBiayaPakan;
@@ -308,14 +292,14 @@ const handleInputChange =
   useEffect(() => {
     const totalCost = totalFixedCost + totalVariableCost;
     setTotalCost(totalCost);
-  }, [totalCost, totalFixedCost,totalVariableCost]);
+  }, [totalCost, totalFixedCost, totalVariableCost]);
 
   //Rumus Hasil Analisis
   useEffect(() => {
     const bepHasil =
       totalFixedCost / (hargaTelur - totalVariableCost / jumlahSatuPeriode);
     setBepHasil(bepHasil);
-  }, [totalFixedCost, totalFixedCost, totalVariableCost,hargaTelur, jumlahSatuPeriode]);
+  }, [totalFixedCost, totalFixedCost, totalVariableCost, hargaTelur, jumlahSatuPeriode]);
 
   useEffect(() => {
     const bepHarga =
@@ -338,58 +322,181 @@ const handleInputChange =
     setLaba(laba);
   }, [totalRevenue, totalCost]);
 
+  // Fungsi untuk format angka ke Rupiah
+  const formatNumber = (number: number) => {
+    return new Intl.NumberFormat("id-ID", {
+      minimumFractionDigits: 0, // Menghilangkan desimal
+    }).format(number);
+  };
 
+  const handleInputChange =
+    (setter: React.Dispatch<React.SetStateAction<number>>) =>
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value.replace(/[^0-9]/g, ""); // Menghapus karakter non-angka
+        setter(value ? parseFloat(value) : 0); // Jika nilai ada, set sebagai angka
+      };
 
+  const handleNextForm = () => {
+    if (currentForm === "Penerimaan") {
+      setCurrentForm("Pengeluaran");
+    } else if (currentForm === "Pengeluaran") {
+      setCurrentForm("HasilAnalisis");
+    }
+  };
 
+  const handleBackForm = () => {
+    if (currentForm === "Pengeluaran") {
+      setCurrentForm("Penerimaan");
+    } else if (currentForm === "HasilAnalisis") {
+      setCurrentForm("Pengeluaran");
+    }
+    
+  };
+  const handleToggle = () => {
+    setIsOpen(!isOpen); // Mengubah state open/close
+  };
+
+  
+      
   return (
     <div className="w-full min-h-screen bg-gray-100 flex">
-    {/* Sidebar */}
-    <SidebarDemo>
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center p-10">
-        {/* Header */}
-        <h1 className="text-3xl font-bold text-black mb-8">
-          Analisis Layer
-        </h1>
+      {/* Sidebar */}
+      <SidebarDemo>
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col items-center p-10">
+          {/* Header */}
+          <h1 className="text-3xl font-bold text-black mb-8">
+            Analisis Layer
+          </h1>
 
-        {/* TabSelection */}
-        <div className="flex flex-col items-center mb-10">
-          <div className="flex justify-center space-x-4 mb-4">
-            {periods.map((period: string, index: number) => (
+          {/* TabSelection for Mobile */}
+          <div className="md:hidden flex justify-between items-center mb-4 w-full">
+            <button
+              onClick={handleToggle}
+              className="px-4 py-2 rounded-md bg-blue-500 text-white"
+            >
+              Pilih Periode
+            </button>
+            <span className="ml-4 text-black">
+              Periode Saat Ini: {selectedPeriod}
+            </span>
+          </div>
+
+          {/* Modal Dialog for Mobile */}
+          {isOpen && (
+            <div className="fixed inset-0 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg shadow-lg p-6 w-80">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-bold">Pilih Periode</h2>
+                  <button onClick={handleToggle}>
+                    <IconX size={24} />
+                  </button>
+                </div>
+
+                {/* Daftar Periode */}
+                <div className="flex flex-col space-y-2 mb-4">
+                  {periods.map((period: string, index: number) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        if (!disabledPeriods.includes(period)) {
+                          setPeriode(period); // Perbarui periode
+                          setSelectedPeriod(period); // Perbarui selectedPeriod
+                          setIsOpen(false); // Menutup modal setelah periode dipilih
+                        }
+                      }}
+                      className={`p-2 rounded-md text-left ${
+                        disabledPeriods.includes(period)
+                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                          : selectedPeriod === period
+                          ? "bg-orange-500 text-white"
+                          : "bg-gray-200"
+                      }`}
+                      disabled={disabledPeriods.includes(period)}
+                    >
+                      {period}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Tombol Tambah Periode */}
+                <button
+                  onClick={handleAddPeriod}
+                  className="w-full px-4 py-2 rounded-md bg-blue-500 text-white mb-2"
+                >
+                  Tambah Periode
+                </button>
+
+                {/* Tombol Analisis Baru */}
+                <button
+                  onClick={handleNewAnalysis}
+                  className="w-full px-4 py-2 rounded-md bg-green-500 text-white"
+                >
+                  Analisis Baru
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* TabSelection for Desktop*/}
+          <div className="hidden md:flex flex-col items-center mb-10">
+            <div className="flex justify-center space-x-4 mb-4">
+              {periods.map((period: string, index: number) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    if (!disabledPeriods.includes(period)) {
+                      setPeriode(period); // Perbarui periode
+                      setSelectedPeriod(period); // Perbarui selectedPeriod
+                    }
+                  }}
+                  className={`px-4 py-2 rounded-full text-black ${
+                    disabledPeriods.includes(period)
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : selectedPeriod === period
+                      ? "bg-orange-500"
+                      : "bg-white"
+                  }`}
+                  disabled={disabledPeriods.includes(period)}
+                >
+                  {period}
+                </button>
+              ))}
+
               <button
-                key={index}
-                onClick={() => {
-                  setPeriode(period); // Perbarui periode
-                  setSelectedPeriod(period); // Perbarui selectedPeriod
-                }}
-                className={`px-4 py-2 rounded-full text-black ${
-                  selectedPeriod === period ? "bg-orange-500" : "bg-white"
-                }`}
+                onClick={handleAddPeriod}
+                className="px-4 py-2 rounded-full bg-blue-500 text-white"
               >
-                {period}
+                Tambah Periode
               </button>
-            ))}
+            </div>
 
             <button
-              onClick={handleAddPeriod}
-              className="px-4 py-2 rounded-full bg-blue-500 text-white"
+              onClick={handleNewAnalysis}
+              className="px-4 py-2 rounded-full bg-green-500 text-white"
             >
-              Tambah Periode
+              Analisis Baru
             </button>
           </div>
 
-          <button
-            onClick={handleNewAnalysis}
-            className="px-4 py-2 rounded-full bg-green-500 text-white"
-          >
-            Analisis Baru
-          </button>
-        </div>
-
 
           {/* Kontainer Form */}
-          <div className="form-container bg-white overflow-scroll p-8 shadow-lg rounded-lg w-full max-w-7xl mr-14">
-            <HorizontalTimeline progress={jumlahTelurMenetas > 0 ? 100 : 0} />
+          <div className="form-container bg-white overflow-y-auto overflow-x-hidden p-8 shadow-lg rounded-lg max-w-7xl w-full h-full sm:h-auto sm:w-full flex flex-col">
+            {/* Horizontal Timeline */}
+            <div className="w-full flex justify-center mb-6">
+              <HorizontalTimeline
+                progress={
+                  currentForm === "Penerimaan"
+                    ? 0
+                    : currentForm === "Pengeluaran"
+                    ? 50
+                    : currentForm === "HasilAnalisis"
+                    ? 100
+                    : 0
+                }
+              />
+            </div>
+            {/* <HorizontalTimeline progress={jumlahTelurMenetas > 0 ? 100 : 0} /> */}
             {currentForm === "Penerimaan" && (
               <div>
                 <h2 className="text-xl font-extrabold mb-6">Data Penerimaan</h2>
@@ -861,7 +968,7 @@ const handleInputChange =
                     <div className="flex flex-col">
                       <label className="font-semibold">
                         Standart pakan (Gram)
-                        </label>
+                      </label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <span className="p-0 bg-gray-100"></span>
                         <input
@@ -890,23 +997,23 @@ const handleInputChange =
                     </div>
                     <span className="mx-5 flex items-center justify-center font-semibold text-2xl">×</span>
                     {/* <div className="flex items-center mt-8 justify-center"> */}
-                      <div className="flex flex-col">
-                        <label className="font-semibold">
-                          Jumlah Itik
-                        </label>
-                        <input
-                          type="number"
-                          value={formatNumber(jumlahItikAwal)}
-                          readOnly
-                          className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
-                        />
-                      </div>
+                    <div className="flex flex-col">
+                      <label className="font-semibold">
+                        Jumlah Itik
+                      </label>
+                      <input
+                        type="number"
+                        value={formatNumber(jumlahItikAwal)}
+                        readOnly
+                        className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                      />
+                    </div>
                     {/* </div> */}
                     <span className="mx-5 flex items-center justify-center font-semibold text-2xl">=</span>
                     <div className="flex flex-col">
                       <label className="font-semibold">
                         Jumlah pakan (Kilogram)
-                        </label>
+                      </label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <span className="p-0 bg-gray-100"></span>
                         <input
@@ -1102,7 +1209,7 @@ const handleInputChange =
                       <input
                         type="text"
                         value={formatNumber(marginOfSafety)}
-                        // readOnly
+                        readOnly
                         className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
                     </div>
@@ -1113,7 +1220,7 @@ const handleInputChange =
                       <input
                         type="text"
                         value={formatNumber(rcRatio)}
-                        // readOnly
+                        readOnly
                         className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
                     </div>
@@ -1125,7 +1232,7 @@ const handleInputChange =
                       <input
                         type="text"
                         value={formatNumber(bepHarga)}
-                        // readOnly
+                        readOnly
                         className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
                     </div>
@@ -1139,7 +1246,7 @@ const handleInputChange =
                       <input
                         type="text"
                         value={formatNumber(bepHasil)}
-                        // readOnly
+                        readOnly
                         className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
                     </div>
@@ -1151,7 +1258,7 @@ const handleInputChange =
                       <input
                         type="text"
                         value={formatNumber(laba)}
-                        // readOnly
+                        readOnly
                         className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
                       />
                     </div>

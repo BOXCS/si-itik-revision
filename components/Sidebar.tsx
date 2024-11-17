@@ -72,12 +72,19 @@ export function SidebarDemo({
       href: `/riwayat?username=${username}`, // Tambahkan username ke riwayat
       icon: <IconHistory className="text-neutral-700 dark:text-neutral-200 h-7 w-7 flex-shrink-0" />,
     },
+    
     {
       label: "Pengaturan",
       href: `/user_setting?username=${username}`, // Tambahkan username ke pengaturan
       icon: <IconSettings2 className="text-neutral-700 dark:text-neutral-200 h-7 w-7 flex-shrink-0" />,
     },
-  ]; 
+  {
+    label: "Percobaan",
+    href: '/percobaan?username=${username}', // Replace '#' with the URL or functionality for "Percobaan" if needed
+    icon: <IconSettings className="text-neutral-700 dark:text-neutral-200 h-7 w-7 flex-shrink-0" />,
+  },
+];
+
 
   const handleLogout = () => {
     setIsDialogOpen(true); // Open the dialog on logout click
