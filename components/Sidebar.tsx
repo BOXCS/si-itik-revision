@@ -78,11 +78,6 @@ export function SidebarDemo({
           href: createLinkWithUsername(`/analisis/layer`),
           icon: <IconAnalyzeFilled className="h-7 w-7 ml-3" />,
         },
-        {
-          label: "test Data",
-          href: createLinkWithUsername(`/analisis/test`),
-          icon: <IconAnalyzeFilled className="h-7 w-7 ml-3" />,
-        },
       ],
     },
 

@@ -14,6 +14,7 @@ import {
 } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import { useUser } from "@/app/context/UserContext";
+import { IconX } from "@tabler/icons-react";
 
 // interface TabSelectionProps
 
@@ -32,6 +33,7 @@ const PenggemukanPage = () => {
   const [disabledPeriods, setDisabledPeriods] = useState<string[]>([]);
 
   // Tambahkan state untuk mengatur status analisis baru
+  const [isOpen, setIsOpen] = useState(false);
   const [isNewAnalysis, setIsNewAnalysis] = useState(false);
   const [newAnalysisDocRef, setNewAnalysisDocRef] =
     useState<DocumentReference | null>(null);
@@ -404,8 +406,12 @@ const PenggemukanPage = () => {
     setLaba(laba);
   }, [totalRevenue, totalCost]);
 
+  const handleToggle = () => {
+    setIsOpen(!isOpen); // Mengubah state open/close
+  };
+
   return (
-    <div className="w-full min-h-screen bg-gray-100 flex">
+    <div className="w-full min-h-screen bg-gray-100 flex flex-col md:flex-row">
       <Suspense fallback={<div>Loading...</div>}>
         {/* Sidebar */}
         <SidebarDemo>
@@ -416,23 +422,92 @@ const PenggemukanPage = () => {
               Analisis Penggemukan
             </h1>
 
-            {/* TabSelection */}
-            <div className="flex flex-col items-center mb-10">
+            {/* TabSelection for Mobile */}
+            <div className="md:hidden flex justify-between items-center mb-4 w-full">
+              <button
+                onClick={handleToggle}
+                className="px-4 py-2 rounded-md bg-blue-500 text-white"
+              >
+                Pilih Periode
+              </button>
+              <span className="ml-4 text-black">
+                Periode Saat Ini: {selectedPeriod}
+              </span>
+            </div>
+
+            {/* Modal Dialog for Mobile */}
+            {isOpen && (
+              <div className="fixed inset-0 flex items-center justify-center z-50">
+                <div className="bg-white rounded-lg shadow-lg p-6 w-80">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-lg font-bold">Pilih Periode</h2>
+                    <button onClick={handleToggle}>
+                      <IconX size={24} />
+                    </button>
+                  </div>
+
+                  {/* Daftar Periode */}
+                  <div className="flex flex-col space-y-2 mb-4">
+                    {periods.map((period: string, index: number) => (
+                      <button
+                        key={index}
+                        onClick={() => {
+                          if (!disabledPeriods.includes(period)) {
+                            setPeriode(period); // Perbarui periode
+                            setSelectedPeriod(period); // Perbarui selectedPeriod
+                            setIsOpen(false); // Menutup modal setelah periode dipilih
+                          }
+                        }}
+                        className={`p-2 rounded-md text-left ${
+                          disabledPeriods.includes(period)
+                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                            : selectedPeriod === period
+                            ? "bg-orange-500 text-white"
+                            : "bg-gray-200"
+                        }`}
+                        disabled={disabledPeriods.includes(period)}
+                      >
+                        {period}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Tombol Tambah Periode */}
+                  <button
+                    onClick={handleAddPeriod}
+                    className="w-full px-4 py-2 rounded-md bg-blue-500 text-white mb-2"
+                  >
+                    Tambah Periode
+                  </button>
+
+                  {/* Tombol Analisis Baru */}
+                  <button
+                    onClick={handleNewAnalysis}
+                    className="w-full px-4 py-2 rounded-md bg-green-500 text-white"
+                  >
+                    Analisis Baru
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* TabSelection for Desktop */}
+            <div className="hidden md:flex flex-col items-center mb-10">
               <div className="flex justify-center space-x-4 mb-4">
                 {periods.map((period: string, index: number) => (
                   <button
                     key={index}
                     onClick={() => {
                       if (!disabledPeriods.includes(period)) {
-                        setPeriode(period);
-                        setSelectedPeriod(period);
+                        setPeriode(period); // Perbarui periode
+                        setSelectedPeriod(period); // Perbarui selectedPeriod
                       }
                     }}
                     className={`px-4 py-2 rounded-full text-black ${
-                      selectedPeriod === period
+                      disabledPeriods.includes(period)
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : selectedPeriod === period
                         ? "bg-orange-500"
-                        : disabledPeriods.includes(period)
-                        ? "bg-gray-400 cursor-not-allowed"
                         : "bg-white"
                     }`}
                     disabled={disabledPeriods.includes(period)}
@@ -458,781 +533,895 @@ const PenggemukanPage = () => {
             </div>
 
             {/* Kotainer Form */}
-            <div className="form-container bg-white overflow-scroll p-8 shadow-lg rounded-lg w-full max-w-7xl mr-14">
-              <HorizontalTimeline progress={jumlahItikMati > 0 ? 100 : 0} />
+            <div className="form-container bg-white overflow-y-auto overflow-x-hidden p-8 shadow-lg rounded-lg max-w-7xl w-full h-full sm:h-auto sm:w-full flex flex-col">
+              <div className="w-full flex justify-center mb-6">
+                <HorizontalTimeline
+                  progress={
+                    currentForm === "Penerimaan"
+                      ? 0
+                      : currentForm === "Pengeluaran"
+                      ? 50
+                      : currentForm === "HasilAnalisis"
+                      ? 100
+                      : 0
+                  }
+                />
+              </div>
               {currentForm === "Penerimaan" && (
-                <div>
-                  <h2 className="text-xl font-extrabold mb-6">
+                <div className="flex flex-col w-full px-4 md:px-6 py-4">
+                  <h2 className="text-lg md:text-xl font-extrabold mb-4 md:mb-6">
                     Data Penerimaan
                   </h2>
 
                   {/* Penerimaan Form */}
-                  <div className="flex items-center justify-center">
-                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                      (
-                    </span>
-                    <div className="flex flex-col">
-                      <label className="font-semibold">Jumlah Itik Mati</label>
-                      <input
-                        type="number"
-                        value={jumlahItikMati}
-                        onChange={(e) =>
-                          setJumlahItikMati(parseFloat(e.target.value))
-                        }
-                        className="border border-gray-300 p-2 rounded-md"
-                      />
-                    </div>
-                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                      /
-                    </span>
-                    <div className="flex flex-col">
-                      <label className="font-semibold">Jumlah Itik Awal</label>
-                      <input
-                        type="number"
-                        value={jumlahItikAwal}
-                        onChange={(e) =>
-                          setJumlahItikAwal(parseFloat(e.target.value))
-                        }
-                        className="border border-gray-300 p-2 rounded-md"
-                      />
-                    </div>
-                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                      )
-                    </span>
-                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                      ×
-                    </span>
-                    <div className="flex flex-col">
-                      <label className="font-semibold">Persentase</label>
-                      <input
-                        type="text"
-                        value={`100%`}
-                        readOnly
-                        className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
-                      />
-                    </div>
-                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                      =
-                    </span>
-                    <div className="flex flex-col">
-                      <label className="font-semibold">
-                        Persentase Mortalitas
-                      </label>
-                      <input
-                        type="text"
-                        value={`${persentaseMortalitas.toFixed(0)}%`}
-                        readOnly
-                        className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-center mt-10">
-                    <div className="flex flex-col">
-                      <label className="font-semibold">Jumlah Itik Awal</label>
-                      <input
-                        type="number"
-                        value={jumlahItikAwal}
-                        readOnly
-                        className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
-                      />
-                    </div>
-                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                      ×
-                    </span>
-                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                      (
-                    </span>
-                    <div className="flex flex-col">
-                      <label className="font-semibold">Persentase</label>
-                      <input
-                        type="text"
-                        value={`1`}
-                        readOnly
-                        className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
-                      />
-                    </div>
-                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                      -
-                    </span>
-                    <div className="flex flex-col">
-                      <label className="font-semibold">
-                        Persentase Mortalitas
-                      </label>
-                      <input
-                        type="text"
-                        value={`${persentaseMortalitas.toFixed(0)}%`}
-                        readOnly
-                        className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
-                      />
-                    </div>
-                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                      )
-                    </span>
-                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                      =
-                    </span>
-                    <div className="flex flex-col">
-                      <label className="font-semibold">
-                        Jumlah Itik (Setelah Mortalitas)
-                      </label>
-                      <input
-                        type="text"
-                        value={jumlahItikSetelahMortalitas.toFixed(0)}
-                        readOnly
-                        className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-center mt-10">
-                    <div className="flex flex-col">
-                      <label className="font-semibold">
-                        Jumlah Itik (Setelah Mortalitas)
-                      </label>
-                      <input
-                        type="text"
-                        value={jumlahItikSetelahMortalitas.toFixed(0)}
-                        readOnly
-                        className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
-                      />
-                    </div>
-                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                      ×
-                    </span>
-                    <div className="flex flex-col">
-                      <label className="font-semibold">Harga Itik</label>
-                      <div className="flex items-center border border-gray-300 rounded-md">
-                        <span className="p-2 bg-gray-100">Rp.</span>
+                  <div className="flex flex-col space-y-6 md:space-y-8">
+                    {/* First Calculator Section */}
+                    <div className="grid grid-cols-1 md:grid-cols-7 gap-2 items-center">
+                      <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                        (
+                      </div>
+                      <div className="col-span-1 md:col-span-2">
+                        <label className="font-semibold text-sm md:text-base mb-1 block">
+                          Jumlah Itik Mati
+                        </label>
                         <input
-                          type="text" // Mengubah ke 'text' agar bisa memasukkan angka yang diformat
-                          value={formatNumber(hargaItik)} // Tetap tampilkan angka terformat
-                          onChange={handleInputChange(setHargaItik)} // Tangani perubahan input
-                          onBlur={(e) =>
-                            setHargaItik(
-                              parseFloat(e.target.value.replace(/[^0-9]/g, ""))
-                            )
-                          } // Mengembalikan angka asli saat blur
-                          className="border-0 p-2 rounded-md flex-1"
-                          placeholder="Masukkan harga DOD"
+                          type="number"
+                          value={jumlahItikMati}
+                          onChange={(e) =>
+                            setJumlahItikMati(parseFloat(e.target.value))
+                          }
+                          className="w-full border border-gray-300 p-2 rounded-md"
                         />
                       </div>
-                    </div>
-                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                      =
-                    </span>
-                    <div className="flex flex-col">
-                      <label className="font-semibold">Total Revenue</label>
-                      <div className="flex items-center border border-gray-300 rounded-md">
-                        <span className="p-2 bg-orange-200">Rp.</span>
+                      <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                        /
+                      </div>
+                      <div className="col-span-1 md:col-span-2">
+                        <label className="font-semibold text-sm md:text-base mb-1 block">
+                          Jumlah Itik Awal
+                        </label>
+                        <input
+                          type="number"
+                          value={jumlahItikAwal}
+                          onChange={(e) =>
+                            setJumlahItikAwal(parseFloat(e.target.value))
+                          }
+                          className="w-full border border-gray-300 p-2 rounded-md"
+                        />
+                      </div>
+
+                      <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                        )
+                      </div>
+
+                      <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                        ×
+                      </div>
+
+                      <div className="col-span-1 md:col-span-2">
+                        <label className="font-semibold text-sm md:text-base mb-1 block">
+                          Persentase
+                        </label>
                         <input
                           type="text"
-                          value={formatNumber(totalRevenue)} // Memformat total revenue
+                          value={`100%`}
                           readOnly
-                          className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-orange-100"
+                          className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                        />
+                      </div>
+
+                      <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                        =
+                      </div>
+
+                      <div className="col-span-1 md:col-span-2">
+                        <label className="font-semibold text-sm md:text-base mb-1 block">
+                          Persentase Mortalitas
+                        </label>
+                        <input
+                          type="text"
+                          value={`${persentaseMortalitas.toFixed(0)}%`}
+                          readOnly
+                          className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
                         />
                       </div>
                     </div>
-                  </div>
-                  {/* Selanjutnya Button */}
-                  <div className="flex justify-end mt-16">
-                    <button
-                      onClick={handleNextForm}
-                      className="bg-[#F58110] text-white p-2 rounded-full w-52"
-                    >
-                      Selanjutnya
-                    </button>
+
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+                      <div className="col-span-1">
+                        <label className="font-semibold text-sm md:text-base mb-1 block">
+                          Jumlah Itik Awal
+                        </label>
+                        <input
+                          type="number"
+                          value={jumlahItikAwal}
+                          readOnly
+                          className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                        />
+                      </div>
+                      <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                        ×
+                      </div>
+                      <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                        (
+                      </div>
+                      <div className="col-span-1">
+                        <label className="font-semibold text-sm md:text-base mb-1 block">
+                          Persentase
+                        </label>
+                        <input
+                          type="text"
+                          value={`1`}
+                          readOnly
+                          className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                        />
+                      </div>
+                      <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                        -
+                      </div>
+                      <div className="col-span-1">
+                        <label className="font-semibold text-sm md:text-base mb-1 block">
+                          Persentase Mortalitas
+                        </label>
+                        <input
+                          type="text"
+                          value={`${persentaseMortalitas.toFixed(0)}%`}
+                          readOnly
+                          className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                        />
+                      </div>
+                      <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                        )
+                      </div>
+                      <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                        =
+                      </div>
+                      <div className="col-span-1">
+                        <label className="font-semibold text-sm md:text-base mb-1 block">
+                          Jumlah Itik
+                        </label>
+                        <input
+                          type="text"
+                          value={jumlahItikSetelahMortalitas.toFixed(0)}
+                          readOnly
+                          className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+                      <div className="col-span-1">
+                        <label className="font-semibold text-sm md:text-base mb-1 block">
+                          Jumlah Itik
+                        </label>
+                        <input
+                          type="text"
+                          value={jumlahItikSetelahMortalitas.toFixed(0)}
+                          readOnly
+                          className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                        />
+                      </div>
+                      <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                        ×
+                      </div>
+                      <div className="col-span-1">
+                        <label className="font-semibold text-sm md:text-base mb-1 block">
+                          Harga Itik
+                        </label>
+                        <div className="flex items-center border border-gray-300 rounded-md">
+                          <span className="p-2 bg-gray-100">Rp.</span>
+                          <input
+                            type="text" // Mengubah ke 'text' agar bisa memasukkan angka yang diformat
+                            value={formatNumber(hargaItik)} // Tetap tampilkan angka terformat
+                            onChange={handleInputChange(setHargaItik)} // Tangani perubahan input
+                            onBlur={(e) =>
+                              setHargaItik(
+                                parseFloat(
+                                  e.target.value.replace(/[^0-9]/g, "")
+                                )
+                              )
+                            } // Mengembalikan angka asli saat blur
+                            className="w-full border-0 p-2 rounded-md"
+                            placeholder="Masukkan harga DOD"
+                          />
+                        </div>
+                      </div>
+                      <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                        =
+                      </div>
+                      <div className="col-span-1">
+                        <label className="font-semibold text-sm md:text-base mb-1 block">
+                          Total Revenue
+                        </label>
+                        <div className="flex items-center border border-gray-300 rounded-md">
+                          <span className="p-2 bg-orange-200">Rp.</span>
+                          <input
+                            type="text"
+                            value={formatNumber(totalRevenue)} // Memformat total revenue
+                            readOnly
+                            className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    {/* Selanjutnya Button */}
+                    <div className="flex justify-end mt-16">
+                      <button
+                        onClick={handleNextForm}
+                        className="bg-[#F58110] text-white p-2 rounded-full w-52"
+                      >
+                        Selanjutnya
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
 
               {/* Render Pengeluaran Form */}
               {currentForm === "Pengeluaran" && (
-                <div>
-                  <h2 className="text-xl font-semibold mb-6">
+                <div className="flex flex-col w-full px-4 md:px-6 py-4">
+                  <h2 className="text-lg md:text-xl font-extrabold mb-4 md:mb-6">
                     Data Pengeluaran
                   </h2>
                   {/* Bagian Fixed Cost */}
-                  <div className="flex justify-center">
-                    <h3 className="font-extrabold text-sm mb-4 md:text-3xl">
-                      Fixed Cost
-                    </h3>
-                  </div>
-                  <div className="flex items-center justify-center">
-                    <div className="flex flex-col">
-                      <label className="font-semibold">Sewa Kandang</label>
-                      <div className="flex items-center border border-gray-300 rounded-md">
-                        <span className="p-2 bg-gray-100">Rp.</span>
-                        <input
-                          type="text"
-                          value={sewaKandang ? formatNumber(sewaKandang) : ""} // Format angka saat render
-                          onChange={handleInputChange(setSewaKandang)} // Panggil setter dinamis
-                          onBlur={(e) =>
-                            setSewaKandang(
-                              parseFloat(
-                                e.target.value.replace(/[^0-9]/g, "")
-                              ) || 0
-                            )
-                          } // Set angka mentah saat blur
-                          className="border border-gray-300 p-2 rounded-md"
-                          placeholder="Masukkan harga sewa kandang"
-                        />
+                  <div className="flex flex-col space-y-6 md:space-y-8">
+                    <div className="w-full px-4">
+                      {/* Fixed Cost Header */}
+                      <div className="text-center mb-6">
+                        <h3 className="font-extrabold text-2xl md:text-3xl">
+                          Fixed Cost
+                        </h3>
                       </div>
-                    </div>
-                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                      +
-                    </span>
-                    <div className="flex flex-col">
-                      <label className="font-semibold">
-                        Penyusutan Peralatan
-                      </label>
-                      <div className="flex items-center border border-gray-300 rounded-md">
-                        <span className="p-2 bg-gray-100">Rp.</span>
-                        <input
-                          type="text"
-                          value={
-                            penyusutanPeralatan
-                              ? formatNumber(penyusutanPeralatan)
-                              : ""
-                          }
-                          onChange={handleInputChange(setPenyusutanPeralatan)}
-                          onBlur={(e) =>
-                            setPenyusutanPeralatan(
-                              parseFloat(
-                                e.target.value.replace(/[^0-9]/g, "")
-                              ) || 0
-                            )
-                          }
-                          className="border border-gray-300 p-2 rounded-md"
-                          placeholder="Masukkan Penyusutan Peralatan"
-                        />
-                      </div>
-                    </div>
-                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                      =
-                    </span>
-                    <div className="flex flex-col">
-                      <label className="font-semibold">Total Biaya</label>
-                      <div className="flex items-center border border-gray-300 rounded-md">
-                        <span className="p-2 bg-gray-100">Rp.</span>
-                        <input
-                          type="text"
-                          value={formatNumber(totalBiaya)}
-                          readOnly
-                          className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-center mt-10">
-                      <div className="flex flex-col">
-                        <label className="font-semibold">Total Biaya</label>
-                        <div className="flex items-center border border-gray-300 rounded-md">
-                          <span className="p-2 bg-gray-100">Rp.</span>
-                          <input
-                            type="text"
-                            value={formatNumber(totalBiaya)}
-                            readOnly
-                            className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
-                          />
-                        </div>
-                      </div>
-                      <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                        ×
-                      </span>
-                      <div className="flex flex-col">
-                        <label className="font-semibold">Jumlah hari</label>
-                        <input
-                          type="text"
-                          value={"60 Hari"}
-                          readOnly
-                          className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
-                        />
-                      </div>
-                      <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                        =
-                      </span>
-                      <div className="flex flex-col">
-                        <label className="font-semibold">
-                          Total Fixed Cost
-                        </label>
-                        <div className="flex items-center border border-gray-300 rounded-md">
-                          <span className="p-2 bg-gray-100">Rp.</span>
-                          <input
-                            type="text"
-                            value={formatNumber(totalFixedCost)}
-                            readOnly
-                            className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Bagian Biaya Operasional */}
-                  <div className="flex justify-center">
-                    <h3 className="font-extrabold text-3xl mb-4 mt-10">
-                      Jumlah Biaya Operasional
-                    </h3>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-center">
-                      <div className="flex flex-col">
-                        <label className="font-semibold">
-                          Biaya Tenaga Kerja
-                        </label>
-                        <div className="flex items-center border border-gray-300 rounded-md">
-                          <span className="p-2 bg-gray-100">Rp.</span>
-                          <input
-                            type="text"
-                            value={
-                              biayaTenagaKerja
-                                ? formatNumber(biayaTenagaKerja)
-                                : ""
-                            }
-                            onChange={handleInputChange(setBiayaTenagaKerja)}
-                            onBlur={(e) =>
-                              setBiayaTenagaKerja(
-                                parseFloat(
-                                  e.target.value.replace(/[^0-9]/g, "")
-                                ) || 0
-                              )
-                            }
-                            className="border border-gray-300 p-2 rounded-md"
-                            placeholder="Masukkan Biaya Tenaga Kerja"
-                          />
-                        </div>
-                      </div>
-                      <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                        +
-                      </span>
-                      <div className="flex flex-col">
-                        <label className="font-semibold">Biaya Listrik</label>
-                        <div className="flex items-center border border-gray-300 rounded-md">
-                          <span className="p-2 bg-gray-100">Rp.</span>
-                          <input
-                            type="text"
-                            value={
-                              biayaListrik ? formatNumber(biayaListrik) : ""
-                            } // Format angka saat render
-                            onChange={handleInputChange(setBiayaListrik)} // Panggil setter dinamis
-                            onBlur={(e) =>
-                              setBiayaListrik(
-                                parseFloat(
-                                  e.target.value.replace(/[^0-9]/g, "")
-                                ) || 0
-                              )
-                            } // Set angka mentah saat blur
-                            className="border border-gray-300 p-2 rounded-md"
-                            placeholder="Masukkan biaya listrik"
-                          />
-                        </div>
-                      </div>
-                      <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                        +
-                      </span>
-                      <div className="flex flex-col">
-                        <label className="font-semibold">Biaya OVK</label>
-                        <div className="flex items-center border border-gray-300 rounded-md">
-                          <span className="p-2 bg-gray-100">Rp.</span>
-                          <input
-                            type="text"
-                            value={biayaOvk ? formatNumber(biayaOvk) : ""}
-                            onChange={handleInputChange(setBiayaOvk)}
-                            onBlur={(e) =>
-                              setBiayaOvk(
-                                parseFloat(
-                                  e.target.value.replace(/[^0-9]/g, "")
-                                ) || 0
-                              )
-                            }
-                            className="border border-gray-300 p-2 rounded-md"
-                            placeholder="Masukkan biaya OVK"
-                          />
-                        </div>
-                      </div>
-                      <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                        =
-                      </span>
-                      <div className="flex flex-col">
-                        <label className="font-semibold">
-                          Biaya Operasional
-                        </label>
-                        <div className="flex items-center border border-gray-300 rounded-md">
-                          <span className="p-2 bg-gray-100">Rp.</span>
-                          <input
-                            type="text"
-                            value={formatNumber(biayaOperasional)}
-                            readOnly
-                            className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-center mt-10">
-                      <div className="flex flex-col">
-                        <label className="font-semibold">
-                          Biaya Operasional
-                        </label>
-                        <div className="flex items-center border border-gray-300 rounded-md">
-                          <span className="p-2 bg-gray-100">Rp.</span>
-                          <input
-                            type="text"
-                            value={formatNumber(biayaOperasional)}
-                            readOnly
-                            className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
-                          />
-                        </div>
-                      </div>
-                      <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                        ×
-                      </span>
-                      <div className="flex flex-col">
-                        <label className="font-semibold">Jumlah hari</label>
-                        <input
-                          type="text"
-                          value={"60 Hari"}
-                          readOnly
-                          className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
-                        />
-                      </div>
-                      <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                        =
-                      </span>
-                      <div className="flex flex-col">
-                        <label className="font-semibold">
-                          Total Biaya Operasional
-                        </label>
-                        <div className="flex items-center border border-gray-300 rounded-md">
-                          <span className="p-2 bg-gray-100">Rp.</span>
-                          <input
-                            type="text"
-                            value={formatNumber(totalBiayaOperasional)}
-                            readOnly
-                            className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  {/* Bagian Jumlah Pembelian Telur */}
-                  <div className="flex justify-center mt-10">
-                    <h3 className="font-extrabold text-3xl mb-4">
-                      Jumlah Pembelian Pakan
-                    </h3>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-center">
-                      <div className="flex flex-col">
-                        <label className="font-semibold">Standard Pakan</label>
-                        <div className="flex items-center border border-gray-300 rounded-md">
-                          <input
-                            type="text" // Mengubah ke 'text' agar bisa memasukkan angka yang diformat
-                            value={formatNumber(standardPakan)} // Tetap tampilkan angka terformat
-                            onChange={handleInputChange(setStandardPakan)} // Tangani perubahan input
-                            onBlur={(e) =>
-                              setStandardPakan(
-                                parseFloat(
-                                  e.target.value.replace(/[^0-9]/g, "")
+                      {/* First Row - Input Fields */}
+                      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Sewa Kandang
+                          </label>
+                          <div className="flex items-center border border-gray-300 rounded-md">
+                            <span className="p-2 bg-gray-100">Rp.</span>
+                            <input
+                              type="number"
+                              value={formatNumber(sewaKandang)}
+                              onChange={handleInputChange(setSewaKandang)}
+                              onBlur={(e) =>
+                                setSewaKandang(
+                                  parseFloat(
+                                    e.target.value.replace(/[^0-9]/g, "")
+                                  )
                                 )
-                              )
-                            } // Mengembalikan angka asli saat blur
-                            className="border-0 p-2 rounded-md flex-1"
-                            placeholder="Masukkan dalam Gram"
-                          />
-                          <span className="p-2 bg-gray-100">Gram</span>
+                              }
+                              className="w-full border border-gray-300 p-2 rounded-md"
+                              placeholder="harga sewa kandang"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                          +
+                        </div>
+
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Penyusutan Peralatan
+                          </label>
+                          <div className="flex items-center border border-gray-300 rounded-md">
+                            <span className="p-2 bg-gray-100">Rp.</span>
+                            <input
+                              type="number"
+                              value={formatNumber(penyusutanPeralatan)}
+                              onChange={handleInputChange(
+                                setPenyusutanPeralatan
+                              )}
+                              onBlur={(e) =>
+                                setPenyusutanPeralatan(
+                                  parseFloat(
+                                    e.target.value.replace(/[^0-9]/g, "")
+                                  )
+                                )
+                              }
+                              className="w-full border border-gray-300 p-2 rounded-md"
+                              placeholder="Masukkan Penyusutan Peralatan"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                          =
+                        </div>
+
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Total Biaya
+                          </label>
+                          <div className="flex items-center border border-gray-300 rounded-md">
+                            <span className="p-2 bg-gray-100">Rp.</span>
+                            <input
+                              type="text"
+                              value={formatNumber(totalBiaya)}
+                              readOnly
+                              className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                            />
+                          </div>
                         </div>
                       </div>
-                      <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                        ×
-                      </span>
-                      <div className="flex flex-col">
-                        <label className="font-semibold">Jumlah hari</label>
-                        <input
-                          type="text"
-                          value={"60 Hari"}
-                          readOnly
-                          className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
-                        />
-                      </div>
-                      <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                        ×
-                      </span>
-                      <div className="flex flex-col">
-                        <label className="font-semibold">Jumlah Itik</label>
-                        <input
-                          type="text"
-                          value={formatNumber(jumlahItikSetelahMortalitas)}
-                          readOnly
-                          className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
-                        />
-                      </div>
-                      <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                        =
-                      </span>
-                      <div className="flex flex-col">
-                        <label className="font-semibold">jumlah Pakan</label>
-                        <div className="flex items-center border border-gray-300 rounded-md">
+
+                      {/* Second Row - Calculation */}
+                      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mt-5 items-center">
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Total Biaya
+                          </label>
+                          <div className="flex items-center border border-gray-300 rounded-md">
+                            <span className="p-2 bg-gray-100">Rp.</span>
+                            <input
+                              type="text"
+                              value={formatNumber(totalBiaya)}
+                              readOnly
+                              className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                          ×
+                        </div>
+
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Jumlah hari
+                          </label>
                           <input
                             type="text"
-                            value={formatNumber(jumlahPakan)}
+                            value={"60 Hari"}
                             readOnly
-                            className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
+                            className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
                           />
-                          <span className="p-2 bg-gray-100">Kg</span>
+                        </div>
+
+                        <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                          =
+                        </div>
+
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Total Fixed Cost
+                          </label>
+                          <div className="flex items-center border border-gray-300 rounded-md">
+                            <span className="p-2 bg-gray-100">Rp.</span>
+                            <input
+                              type="text"
+                              value={formatNumber(totalFixedCost)}
+                              readOnly
+                              className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center justify-center mt-10">
-                      <div className="flex flex-col">
-                        <label className="font-semibold">jumlah Pakan</label>
-                        <div className="flex items-center border border-gray-300 rounded-md">
+
+                    {/* Bagian Biaya Operasional */}
+                    <div className="w-full px-4">
+                      <div className="text-center mb-6 mt-10">
+                        <h3 className="font-extrabold text-2xl md:text-3xl">
+                          Jumlah Biaya Operasional
+                        </h3>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Biaya Tenaga Kerja
+                          </label>
+                          <div className="flex items-center border border-gray-300 rounded-md">
+                            <span className="p-2 bg-gray-100">Rp.</span>
+                            <input
+                              type="number"
+                              value={formatNumber(biayaTenagaKerja)}
+                              onChange={handleInputChange(setBiayaTenagaKerja)}
+                              onBlur={(e) =>
+                                setBiayaTenagaKerja(
+                                  parseFloat(
+                                    e.target.value.replace(/[^0-9]/g, "")
+                                  )
+                                )
+                              }
+                              className="w-full border border-gray-300 p-2 rounded-md"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                          +
+                        </div>
+
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Biaya Listrik
+                          </label>
+                          <div className="flex items-center border border-gray-300 rounded-md">
+                            <span className="p-2 bg-gray-100">Rp.</span>
+                            <input
+                              type="number"
+                              value={formatNumber(biayaListrik)}
+                              onChange={handleInputChange(setBiayaListrik)}
+                              onBlur={(e) =>
+                                setBiayaListrik(
+                                  parseFloat(
+                                    e.target.value.replace(/[^0-9]/g, "")
+                                  )
+                                )
+                              }
+                              className="w-full border border-gray-300 p-2 rounded-md"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                          +
+                        </div>
+
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Biaya OVK
+                          </label>
+                          <div className="flex items-center border border-gray-300 rounded-md">
+                            <span className="p-2 bg-gray-100">Rp.</span>
+                            <input
+                              type="number"
+                              value={formatNumber(biayaOvk)}
+                              onChange={handleInputChange(setBiayaOvk)}
+                              onBlur={(e) =>
+                                setBiayaOvk(
+                                  parseFloat(
+                                    e.target.value.replace(/[^0-9]/g, "")
+                                  )
+                                )
+                              }
+                              className="w-full border border-gray-300 p-2 rounded-md"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                          =
+                        </div>
+
+                        <div className="col-span-1 md:col-span-3">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Biaya Operasional
+                          </label>
+                          <div className="flex items-center border border-gray-300 rounded-md">
+                            <span className="p-2 bg-gray-100">Rp.</span>
+                            <input
+                              type="text"
+                              value={formatNumber(biayaOperasional)}
+                              readOnly
+                              className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mt-10 items-center">
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Biaya Operasional
+                          </label>
+                          <div className="flex items-center border border-gray-300 rounded-md">
+                            <span className="p-2 bg-gray-100">Rp.</span>
+                            <input
+                              type="text"
+                              value={formatNumber(biayaOperasional)}
+                              readOnly
+                              className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                          ×
+                        </div>
+
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Jumlah hari
+                          </label>
                           <input
                             type="text"
-                            value={formatNumber(jumlahPakan)}
+                            value={"60 Hari"}
                             readOnly
-                            className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
-                          />
-                          <span className="p-2 bg-gray-100">Kg</span>
-                        </div>
-                      </div>
-                      <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                        ×
-                      </span>
-                      <div className="flex flex-col">
-                        <label className="font-semibold">
-                          Harga Pakan Per Kg
-                        </label>
-                        <div className="flex items-center border border-gray-300 rounded-md">
-                          <span className="p-2 bg-gray-100">Rp.</span>
-                          <input
-                            type="text"
-                            value={hargaPakan ? formatNumber(hargaPakan) : ""}
-                            onChange={handleInputChange(setHargaPakan)}
-                            onBlur={(e) =>
-                              setHargaPakan(
-                                parseFloat(
-                                  e.target.value.replace(/[^0-9]/g, "")
-                                ) || 0
-                              )
-                            }
-                            className="border border-gray-300 p-2 rounded-md"
-                            placeholder="Masukkan Harga Telur"
+                            className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
                           />
                         </div>
-                      </div>
-                      <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                        =
-                      </span>
-                      <div className="flex flex-col">
-                        <label className="font-semibold">
-                          Total Biaya Pakan
-                        </label>
-                        <div className="flex items-center border border-gray-300 rounded-md">
-                          <span className="p-2 bg-gray-100">Rp.</span>
-                          <input
-                            type="text"
-                            value={formatNumber(totalHargaPakan)}
-                            readOnly
-                            className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
-                          />
+
+                        <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                          =
+                        </div>
+
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Total Biaya Operasional
+                          </label>
+                          <div className="flex items-center border border-gray-300 rounded-md">
+                            <span className="p-2 bg-gray-100">Rp.</span>
+                            <input
+                              type="text"
+                              value={formatNumber(totalBiayaOperasional)}
+                              readOnly
+                              className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  {/* Biaya Variable Cost */}
-                  <div className="flex justify-center mt-10">
-                    <h3 className="font-extrabold text-3xl mb-4">
-                      Variable Cost
-                    </h3>
-                  </div>
-                  <div className="flex items-center justify-center">
-                    <div className="flex flex-col">
-                      <label className="font-semibold">
-                        Total Biaya Operasional
-                      </label>
-                      <div className="flex items-center border border-gray-300 rounded-md">
-                        <span className="p-2 bg-gray-100">Rp.</span>
-                        <input
-                          type="text"
-                          value={formatNumber(totalBiayaOperasional)}
-                          readOnly
-                          className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
-                        />
+
+                    {/* Bagian Jumlah Pembelian Telur */}
+                    <div className="flex flex-col space-y-6 md:space-y-8">
+                      <div className="w-full px-4">
+                        <div className="text-center mb-6 mt-10">
+                          <h3 className="font-extrabold text-2xl md:text-3xl">
+                            Jumlah Pembelian Pakan
+                          </h3>
+                        </div>
+                        <div>
+                          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+                            <div className="col-span-1">
+                              <label className="font-semibold text-sm md:text-base mb-1 block">
+                                Standard Pakan
+                              </label>
+                              <div className="flex items-center border border-gray-300 rounded-md">
+                                <input
+                                  type="text" // Mengubah ke 'text' agar bisa memasukkan angka yang diformat
+                                  value={formatNumber(standardPakan)} // Tetap tampilkan angka terformat
+                                  onChange={handleInputChange(setStandardPakan)} // Tangani perubahan input
+                                  onBlur={(e) =>
+                                    setStandardPakan(
+                                      parseFloat(
+                                        e.target.value.replace(/[^0-9]/g, "")
+                                      )
+                                    )
+                                  } // Mengembalikan angka asli saat blur
+                                  className="w-full border border-gray-300 p-2 rounded-md"
+                                  placeholder="Masukkan dalam Gram"
+                                />
+                                <span className="p-2 bg-gray-100">Gram</span>
+                              </div>
+                            </div>
+
+                            <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                              ×
+                            </div>
+
+                            <div className="col-span-1">
+                              <label className="font-semibold text-sm md:text-base mb-1 block">
+                                Jumlah hari
+                              </label>
+                              <input
+                                type="text"
+                                value={"60 Hari"}
+                                readOnly
+                                className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                              />
+                            </div>
+                            <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                              ×
+                            </div>
+                            <div className="col-span-1">
+                              <label className="font-semibold text-sm md:text-base mb-1 block">
+                                Jumlah Itik
+                              </label>
+                              <input
+                                type="text"
+                                value={formatNumber(
+                                  jumlahItikSetelahMortalitas
+                                )}
+                                readOnly
+                                className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                              />
+                            </div>
+                            <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                              =
+                            </div>
+
+                            <div className="col-span-1 md:col-span-3">
+                              <label className="font-semibold text-sm md:text-base mb-1 block">
+                                jumlah Pakan
+                              </label>
+                              <div className="flex items-center border border-gray-300 rounded-md">
+                                <input
+                                  type="text"
+                                  value={formatNumber(jumlahPakan)}
+                                  readOnly
+                                  className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
+                                />
+                                <span className="p-2 bg-gray-100">Kg</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center mt-10">
+                            <div className="col-span-1">
+                              <label className="font-semibold text-sm md:text-base mb-1 block">
+                                jumlah Pakan
+                              </label>
+                              <div className="flex items-center border border-gray-300 rounded-md">
+                                <input
+                                  type="text"
+                                  value={formatNumber(jumlahPakan)}
+                                  readOnly
+                                  className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
+                                />
+                                <span className="p-2 bg-gray-100">Kg</span>
+                              </div>
+                            </div>
+                            <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                              ×
+                            </div>
+                            <div className="col-span-1">
+                              <label className="font-semibold text-sm md:text-base mb-1 block">
+                                Harga Pakan Per Kg
+                              </label>
+                              <div className="flex items-center border border-gray-300 rounded-md">
+                                <span className="p-2 bg-gray-100">Rp.</span>
+                                <input
+                                  type="number"
+                                  value={formatNumber(hargaPakan)}
+                                  onChange={handleInputChange(setHargaPakan)}
+                                  onBlur={(e) =>
+                                    setHargaPakan(
+                                      parseFloat(
+                                        e.target.value.replace(/[^0-9]/g, "")
+                                      ) || 0
+                                    )
+                                  }
+                                  className="w-full border border-gray-300 p-2 rounded-md"
+                                  placeholder="Masukkan Harga Telur"
+                                />
+                              </div>
+                            </div>
+                            <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                              =
+                            </div>
+                            <div className="col-span-1">
+                              <label className="font-semibold text-sm md:text-base mb-1 block">
+                                Total Biaya Pakan
+                              </label>
+                              <div className="flex items-center border border-gray-300 rounded-md">
+                                <span className="p-2 bg-gray-100">Rp.</span>
+                                <input
+                                  type="text"
+                                  value={formatNumber(totalHargaPakan)}
+                                  readOnly
+                                  className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Biaya Variable Cost */}
+                      <div className="w-full px-4">
+                        <div className="text-center mb-6 mt-10">
+                          <h3 className="font-extrabold text-2xl md:text-3xl">
+                            Variable Cost
+                          </h3>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+                          <div className="col-span-1">
+                            <label className="font-semibold text-sm md:text-base mb-1 block">
+                              Total Biaya Operasional
+                            </label>
+                            <div className="flex items-center border border-gray-300 rounded-md">
+                              <span className="p-2 bg-gray-100">Rp.</span>
+                              <input
+                                type="text"
+                                value={formatNumber(totalBiayaOperasional)}
+                                readOnly
+                                className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed" // border-0 untuk menghapus border input
+                              />
+                            </div>
+                          </div>
+
+                          <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                            +
+                          </div>
+
+                          <div className="col-span-1">
+                            <label className="font-semibold text-sm md:text-base mb-1 block">
+                              Total Biaya Pakan
+                            </label>
+                            <div className="flex items-center border border-gray-300 rounded-md">
+                              <span className="p-2 bg-gray-100">Rp.</span>
+                              <input
+                                type="text"
+                                value={formatNumber(totalHargaPakan)}
+                                readOnly
+                                className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                            =
+                          </div>
+
+                          <div className="col-span-1">
+                            <label className="font-semibold text-sm md:text-base mb-1 block">
+                              Total Variable Cost
+                            </label>
+                            <div className="flex items-center border border-gray-300 rounded-md">
+                              <span className="p-2 bg-gray-100">Rp.</span>
+                              <input
+                                type="text"
+                                value={formatNumber(totalVariableCost)}
+                                readOnly
+                                className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Biaya Cost */}
+                      <div className="w-full px-4">
+                        <div className="text-center mb-6 mt-10">
+                          <h3 className="font-extrabold text-2xl md:text-3xl">
+                            Data Pengeluaran
+                          </h3>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+                          <div className="col-span-1">
+                            <label className="font-semibold text-sm md:text-base mb-1 block">
+                              Total Variable Cost
+                            </label>
+                            <div className="flex items-center border border-gray-300 rounded-md">
+                              <span className="p-2 bg-gray-100">Rp.</span>
+                              <input
+                                type="text"
+                                value={formatNumber(totalVariableCost)}
+                                readOnly
+                                className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                              />
+                            </div>
+                          </div>
+                          <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                            +
+                          </div>
+                          <div className="col-span-1">
+                            <label className="font-semibold text-sm md:text-base mb-1 block">
+                              Total Fixed Cost
+                            </label>
+                            <div className="flex items-center border border-gray-300 rounded-md">
+                              <span className="p-2 bg-gray-100">Rp.</span>
+                              <input
+                                type="text"
+                                value={formatNumber(totalFixedCost)}
+                                readOnly
+                                className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                            =
+                          </div>
+
+                          <div className="col-span-1">
+                            <label className="font-semibold text-sm md:text-base mb-1 block">
+                              Total Cost
+                            </label>
+                            <div className="flex items-center border border-gray-300 rounded-md">
+                              <span className="p-2 bg-orange-200">Rp.</span>
+                              <input
+                                type="text"
+                                value={formatNumber(totalCost)}
+                                readOnly
+                                className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Tombol Kembali dan Selanjutnya */}
+                      <div className="flex justify-between mt-14">
+                        <button
+                          onClick={handleBackForm}
+                          className="bg-gray-500 text-white px-4 py-2 rounded-full hover:bg-gray-600 transition-all"
+                        >
+                          Kembali
+                        </button>
+                        <button
+                          onClick={handleNextForm}
+                          className="bg-orange-500 text-white px-6 py-2 rounded-full hover:bg-orange-600 transition-all"
+                        >
+                          Selanjutnya
+                        </button>
                       </div>
                     </div>
-                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                      +
-                    </span>
-                    <div className="flex flex-col">
-                      <label className="font-semibold">Total Biaya Pakan</label>
-                      <div className="flex items-center border border-gray-300 rounded-md">
-                        <span className="p-2 bg-gray-100">Rp.</span>
-                        <input
-                          type="text"
-                          value={formatNumber(totalHargaPakan)}
-                          readOnly
-                          className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
-                        />
-                      </div>
-                    </div>
-                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                      =
-                    </span>
-                    <div className="flex flex-col">
-                      <label className="font-semibold">
-                        Total Variable Cost
-                      </label>
-                      <div className="flex items-center border border-gray-300 rounded-md">
-                        <span className="p-2 bg-gray-100">Rp.</span>
-                        <input
-                          type="text"
-                          value={formatNumber(totalVariableCost)}
-                          readOnly
-                          className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  {/* Biaya Cost */}
-                  <div className="flex justify-center mt-10">
-                    <h3 className="font-extrabold text-3xl mb-4">
-                      Data Pengeluaran
-                    </h3>
-                  </div>
-                  <div className="flex items-center justify-center">
-                    <div className="flex flex-col">
-                      <label className="font-semibold">
-                        Total Variable Cost
-                      </label>
-                      <div className="flex items-center border border-gray-300 rounded-md">
-                        <span className="p-2 bg-gray-100">Rp.</span>
-                        <input
-                          type="text"
-                          value={formatNumber(totalVariableCost)}
-                          readOnly
-                          className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
-                        />
-                      </div>
-                    </div>
-                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                      +
-                    </span>
-                    <div className="flex flex-col">
-                      <label className="font-semibold">Total Fixed Cost</label>
-                      <div className="flex items-center border border-gray-300 rounded-md">
-                        <span className="p-2 bg-gray-100">Rp.</span>
-                        <input
-                          type="text"
-                          value={formatNumber(totalFixedCost)}
-                          readOnly
-                          className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
-                        />
-                      </div>
-                    </div>
-                    <span className="mx-5 mt-5 flex items-center justify-center font-semibold text-2xl">
-                      =
-                    </span>
-                    <div className="flex flex-col">
-                      <label className="font-semibold">Total Cost</label>
-                      <div className="flex items-center border border-gray-300 rounded-md">
-                        <span className="p-2 bg-orange-200">Rp.</span>
-                        <input
-                          type="text"
-                          value={formatNumber(totalCost)}
-                          readOnly
-                          className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-orange-100" // border-0 untuk menghapus border input
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  {/* Tombol Kembali dan Selanjutnya */}
-                  <div className="flex justify-between mt-14">
-                    <button
-                      onClick={handleBackForm}
-                      className="bg-gray-500 text-white px-4 py-2 rounded-full hover:bg-gray-600 transition-all"
-                    >
-                      Kembali
-                    </button>
-                    <button
-                      onClick={handleNextForm}
-                      className="bg-orange-500 text-white px-6 py-2 rounded-full hover:bg-orange-600 transition-all"
-                    >
-                      Selanjutnya
-                    </button>
                   </div>
                 </div>
               )}
 
               {/* Form Hasil Analisis */}
               {currentForm === "HasilAnalisis" && (
-                <div>
-                  <div>
-                    <h2 className="text-xl font-semibold mb-6">
-                      Hasil Analisis
-                    </h2>
-                  </div>
+                <div className="flex flex-col w-full px-4 md:px-6 py-4">
+                  <h2 className="text-lg md:text-xl font-extrabold mb-4 md:mb-6">
+                    Hasil Analisis
+                  </h2>
 
-                  <div className="flex items-center justify-center">
-                    <div className="flex flex-col">
-                      <label className="font-semibold">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center justify-center">
+                    <div className="col-span-1">
+                      <label className="font-semibold text-sm md:text-base mb-1 block">
                         Margin Of Safety (MOS)
                       </label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <input
                           type="text"
                           value={formatNumber(marginOfSafety)}
-                          // readOnly
-                          className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
+                          readOnly
+                          className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
                         />
                         <span className="p-2 bg-orange-200">%</span>
                       </div>
                     </div>
-                    <div className="flex flex-col mx-5">
-                      <label className="font-semibold">R/C Ratio</label>
+
+                    <div className="col-span-1">
+                      <label className="font-semibold text-sm md:text-base mb-1 block">
+                        R/C Ratio
+                      </label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <input
                           type="text"
                           value={rcRatio.toFixed(2)}
-                          // readOnly
-                          className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
+                          readOnly
+                          className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
                         />
                       </div>
                     </div>
-                    <div className="flex flex-col">
-                      <label className="font-semibold">BEP Harga</label>
+
+                    <div className="col-span-1">
+                      <label className="font-semibold text-sm md:text-base mb-1 block">
+                        BEP Harga
+                      </label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <span className="p-2 bg-orange-200">Rp.</span>
                         <input
                           type="text"
                           value={formatNumber(bepHarga)}
-                          // readOnly
-                          className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
+                          readOnly
+                          className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
                         />
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center justify-center mt-10">
-                    <div className="flex flex-col mx-5">
-                      <label className="font-semibold">BEP Unit</label>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5 items-center justify-center">
+                    <div className="col-span-1">
+                      <label className="font-semibold text-sm md:text-base mb-1 block">
+                        BEP Unit
+                      </label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <input
                           type="text"
                           value={formatNumber(bepHasil)}
-                          // readOnly
-                          className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
+                          readOnly
+                          className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
                         />
                         <span className="p-2 bg-orange-200">Ekor</span>
                       </div>
                     </div>
-                    <div className="flex flex-col">
-                      <label className="font-semibold">Laba</label>
+                    <div className="col-span-1">
+                      <label className="font-semibold text-sm md:text-base mb-1 block">
+                        Laba
+                      </label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <span className="p-2 bg-orange-200">Rp.</span>
                         <input
                           type="text"
                           value={formatNumber(laba)}
-                          // readOnly
-                          className="border-0 p-2 rounded-md flex-1 bg-orange-100" // border-0 untuk menghapus border input
+                          readOnly
+                          className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
                         />
                       </div>
                     </div>

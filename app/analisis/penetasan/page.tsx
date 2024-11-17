@@ -521,7 +521,7 @@ const PenetasanPage = () => {
                   <div className="flex flex-col space-y-6 md:space-y-8">
                     {/* First Calculator Section */}
                     <div className="grid grid-cols-1 md:grid-cols-7 gap-2 items-center">
-                    <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                      <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
                         (
                       </div>
 
@@ -757,7 +757,7 @@ const PenetasanPage = () => {
                         </div>
 
                         <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
-                          ×
+                          +
                         </div>
 
                         <div className="col-span-1">
@@ -960,6 +960,58 @@ const PenetasanPage = () => {
                           </div>
                         </div>
                       </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mt-10 items-center">
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Biaya Operasional
+                          </label>
+                          <div className="flex items-center border border-gray-300 rounded-md">
+                            <span className="p-2 bg-gray-100">Rp.</span>
+                            <input
+                              type="text"
+                              value={formatNumber(biayaOperasional)}
+                              readOnly
+                              className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                          ×
+                        </div>
+
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Jumlah hari
+                          </label>
+                          <input
+                            type="text"
+                            value={"28 Hari"}
+                            readOnly
+                            className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                          />
+                        </div>
+
+                        <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
+                          =
+                        </div>
+
+                        <div className="col-span-1">
+                          <label className="font-semibold text-sm md:text-base mb-1 block">
+                            Total Biaya Operasional
+                          </label>
+                          <div className="flex items-center border border-gray-300 rounded-md">
+                            <span className="p-2 bg-gray-100">Rp.</span>
+                            <input
+                              type="text"
+                              value={formatNumber(totalBiayaOperasional)}
+                              readOnly
+                              className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                            />
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
                     {/* Bagian Jumlah Pembelian Telur */}
@@ -975,17 +1027,12 @@ const PenetasanPage = () => {
                             <label className="font-semibold text-sm md:text-base mb-1 block">
                               Jumlah Telur (Butir)
                             </label>
-                            <div className="flex items-center border border-gray-300 rounded-md">
-                              <input
-                                type="text"
-                                value={jumlahTelur}
-                                readOnly
-                                className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
-                              />
-                              {/* <span className="p-2 bg-gray-100 rounded-md">
-                                butir
-                              </span> */}
-                            </div>
+                            <input
+                              type="text"
+                              value={jumlahTelur}
+                              readOnly
+                              className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                            />
                           </div>
 
                           <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
