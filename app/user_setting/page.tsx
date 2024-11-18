@@ -68,7 +68,7 @@ function DeleteAccountModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="fixed inset-0 flex items-center justify-center overflow-y-auto bg-black bg-opacity-50 z-50">
       <div className="bg-white rounded-lg p-8 w-96">
         {children}
         <h2 className="text-lg font-bold mb-4">Hapus Akun</h2>
@@ -100,14 +100,14 @@ export default function SettingPage() {
   return (
     <div className="w-full min-h-screen bg-gray-100 flex">
       <Suspense fallback={<div>Loading...</div>}>
-      <SidebarDemo>
-        <div className="flex-1 flex flex-col p-10">
-          <h1 className="text-start text-3xl font-bold text-black mb-8">
-            Pengaturan
-          </h1>
-          <CardContainer />
-        </div>
-      </SidebarDemo>
+        <SidebarDemo>
+          <div className="flex-1 flex flex-col p-10 overflow-y-auto h-screen">
+            <h1 className="text-start text-3xl font-bold text-black mb-8">
+              Pengaturan
+            </h1>
+            <CardContainer />
+          </div>
+        </SidebarDemo>
       </Suspense>
     </div>
   );
@@ -269,7 +269,7 @@ function CardContainer() {
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-    <div className="w-full p-2 sm:p-4">
+      <div className="w-full p-2 sm:p-4">
         <div className="max-w-[1500px] mx-auto min-h-[600px] sm:h-[800px]">
           <div className="bg-white overflow-y-auto sm:overflow-y-hidden overflow-x-hidden rounded-xl sm:rounded-3xl shadow-lg p-4 sm:p-8 relative w-full h-full">
             {/* Background blur effect */}
@@ -294,7 +294,7 @@ function CardContainer() {
                   {getInitials(userName) || "U"}
                 </div>
               )}
-              
+
               {/* Photo buttons */}
               <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4 mt-4">
                 <input
@@ -360,7 +360,9 @@ function CardContainer() {
               <div className="flex flex-col sm:flex-row justify-between border-t border-b border-gray-300 py-4">
                 <div className="space-y-2 mb-4 sm:mb-0">
                   <h1 className="text-xl sm:text-2xl font-semibold">Keluar</h1>
-                  <p className="text-sm sm:text-base text-gray-500">Keluar dari akun</p>
+                  <p className="text-sm sm:text-base text-gray-500">
+                    Keluar dari akun
+                  </p>
                 </div>
                 <button
                   onClick={handleLogoutClick}
@@ -372,10 +374,12 @@ function CardContainer() {
 
               <div className="flex flex-col sm:flex-row justify-between border-t border-b border-gray-300 py-4">
                 <div className="space-y-2 mb-4 sm:mb-0">
-                  <h1 className="text-xl sm:text-2xl font-semibold">Hapus Akun</h1>
+                  <h1 className="text-xl sm:text-2xl font-semibold">
+                    Hapus Akun
+                  </h1>
                   <p className="text-sm sm:text-base text-gray-500">
-                    Setelah akun dihapus, Anda tidak bisa masuk ke SI-Itik maupun
-                    mengakses semua fitur.
+                    Setelah akun dihapus, Anda tidak bisa masuk ke SI-Itik
+                    maupun mengakses semua fitur.
                   </p>
                 </div>
                 <button
@@ -413,7 +417,9 @@ function CardContainer() {
             {isLogoutModalOpen && (
               <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50 p-4">
                 <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-sm">
-                  <h3 className="text-xl font-semibold mb-4">Konfirmasi Logout</h3>
+                  <h3 className="text-xl font-semibold mb-4">
+                    Konfirmasi Logout
+                  </h3>
                   <p className="mb-4">Apakah Anda yakin ingin keluar?</p>
                   <div className="flex flex-col sm:flex-row justify-between gap-2">
                     <button

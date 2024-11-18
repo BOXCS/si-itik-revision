@@ -1132,7 +1132,7 @@ const PenggemukanPage = () => {
                                   type="text"
                                   value={formatNumber(jumlahPakan)}
                                   readOnly
-                                  className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
+                                  className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed" // border-0 untuk menghapus border input
                                 />
                                 <span className="p-2 bg-gray-100">Kg</span>
                               </div>
@@ -1149,7 +1149,7 @@ const PenggemukanPage = () => {
                                   type="text"
                                   value={formatNumber(jumlahPakan)}
                                   readOnly
-                                  className="border-0 p-2 rounded-md flex-1 cursor-not-allowed bg-gray-100" // border-0 untuk menghapus border input
+                                  className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed" // border-0 untuk menghapus border input
                                 />
                                 <span className="p-2 bg-gray-100">Kg</span>
                               </div>
@@ -1192,7 +1192,7 @@ const PenggemukanPage = () => {
                                   type="text"
                                   value={formatNumber(totalHargaPakan)}
                                   readOnly
-                                  className="border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
+                                  className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
                                 />
                               </div>
                             </div>
@@ -1324,7 +1324,7 @@ const PenggemukanPage = () => {
                         </div>
                       </div>
                       {/* Tombol Kembali dan Selanjutnya */}
-                      <div className="flex justify-between mt-14">
+                      <div className="flex justify-between gap-5 mt-14 md:justify-between">
                         <button
                           onClick={handleBackForm}
                           className="bg-gray-500 text-white px-4 py-2 rounded-full hover:bg-gray-600 transition-all"
