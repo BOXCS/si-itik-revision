@@ -225,7 +225,7 @@ export default function PercobaanAnalisis() {
         });
 
         newDetailData.forEach(async (item: any, index: number) => {
-          const docRef = doc(db, "detail_penetasan", item.id);
+          const docRef = doc(firestore, "detail_penetasan", item.id);
           const docSnapshot = await getDoc(docRef);
 
           // console.log("tess " + docRef);
@@ -268,7 +268,7 @@ export default function PercobaanAnalisis() {
         });
 
         newPenggemukanData.forEach(async (item: any, index: number) => {
-          const docRef = doc(db, "detail_penggemukan", item.id); // Change "detail_penetasan" to "detail_penggemukan"
+          const docRef = doc(firestore, "detail_penggemukan", item.id); // Change "detail_penetasan" to "detail_penggemukan"
           const docSnapshot = await getDoc(docRef);
 
           // console.log("tess " + docRef);
@@ -309,7 +309,7 @@ export default function PercobaanAnalisis() {
         });
       
         newLayerData.forEach(async (item: any, index: number) => {
-          const docRef = doc(db, "detail_layer", item.id); // Change "detail_penggemukan" to "detail_layer"
+          const docRef = doc(firestore, "detail_layer", item.id); // Change "detail_penggemukan" to "detail_layer"
           const docSnapshot = await getDoc(docRef);
       
           // console.log("tess " + docRef);
@@ -400,7 +400,7 @@ export default function PercobaanAnalisis() {
 
   const handleClick = async (id: string, type: string) => {
     try {
-      const docRef = doc(db, type, id);
+      const docRef = doc(firestore, type, id);
       const docSnapshot = await getDoc(docRef);
 
       // console.log(docSnapshot);
