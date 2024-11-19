@@ -464,19 +464,12 @@ export default function PercobaanAnalisis() {
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             {penggemukanData.map((item, i) => <CardDetailPenggemukan item={item} key={i} clickDetail={() => handleClick(item.id, 'detail_penggemukan')} />)}
           </div>
-
-
-
-
-
+          
           {/* Detail Layer */}
           <h2>Detail Layer</h2>
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             {layerData.map((item, i) => <CardDetaillayer item={item} key={i} clickDetail={() => handleClick(item.id, 'detail_layer')} />)}
           </div>
-
-
-             
         </div>
               
                      
@@ -711,7 +704,7 @@ const CardDetailPenggemukan = ({ item, clickDetail }: { item: any, clickDetail: 
     {/* Button and Icon Section */}
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', justifyContent: 'center' }}>
       <img
-        src="/assets/Group.png" // Replace with the actual icon path
+        src="/assets/Duck.png" // Replace with the actual icon path
         alt="Icon"
         style={{ width: '30px', height: '30px' }}
       />
@@ -839,7 +832,7 @@ const CardDetaillayer = ({ item, clickDetail }: { item: any, clickDetail: () => 
     }}
   >
     {/* Title */}
-    <strong style={{ color: 'black', fontSize: '16px', marginBottom: '5px' }}>Detail Penggemukan</strong>
+    <strong style={{ color: 'black', fontSize: '16px', marginBottom: '5px' }}>Detail Layer</strong>
 
     {/* Separator Line */}
     <hr
@@ -854,7 +847,7 @@ const CardDetaillayer = ({ item, clickDetail }: { item: any, clickDetail: () => 
     {/* Button and Icon Section */}
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', justifyContent: 'center' }}>
       <img
-        src="/assets/Group.png" // Replace with the actual icon path
+        src="/assets/Group 109.png" // Replace with the actual icon path
         alt="Icon"
         style={{ width: '30px', height: '30px' }}
       />
