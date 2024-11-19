@@ -16,6 +16,7 @@ import { firestore, auth } from "@/lib/firebase";
 // import { Bar } from 'react-chartjs-2';
 // import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import Typography from "@mui/material/Typography";
+import Image from "next/image";
 
 // Modal Styles for Cards
 const modalStyles: { [key: string]: React.CSSProperties } = {
@@ -537,7 +538,7 @@ const CardDetailPenetasan = ({
   clickDetail,
 }: {
   item: any;
-  clickDetail: () => {};
+  clickDetail: () => void;
 }) => {
   const [totalLaba, setTotalLaba] = useState(0);
 
@@ -552,8 +553,8 @@ const CardDetailPenetasan = ({
     }
   }, [item]); // Recalculate laba whenever item changes
 
-  console.log('item.Laba:', item.Laba);
-  console.log('totalLaba:', totalLaba);
+  console.log("item.Laba:", item.Laba);
+  console.log("totalLaba:", totalLaba);
 
   return (
     <div
@@ -591,10 +592,13 @@ const CardDetailPenetasan = ({
           justifyContent: "center",
         }}
       >
-        <img
+        <Image
           src="/assets/Group.png"
           alt="Icon"
-          style={{ width: "30px", height: "30px" }}
+          width={100} // Atur width dalam pixel
+          height={50} // Atur height dalam pixel
+          layout="fixed" // Pastikan ukuran gambar tetap
+          className="w-5 h-auto"
         />
         <button
           style={{
@@ -685,13 +689,12 @@ const CardDetailPenetasan = ({
   );
 };
 
-
 const CardDetailPenggemukan = ({
   item,
   clickDetail,
 }: {
   item: any;
-  clickDetail: () => {};
+  clickDetail: () => void;
 }) => {
   const [totalLaba, setTotalLaba] = useState(0);
 
@@ -745,10 +748,13 @@ const CardDetailPenggemukan = ({
           justifyContent: "center",
         }}
       >
-        <img
+        <Image
           src="/assets/Duck.png" // Replace with the actual icon path
           alt="Icon"
-          style={{ width: "30px", height: "30px" }}
+          width={100} // Atur width dalam pixel
+          height={50} // Atur height dalam pixel
+          layout="fixed" // Pastikan ukuran gambar tetap
+          className="w-8 h-auto"
         />
         <button
           style={{
@@ -853,7 +859,7 @@ const CardDetaillayer = ({
   clickDetail,
 }: {
   item: any;
-  clickDetail: () => {};
+  clickDetail: () => void;
 }) => {
   const [totalLaba, setTotalLaba] = useState(0);
 
@@ -907,10 +913,13 @@ const CardDetaillayer = ({
           justifyContent: "center",
         }}
       >
-        <img
+        <Image
           src="/assets/Group 109.png" // Replace with the actual icon path
           alt="Icon"
-          style={{ width: "30px", height: "30px" }}
+          width={100} // Atur width dalam pixel
+          height={50} // Atur height dalam pixel
+          layout="fixed" // Pastikan ukuran gambar tetap
+          className="w-8 h-auto"
         />
         <button
           style={{
