@@ -343,6 +343,61 @@ export default function PercobaanAnalisis() {
   };
 
 
+
+
+
+
+  // Fetch data from Firestore
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const detailCollectionRef = collection(db, "detail_penetasan");
+  //       const q = query(detailCollectionRef, orderBy("created_at", "desc"));
+  //       const querySnapshot = await getDocs(q);
+
+  //       if (querySnapshot.empty) {
+  //         setError("No detail data available.");
+  //       } else {
+  //         const detailList = await Promise.all(querySnapshot.docs.map(async (doc) => {
+  //           const data = doc.data();
+
+  //           return {
+  //             id: doc.id,
+  //             analisis_periode: data.analisis_periode || "N/A",
+  //             created_at: data.created_at,  // This will contain Timestamp
+  //           };
+  //         }));
+  //         setDetailData(detailList);
+  //       }
+
+  //       // Fetch data for Penggemukan
+  //       const penggemukanRef = collection(db, "detail_penggemukan");
+  //       const penggemukanSnapshot = await getDocs(penggemukanRef);
+
+  //       const penggemukanList = penggemukanSnapshot.docs.map((doc) => ({
+  //         id: doc.id,
+  //         ...doc.data(),
+  //       }));
+  //       setPenggemukanData(penggemukanList);
+
+  //       // Fetch data for Layer
+  //       const layerRef = collection(db, "detail_layer");
+  //       const layerSnapshot = await getDocs(layerRef);
+
+  //       const layerList = layerSnapshot.docs.map((doc) => ({
+  //         id: doc.id,
+  //         ...doc.data(),
+  //       }));
+  //       setLayerData(layerList);
+
+  //     } catch (error) {
+  //       console.error("Error fetching detail data:", error);
+  //       setError("Error fetching data. Please try again later.");
+  //     }
+  //   };
+  //   fetchData();
+  // }, []);
+
   const handleClick = async (id: string, type: string) => {
     try {
       const docRef = doc(db, type, id);

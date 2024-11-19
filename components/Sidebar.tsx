@@ -10,6 +10,7 @@ import {
   IconAnalyzeFilled,
   IconHistory,
   IconSettings2,
+  IconSettings,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
