@@ -4,7 +4,7 @@ import { SidebarDemo } from "@/components/Sidebar";
 import React, { Suspense, useEffect, useState } from "react";
 import "@/app/analisis.css";
 import HorizontalTimeline from "@/components/HorizontalTimeline";
-import { useToast } from "@/hooks/use-toast";
+import "@/app/analisis.css";
 import {
   doc,
   addDoc,
@@ -12,9 +12,17 @@ import {
   DocumentReference,
   Timestamp,
 } from "firebase/firestore";
+import { useToast } from "@/hooks/use-toast";
+import { IconMenu2, IconX } from "@tabler/icons-react";
 import { firestore } from "@/lib/firebase";
+import { useNavigate } from 'react-router-dom';
 import { useUser } from "@/app/context/UserContext";
 import { IconX } from "@tabler/icons-react";
+
+
+interface TabSelectionProps {
+  setSelectedPeriod: (period: string) => void; // Mengatur tipe untuk setSelectedPeriod
+}
 
 // interface TabSelectionProps
 
@@ -66,6 +74,7 @@ const LayerPage = () => {
   const [totalBiayaOperasional, setTotalBiayaOperasional] = useState<number>(0);
 
   const [standardPakanGram, setstandardPakanGram] = useState(0);
+    
   // const [jumlahItik, setJumlahItik] = useState(0);
   const [jumlahPakanKilogram, setjumlahPakanKilogram] = useState(0);
   const [totalBiayaPakan, setTotalBiayaPakan] = useState<number>(0);
@@ -273,7 +282,6 @@ const LayerPage = () => {
       setNewAnalysisDocRef(docRef);
     }
   }, []);
-
   const handleNextForm = () => {
     if (currentForm === "Penerimaan") {
       setCurrentForm("Pengeluaran");
@@ -402,6 +410,20 @@ const LayerPage = () => {
     setIsOpen(!isOpen); // Mengubah state open/close
   };
 
+  const handleBackForm = () => {
+    if (currentForm === "Pengeluaran") {
+      setCurrentForm("Penerimaan");
+    } else if (currentForm === "HasilAnalisis") {
+      setCurrentForm("Pengeluaran");
+    }
+    
+  };
+  const handleToggle = () => {
+    setIsOpen(!isOpen); // Mengubah state open/close
+  };
+
+  
+      
   return (
     <div className="w-full min-h-screen bg-gray-100 flex flex-col md:flex-row">
       <Suspense fallback={<div>Loading...</div>}>
