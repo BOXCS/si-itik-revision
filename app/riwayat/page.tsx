@@ -284,6 +284,11 @@ export default function RiwayatAnalisis() {
                           subCollectionRef
                         );
 
+                        console.log(
+                          `Data dalam subCollectionSnapshot (query ${index}):`,
+                          subCollectionSnapshot.docs.map((doc) => doc.data())
+                        );
+
                         return subCollectionSnapshot.docs.map((doc) => ({
                           id: doc.id,
                           analysisId: userDoc.id,

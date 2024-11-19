@@ -310,7 +310,7 @@ const LoginPage = () => {
         </div>
 
         <div className="w-full flex items-center justify-center">
-          <p className="text-sm font-normal text-black">
+          <p className="text-xs font-normal text-black md:text-sm">
             Tidak Punya Akun?{" "}
             <Link href="/auth/signup">
               <span className="font-semibold underline underline-offset-2 cursor-pointer text-orange-500">

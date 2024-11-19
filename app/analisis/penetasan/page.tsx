@@ -11,6 +11,7 @@ import {
   collection,
   DocumentReference,
   Timestamp,
+  getDocs,
 } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 import { IconX } from "@tabler/icons-react";
@@ -157,6 +158,25 @@ const PenetasanPage = () => {
     }
 
     try {
+      // Cek apakah data periode sudah ada dalam analisis_periode
+      if (newAnalysisDocRef) {
+        const periodeSnapshot = await getDocs(
+          collection(newAnalysisDocRef, "analisis_periode")
+        );
+        const existingPeriode = periodeSnapshot.docs.find(
+          (doc) => doc.data().periode === selectedPeriod
+        );
+
+        if (existingPeriode) {
+          toast({
+            title: "Data periode sudah ada.",
+            description: "Silahkan tambah periode atau buat analisis baru.",
+            variant: "destructive",
+          });
+          return; // Hentikan eksekusi jika periode sudah ada
+        }
+      }
+
       // Siapkan data untuk periode
       const periodeData = {
         periode: selectedPeriod,
@@ -227,6 +247,7 @@ const PenetasanPage = () => {
       });
     }
   };
+
 
   useEffect(() => {
     // Simpan periode dan disabledPeriods ke localStorage

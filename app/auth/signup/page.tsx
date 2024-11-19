@@ -187,10 +187,10 @@ const SignUpPage = () => {
       <div className="w-full h-full bg-[#fff] flex flex-col p-20 justify-between xl:w-2/5">
         <div className="w-full flex flex-col">
           <div className="w-full flex flex-col mb-10 items-center justify-center">
-            <h1 className="text-6xl text-[#060606] font-bold">
+            <h1 className="text-1xl text-[#060606] font-bold md:text-6xl">
               Selamat Datang
             </h1>
-            <p className="text-2xl">Daftarkan Akunmu Sekarang</p>
+            <p className="text-base md:text-2xl">Daftarkan Akunmu Sekarang</p>
           </div>
 
           <div className="w-full flex flex-col">
