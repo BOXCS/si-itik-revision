@@ -1,10 +1,12 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import Image from "next/image";
 
 // Validasi form menggunakan zod
 const schema = z
@@ -18,8 +20,7 @@ const schema = z
   });
 
 const ResetPasswordPage = () => {
-  const router = useRouter();
-  const { oobCode } = router.query; // Mengambil oobCode dari URL
+  const [oobCode, setOobCode] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm({
@@ -30,12 +31,26 @@ const ResetPasswordPage = () => {
     },
   });
 
+  useEffect(() => {
+    // Mengambil oobCode dari URL
+    const queryParams = new URLSearchParams(window.location.search);
+    const code = queryParams.get("oobCode");
+    if (code) {
+      setOobCode(code);
+    }
+  }, []);
+
   const onSubmit = async (data: {
     newPassword: string;
     confirmPassword: string;
   }) => {
     setIsLoading(true);
     try {
+      if (!oobCode) {
+        alert("Kode reset tidak ditemukan.");
+        return;
+      }
+
       // Ganti password menggunakan oobCode
       const response = await fetch(`/api/reset-password`, {
         method: "POST",
@@ -51,7 +66,7 @@ const ResetPasswordPage = () => {
       if (response.ok) {
         alert("Password berhasil diubah!");
         // Redirect ke halaman login atau halaman lain sesuai kebutuhan
-        router.push("/login");
+        window.location.href = "/login";
       } else {
         alert("Gagal mengubah password.");
       }
@@ -70,41 +85,51 @@ const ResetPasswordPage = () => {
           <h1 className="text-5xl font-bold">Keunggulan SI-Itik</h1>
           <ul className="text-2xl font-semibold mt-5 space-y-5">
             <li className="flex items-center">
-              <img
+              <Image
                 src="/assets/check-icon.svg"
                 alt="Check"
+                width={80}
+                height={80}
                 className="w-6 h-6 mr-2"
               />
               Pengelolaan terintegrasi
             </li>
             <li className="flex items-center">
-              <img
+              <Image
                 src="/assets/check-icon.svg"
                 alt="Check"
+                width={80}
+                height={80}
                 className="w-6 h-6 mr-2"
               />
               User Friendly
             </li>
             <li className="flex items-center">
-              <img
+              <Image
                 src="/assets/check-icon.svg"
                 alt="Check"
+                width={80}
+                height={80}
                 className="w-6 h-6 mr-2"
               />
               Analisis mendalam
             </li>
             <li className="flex items-center">
-              <img
+              <Image
                 src="/assets/check-icon.svg"
                 alt="Check"
+                width={80}
+                height={80}
                 className="w-6 h-6 mr-2"
               />
               Data finansial akurat
             </li>
             <li className="flex items-center">
-              <img
+              <Image
                 src="/assets/check-icon.svg"
                 alt="Check"
+                width={80}
+                height={80}
                 className="w-6 h-6 mr-2"
               />
               Fleksible

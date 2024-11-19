@@ -1,45 +1,44 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { collection, getDocs, orderBy, query, where, Timestamp } from "firebase/firestore";
+import React, { Suspense, useEffect, useState } from "react";
+import {
+  collection,
+  getDocs,
+  orderBy,
+  query,
+  where,
+  Timestamp,
+} from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import { useSearchParams } from "next/navigation";
 import { SidebarDemo } from "@/components/Sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AreaChart } from "@/components/ui/chart"
+import { AreaChart } from "@/components/ui/chart";
 import { Tooltip } from "@/components/ui/tooltip";
 import UserAvatar from "@/components/ui/avatar";
-import $ from 'jquery';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import {
   Grid,
   Card,
   Divider,
-  CardContent,
   Typography,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
   FormControl,
   InputLabel,
   SelectChangeEvent,
   Select,
   MenuItem,
 } from "@mui/material";
-import { auth } from "@/lib/firebase";
-import { unsubscribe } from "diagnostics_channel";
+import Image from "next/image";
 
-interface AnalisisPeriode {
-  id: string;
-  periode: string;
-  created_at: Timestamp;
-  laba: number;
-  revenue: number;
-  cost: number;
-  analysisName: string;
-}
+// interface AnalisisPeriode {
+//   id: string;
+//   periode: string;
+//   created_at: Timestamp;
+//   laba: number;
+//   revenue: number;
+//   cost: number;
+//   analysisName: string;
+// }
 
 interface AnalysisPeriodData {
   id: string;
@@ -55,16 +54,30 @@ interface AnalysisPeriodData {
 }
 
 export default function Dashboard() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <DashboardContent />
+    </Suspense>
+  );
+}
+
+function DashboardContent() {
   const searchParams = useSearchParams();
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
-  const [data, setData] = useState<AnalysisPeriodData[]>([]);
-  const [analysisHistory, setAnalysisHistory] = useState<{ id: string; time: string; type: string }[]>([]);
+  // const [data, setData] = useState<AnalysisPeriodData[]>([]);
+  // const [analysisHistory, setAnalysisHistory] = useState<{ id: string; time: string; type: string }[]>([]);
   const username = searchParams?.get("username") || "User";
-  const [loading, setLoading] = useState(true);
-  const [chartDataPenetasan, setChartDataPenetasan] = useState<{ Prd: string; Revenue: number; Cost: number; Laba: number; }[]>([]);
-  const [chartDataPenggemukan, setChartDataPenggemukan] = useState<{ Prd: string; Revenue: number; Cost: number; Laba: number; }[]>([]);
-  const [chartDataLayer, setChartDataLayer] = useState<{ Prd: string; Revenue: number; Cost: number; Laba: number; }[]>([]);
+  // const [loading, setLoading] = useState(true);
+  const [chartDataPenetasan, setChartDataPenetasan] = useState<
+    { Prd: string; Revenue: number; Cost: number; Laba: number }[]
+  >([]);
+  const [chartDataPenggemukan, setChartDataPenggemukan] = useState<
+    { Prd: string; Revenue: number; Cost: number; Laba: number }[]
+  >([]);
+  const [chartDataLayer, setChartDataLayer] = useState<
+    { Prd: string; Revenue: number; Cost: number; Laba: number }[]
+  >([]);
   const [dataAnalisis, setDataAnalisis] = useState<AnalysisPeriodData[]>([]);
   const [originalData, setOriginalData] = useState<AnalysisPeriodData[]>([]);
   const [sortCriteria, setSortCriteria] = useState<string>("terbaru");
@@ -137,179 +150,15 @@ export default function Dashboard() {
       if (user) {
         setUserEmail(user.email);
       } else {
-        console.error("Pengguna tidak login")
+        console.error("Pengguna tidak login");
       }
     });
     return () => unsubscribe();
   }, []);
 
-  // useEffect(() => {
-  //   if (!userEmail) return;
-  //   const fetchData = async () => {
-  //     try {
-  //       console.log("Mencari dokumen dengan email:", userEmail);
-  //       //Detail Penetasan
-  //       const detailpenetasan = query(
-  //         collection(firestore, "detail_penetasan"),
-  //         where("userId", "==", userEmail)
-  //       );
-
-  //       const querySnapshot = await getDocs(detailpenetasan);
-
-  //       if (!querySnapshot.empty) {
-  //         const userDocref = querySnapshot.docs[0].ref;
-  //         const subCollectionRef = query(
-  //           collection(userDocref, "analisis_periode"),
-  //           orderBy("created_at", "asc") // Mengurutkan berdasarkan created_at
-  //         );
-  //         const subCollectionSnapshot = await getDocs(subCollectionRef);
-
-  //         console.log("SubCollection Snapshot: ", subCollectionSnapshot.docs);
-
-  //         const fetchData: AnalisisPeriode[] = subCollectionSnapshot.docs.map((doc) => {
-  //           const docData = doc.data();
-  //           console.log("Data Dokumen: ", docData);
-
-  //           const hasilAnalisis = docData.hasilAnalisis || {};
-  //           const penerimaan = docData.penerimaan || {};
-  //           const pengeluaran = docData.pengeluaran || {};
-  //           const periode = docData.periode || {};
-
-  //           return {
-  //             id: doc.id,
-  //             created_at: docData.created_at || Timestamp.now(),
-  //             laba: hasilAnalisis.laba ?? 0,
-  //             revenue: penerimaan.totalRevenue ?? 0,
-  //             cost: pengeluaran.totalCost ?? 0,
-  //             periode: periode ??0,
-  //           } as AnalisisPeriode;
-  //         });
-
-  //         setData(fetchData);
-  //         console.log("Data yang di set: ", fetchData);          
-  //         const updatedChartData = fetchData.map(item => ({
-  //           Prd: item.periode,
-  //           Revenue: item.revenue,
-  //           Cost: item.cost,
-  //           Laba: item.laba,
-  //         }));
-  //         setChartDataPenetasan(updatedChartData);
-  //       } else {
-  //         console.error("Dokumen tidak ditemukan untuk email yang diberikan");
-  //       }
-
-  //       //Detail Penggemukan
-  //       const detailpenggemukan = query(
-  //         collection(firestore, "detail_penggemukan"),
-  //         where("userId", "==", userEmail)
-  //       );
-
-  //       const querySnapshot1 = await getDocs(detailpenggemukan);
-
-  //       if (!querySnapshot1.empty) {
-  //         const userDocref = querySnapshot1.docs[0].ref;
-  //         const subCollectionRef = query(
-  //           collection(userDocref, "analisis_periode"),
-  //           orderBy("created_at", "asc") // Mengurutkan berdasarkan created_at
-  //         );
-  //         const subCollectionSnapshot = await getDocs(subCollectionRef);
-
-  //         console.log("SubCollection Snapshot:                                                                                    ", subCollectionSnapshot.docs);
-
-  //         const fetchData: AnalisisPeriode[] = subCollectionSnapshot.docs.map((doc) => {
-  //           const docData = doc.data();
-  //           console.log("Data Dokumen: ", docData);
-
-  //           const hasilAnalisis = docData.hasilAnalisis || {};
-  //           const penerimaan = docData.penerimaan || {};
-  //           const pengeluaran = docData.pengeluaran || {};
-  //           const periode = docData.periode || {};
-
-  //           return {
-  //             id: doc.id,
-  //             created_at: docData.created_at || Timestamp.now(),
-  //             laba: hasilAnalisis.laba ?? 0,
-  //             revenue: penerimaan.totalRevenue ?? 0,
-  //             cost: pengeluaran.totalCost ?? 0,
-  //             periode: periode ??0,
-  //           } as AnalisisPeriode;
-  //         });
-
-  //         setData(fetchData);
-  //         console.log("Data yang di set: ", fetchData);          
-  //         const updatedChartData = fetchData.map(item => ({
-  //           Prd: item.periode,
-  //           Revenue: item.revenue,
-  //           Cost: item.cost,
-  //           Laba: item.laba,
-  //         }));
-  //         setChartDataPenggemukan(updatedChartData);
-  //       } else {
-  //         console.error("Dokumen tidak ditemukan untuk email yang diberikan");
-  //       }
-
-  //       //Detail Layering
-  //       const detaillayer = query(
-  //         collection(firestore, "detail_layer"),
-  //         where("userId", "==", userEmail)
-  //       );
-
-  //       const querySnapshot2 = await getDocs(detaillayer);
-
-  //       if (!querySnapshot2.empty) {
-  //         const userDocref = querySnapshot2.docs[0].ref;
-  //         const subCollectionRef = query(
-  //           collection(userDocref, "analisis_periode"),
-  //           orderBy("created_at", "asc") // Mengurutkan berdasarkan created_at
-  //         );
-  //         const subCollectionSnapshot = await getDocs(subCollectionRef);
-
-  //         console.log("SubCollection Snapshot: ", subCollectionSnapshot.docs);
-
-  //         const fetchData: AnalisisPeriode[] = subCollectionSnapshot.docs.map((doc) => {
-  //           const docData = doc.data();
-  //           console.log("Data Dokumen: ", docData);
-
-  //           const hasilAnalisis = docData.hasilAnalisis || {};
-  //           const penerimaan = docData.penerimaan || {};
-  //           const pengeluaran = docData.pengeluaran || {};
-  //           const periode = docData.periode || {};
-
-  //           return {
-  //             id: doc.id,
-  //             created_at: docData.created_at || Timestamp.now(),
-  //             laba: hasilAnalisis.laba ?? 0,
-  //             revenue: penerimaan.totalRevenue ?? 0,
-  //             cost: pengeluaran.totalCost ?? 0,
-  //             periode: periode ??0,
-  //           } as AnalisisPeriode;
-  //         });
-
-  //         setData(fetchData);
-  //         console.log("Data yang di set: ", fetchData);          
-  //         const updatedChartData = fetchData.map(item => ({
-  //           Prd: item.periode,
-  //           Revenue: item.revenue,
-  //           Cost: item.cost,
-  //           Laba: item.laba,
-  //         }));
-  //         setChartDataLayer(updatedChartData);
-  //       } else {
-  //         console.error("Dokumen tidak ditemukan untuk email yang diberikan");
-  //       }
-
-
-  //     } catch (error) {
-  //       console.error("Error mengambil Data: ", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   fetchData();
-  // }, [userEmail]);
-  // if (loading) {
-  //   return <p>Loading...</p>
-  // }
+  useEffect(() => {
+    console.log(userEmail); // Or any other usage of periode
+  }, [userEmail]); // If you want to react to changes in 'periode'
 
   useEffect(() => {
     const fetchUserSpecificData = async () => {
@@ -321,8 +170,14 @@ export default function Dashboard() {
         return;
       }
 
+      // Set the user photo if available
+      if (user.photoURL) {
+        setUserPhoto(user.photoURL);
+      }
+
       try {
         const userEmail = user.email;
+
         const detailQueries = [
           query(
             collection(firestore, "detail_penetasan"),
@@ -355,56 +210,66 @@ export default function Dashboard() {
                 "Detail Penggemukan",
                 "Detail Layer",
               ];
-                // chart
-              const [penetasanData, penggemukanData, layerData] = await Promise.all(
-                detailQueries.map(async (q, index) => {
-                  const querySnapshot = await getDocs(q);
-                  if (!querySnapshot.empty) {
-                    const userDocRef = querySnapshot.docs[0].ref;
-                    const subCollectionRef = query(
-                      collection(userDocRef, "analisis_periode"),
-                      orderBy("created_at", "asc") // Mengurutkan berdasarkan created_at
-                    );
-                    const subCollectionSnapshot = await getDocs(subCollectionRef);
+              // chart
+              const [penetasanData, penggemukanData, layerData] =
+                await Promise.all(
+                  detailQueries.map(async (q, index) => {
+                    const querySnapshot = await getDocs(q);
+                    if (!querySnapshot.empty) {
+                      const userDocRef = querySnapshot.docs[0].ref;
+                      const subCollectionRef = query(
+                        collection(userDocRef, "analisis_periode"),
+                        orderBy("created_at", "asc") // Mengurutkan berdasarkan created_at
+                      );
+                      const subCollectionSnapshot = await getDocs(
+                        subCollectionRef
+                      );
 
-                    return subCollectionSnapshot.docs.map((doc) => ({
-                      id: doc.id,
-                      created_at: doc.data().created_at || Timestamp.now(),
-                      bepHarga: doc.data().hasilAnalisis?.bepHarga || 0,
-                      bepHasil: doc.data().hasilAnalisis?.bepHasil || 0,
-                      laba: doc.data().hasilAnalisis?.laba || 0,
-                      periode: doc.data().periode ?? 0,
-                      revenue: doc.data().penerimaan?.totalRevenue || 0,
-                      cost: doc.data().pengeluaran?.totalCost || 0,
-                      marginOfSafety: doc.data().hasilAnalisis?.marginOfSafety || 0,
-                      rcRatio: doc.data().hasilAnalisis?.rcRatio || 0,
-                      analysisName: analysisNames[index],
-                    }));
-                  }
-                  return [];
-                })
+                      return subCollectionSnapshot.docs.map((doc) => ({
+                        id: doc.id,
+                        created_at: doc.data().created_at || Timestamp.now(),
+                        bepHarga: doc.data().hasilAnalisis?.bepHarga || 0,
+                        bepHasil: doc.data().hasilAnalisis?.bepHasil || 0,
+                        laba: doc.data().hasilAnalisis?.laba || 0,
+                        periode: doc.data().periode ?? 0,
+                        revenue: doc.data().penerimaan?.totalRevenue || 0,
+                        cost: doc.data().pengeluaran?.totalCost || 0,
+                        marginOfSafety:
+                          doc.data().hasilAnalisis?.marginOfSafety || 0,
+                        rcRatio: doc.data().hasilAnalisis?.rcRatio || 0,
+                        analysisName: analysisNames[index],
+                      }));
+                    }
+                    return [];
+                  })
+                );
+
+              setChartDataPenetasan(
+                penetasanData.map((item) => ({
+                  Prd: item.periode,
+                  Revenue: item.revenue,
+                  Cost: item.cost,
+                  Laba: item.laba,
+                }))
               );
 
-              setChartDataPenetasan(penetasanData.map(item => ({
-                Prd: item.periode,
-                Revenue: item.revenue,
-                Cost: item.cost,
-                Laba: item.laba,
-              })));
+              setChartDataPenggemukan(
+                penggemukanData.map((item) => ({
+                  Prd: item.periode,
+                  Revenue: item.revenue,
+                  Cost: item.cost,
+                  Laba: item.laba,
+                }))
+              );
 
-              setChartDataPenggemukan(penggemukanData.map(item => ({
-                Prd: item.periode,
-                Revenue: item.revenue,
-                Cost: item.cost,
-                Laba: item.laba,
-              })));
-
-              setChartDataLayer(layerData.map(item => ({
-                Prd: item.periode,
-                Revenue: item.revenue,
-                Cost: item.cost,
-                Laba: item.laba,
-              })));
+              setChartDataLayer(
+                layerData.map((item) => ({
+                  Prd: item.periode,
+                  Revenue: item.revenue,
+                  Cost: item.cost,
+                  Laba: item.laba,
+                }))
+              );
 
               const analysisName = analysisNames[index];
 
@@ -421,7 +286,6 @@ export default function Dashboard() {
                 rcRatio: doc.data().hasilAnalisis?.rcRatio || 0,
                 analysisName: analysisName, // Menyimpan nama analisis
               }));
-
             }
             return [];
           })
@@ -469,46 +333,52 @@ export default function Dashboard() {
       sortedData.sort((a, b) => b.created_at.seconds - a.created_at.seconds);
     } else if (criteria === "terlama") {
       sortedData.sort((a, b) => a.created_at.seconds - b.created_at.seconds);
-    }  else if (criteria === "detail_penetasan") {
-      sortedData = sortedData.filter((data) => data.analysisName === "Detail Penetasan");
+    } else if (criteria === "detail_penetasan") {
+      sortedData = sortedData.filter(
+        (data) => data.analysisName === "Detail Penetasan"
+      );
     } else if (criteria === "detail_penggemukan") {
-      sortedData = sortedData.filter((data) => data.analysisName === "Detail Penggemukan");
+      sortedData = sortedData.filter(
+        (data) => data.analysisName === "Detail Penggemukan"
+      );
     } else if (criteria === "detail_layer") {
-      sortedData = sortedData.filter((data) => data.analysisName === "Detail Layer");
+      sortedData = sortedData.filter(
+        (data) => data.analysisName === "Detail Layer"
+      );
     }
 
     setDataAnalisis(sortedData);
   };
 
-
   function formatNumber(number: number): string {
     if (number >= 1000000) {
       const millions = number / 1000000;
-      return Number.isInteger(millions) ? `${millions} JT` : `${millions.toFixed(1)} JT`;
+      return Number.isInteger(millions)
+        ? `${millions} JT`
+        : `${millions.toFixed(1)} JT`;
     } else if (number >= 1000) {
       const thousands = number / 1000;
-      return Number.isInteger(thousands) ? `${thousands} K` : `${thousands.toFixed(1)} K`;
+      return Number.isInteger(thousands)
+        ? `${thousands} K`
+        : `${thousands.toFixed(1)} K`;
     } else {
       return number.toString();
     }
   }
 
   return (
-    <div>
+    <Suspense fallback={<div>Loading...</div>}>
       <SidebarDemo>
         <div className="flex-1 items-center justify-center">
           {/* Title Menu */}
           <div className="flex flex-wrap justify-between p-5 pt-5 pb-0">
             <h1 className="text-1xl font-bold">Beranda </h1>
-            <Tooltip
-              side="bottom"
-              showArrow={false}
-              content={username}
-            >
+            <Tooltip side="bottom" showArrow={false} content={username}>
               <div className="flex items-center">
                 <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                  <div className="w-8 h-8 rounded-full"><UserAvatar photoURL={userPhoto} /> </div>
-
+                  <div className="w-8 h-8 rounded-full">
+                    <UserAvatar photoURL={userPhoto} />{" "}
+                  </div>
                 </div>
               </div>
             </Tooltip>
@@ -532,11 +402,19 @@ export default function Dashboard() {
                         className="space-y-2 text-sm leading-7 text-gray-600 dark:text-gray-500"
                       >
                         <div className="flex space-x-4">
-                          <img src="/assets/DB_penggemukan.webp"
+                          <Image
+                            src="/assets/DB_penggemukan.webp"
                             alt="DB_penggemukan"
-                            style={{ width: '100px', height: '100%', }} />
+                            width={100} // Atur width dalam pixel
+                            height={50} // Atur height dalam pixel
+                            layout="fixed" // Pastikan ukuran gambar tetap
+                            className="w-24 h-auto" // Kelas Tailwind untuk kontrol tambahan
+                          />
                           <p>
-                            Penetasan merupakan fitur yang dirancang untuk mengoptimalkan proses penetasan telur itik, memastikan kesuksesan menetas maksimal dan kualitas anakan itik yang terbaik.
+                            Penetasan merupakan fitur yang dirancang untuk
+                            mengoptimalkan proses penetasan telur itik,
+                            memastikan kesuksesan menetas maksimal dan kualitas
+                            anakan itik yang terbaik.
                           </p>
                         </div>
                       </TabsContent>
@@ -545,11 +423,19 @@ export default function Dashboard() {
                         className="space-y-2 text-sm leading-7 text-gray-600 dark:text-gray-500"
                       >
                         <div className="flex space-x-4">
-                          <img src="/assets/DB_penggemukan.webp"
+                          <Image
+                            src="/assets/DB_penggemukan.webp"
                             alt="DB_penggemukan"
-                            style={{ width: '100px', height: '100%', }} />
+                            width={100} // Atur width dalam pixel
+                            height={50} // Atur height dalam pixel
+                            layout="fixed" // Pastikan ukuran gambar tetap
+                            className="w-24 h-auto" // Kelas Tailwind untuk kontrol tambahan
+                          />
                           <p>
-                            Penetasan merupakan fitur yang dirancang untuk mengoptimalkan proses penetasan telur itik, memastikan kesuksesan menetas maksimal dan kualitas anakan itik yang terbaik.
+                            Penetasan merupakan fitur yang dirancang untuk
+                            mengoptimalkan proses penetasan telur itik,
+                            memastikan kesuksesan menetas maksimal dan kualitas
+                            anakan itik yang terbaik.
                           </p>
                         </div>
                       </TabsContent>
@@ -558,11 +444,19 @@ export default function Dashboard() {
                         className="space-y-2 text-sm leading-7 text-gray-600 dark:text-gray-500"
                       >
                         <div className="flex space-x-4">
-                          <img src="/assets/DB_layer.webp"
+                          <Image
+                            src="/assets/DB_layer.webp"
                             alt="DB_layeri"
-                            style={{ width: '100px', height: '100%', }} />
+                            width={100} // Atur width dalam pixel
+                            height={50} // Atur height dalam pixel
+                            layout="fixed" // Pastikan ukuran gambar tetap
+                            className="w-24 h-auto" // Kelas Tailwind untuk kontrol tambahan
+                          />
                           <p>
-                            Penetasan merupakan fitur yang dirancang untuk mengoptimalkan proses penetasan telur itik, memastikan kesuksesan menetas maksimal dan kualitas anakan itik yang terbaik.
+                            Penetasan merupakan fitur yang dirancang untuk
+                            mengoptimalkan proses penetasan telur itik,
+                            memastikan kesuksesan menetas maksimal dan kualitas
+                            anakan itik yang terbaik.
                           </p>
                         </div>
                       </TabsContent>
@@ -592,7 +486,8 @@ export default function Dashboard() {
                               index="Prd"
                               categories={["Revenue", "Cost", "Laba"]}
                               valueFormatter={(number: number) =>
-                                `${formatNumber(number)}`}
+                                `${formatNumber(number)}`
+                              }
                               onValueChange={(v) => console.log(v)}
                               xAxisLabel="Periode"
                               yAxisLabel="Rp"
@@ -611,7 +506,8 @@ export default function Dashboard() {
                               index="Prd"
                               categories={["Revenue", "Cost", "Laba"]}
                               valueFormatter={(number: number) =>
-                                `${formatNumber(number)}`}
+                                `${formatNumber(number)}`
+                              }
                               onValueChange={(v) => console.log(v)}
                               xAxisLabel="Periode"
                               yAxisLabel="Rp"
@@ -621,7 +517,6 @@ export default function Dashboard() {
                         </TabsContent>
                         <TabsContent
                           value="tab3"
-
                           className="space-y-2 text-sm leading-7 text-gray-600 dark:text-gray-500"
                         >
                           <div className="flex space-x-4">
@@ -631,7 +526,8 @@ export default function Dashboard() {
                               index="Prd"
                               categories={["Revenue", "Cost", "Laba"]}
                               valueFormatter={(number: number) =>
-                                `${formatNumber(number)}`}
+                                `${formatNumber(number)}`
+                              }
                               onValueChange={(v) => console.log(v)}
                               xAxisLabel="Periode"
                               yAxisLabel="Rp"
@@ -662,7 +558,9 @@ export default function Dashboard() {
                       >
                         <MenuItem value="terbaru">Terbaru</MenuItem>
                         <MenuItem value="terlama">Terlama</MenuItem>
-                        <MenuItem value="detail_penetasan">Detail Penetasan</MenuItem>
+                        <MenuItem value="detail_penetasan">
+                          Detail Penetasan
+                        </MenuItem>
                         <MenuItem value="detail_penggemukan">
                           Detail Penggemukan
                         </MenuItem>
@@ -676,12 +574,13 @@ export default function Dashboard() {
                 <Grid container spacing={3}>
                   {dataAnalisis.map((data, index) => (
                     <Grid item xs={12} key={index}>
-                      <Card style={{
-                        ...styles.card,
-                        flexDirection: "column",
-                        width: "100%",
-                        height: "138px",
-                      }}
+                      <Card
+                        style={{
+                          ...styles.card,
+                          flexDirection: "column",
+                          width: "100%",
+                          height: "138px",
+                        }}
                       >
                         {/* Display Analysis Name */}
                         <Typography
@@ -702,12 +601,7 @@ export default function Dashboard() {
 
                         {/* Tombol Lihat Detail */}
                         <Grid container justifyContent="space-between">
-                          <Typography
-                            variant="body1"
-
-                          >
-                            Gambar
-                          </Typography>
+                          <Typography variant="body1">Gambar</Typography>
                           <Typography
                             variant="body1"
                             style={{
@@ -730,7 +624,11 @@ export default function Dashboard() {
                         {/* Display Time and Date */}
                         <Grid container justifyContent="space-between">
                           <Typography variant="body2" style={styles.time}>
-                            {data.created_at.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
+                            {data.created_at.toDate().toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: false,
+                            })}
                           </Typography>
                           <Typography variant="body2" style={styles.date}>
                             {data.created_at.toDate().toLocaleDateString()}
@@ -748,6 +646,6 @@ export default function Dashboard() {
           </div>
         </div>
       </SidebarDemo>
-    </div>
+      </Suspense>
   );
 }

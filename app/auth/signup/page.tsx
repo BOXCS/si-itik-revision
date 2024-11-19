@@ -17,13 +17,21 @@ import { SignupValidation } from "@/lib/validation";
 import { z } from "zod";
 import Loader from "@/components/shared/Loader";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
+import { FirebaseError } from "firebase/app";
 
 const SignUpPage = () => {
+  const benefits = [
+    "Pengelolaan terintegrasi",
+    "User Friendly",
+    "Analisis mendalam",
+    "Data finansial akurat",
+    "Fleksible",
+  ];
+
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null); // State untuk pesan error
   const router = useRouter();
@@ -62,93 +70,116 @@ const SignUpPage = () => {
 
       // Arahkan pengguna ke halaman login setelah berhasil signup
       router.push("/auth/login");
-    } catch (error: any) {
-      console.error("Error creating user:", error.message);
+    } catch (error: unknown) {
+      console.error("Error creating user:", error);
 
-      // Tangani error berdasarkan kode dari Firebase
-      if (error.code === "auth/email-already-in-use") {
-        setErrorMessage("Email sudah terdaftar. Silakan gunakan email lain.");
+      // Check if the error is a FirebaseError (which includes the 'code' property)
+      if (error instanceof FirebaseError) {
+        switch (error.code) {
+          case "auth/email-already-in-use":
+            setErrorMessage(
+              "Email sudah terdaftar. Silakan gunakan email lain."
+            );
+            break;
+          default:
+            setErrorMessage("Terjadi kesalahan. Mohon coba lagi.");
+        }
+      } else if (error instanceof Error) {
+        // Handle generic errors that are not FirebaseError
+        setErrorMessage(`Terjadi kesalahan: ${error.message}`);
       } else {
-        setErrorMessage("Terjadi kesalahan. Mohon coba lagi.");
+        setErrorMessage("Terjadi kesalahan yang tidak diketahui.");
       }
     } finally {
       setIsLoading(false);
     }
   }
 
-
   return (
     <div className="w-full h-screen flex flex-1 justify-center items-center overflow-hidden">
       <div className="relative w-2/3 h-full hidden flex-col xl:block">
-        <div className="absolute top-[25%] left-[10%] flex flex-col gap-5">
-          <img
-            src="/assets/logo-si-itik.svg"
-            alt="Logo SI_ITIK"
-            className="w-20"
-          />
-          <h1 className="flex flex-col text-5xl font-bold text-white">
-            Keunggulan SI-ITIK
-          </h1>
-          <div className="benefit-point grid text-2xl font-semibold gap-5">
-            <h2>
-              <img
-                src="/assets/point-benefit.svg"
-                alt="Point"
-                className="inline-block w-10 h-10 mr-2"
-              />
-              Pengelolaan terintegrasi
-            </h2>
-            <h2>
-              <img
-                src="/assets/point-benefit.svg"
-                alt="Point"
-                className="inline-block w-10 h-10 mr-2"
-              />
-              User Friendly
-            </h2>
-            <h2>
-              <img
-                src="/assets/point-benefit.svg"
-                alt="Point"
-                className="inline-block w-10 h-10 mr-2"
-              />
-              Analisis mendalam
-            </h2>
-            <h2>
-              <img
-                src="/assets/point-benefit.svg"
-                alt="Point"
-                className="inline-block w-10 h-10 mr-2"
-              />
-              Data finansial akurat
-            </h2>
-            <h2>
-              <img
-                src="/assets/point-benefit.svg"
-                alt="Point"
-                className="inline-block w-10 h-10 mr-2"
-              />
-              Fleksible
-            </h2>
-          </div>
-          <div className="absolute top-[45%] items-end justify-end">
-            <img
-              src="/assets/itik-cartoon.svg"
+        <div className="absolute top-1/4 left-[10%] flex flex-col gap-5 max-w-[80%]">
+          {/* Logo */}
+          <div className="relative w-20 aspect-square">
+            <Image
+              src="/assets/logo-si-itik.svg"
               alt="Logo SI_ITIK"
-              className="hidden xl:block ml-72"
+              fill
+              className="object-contain"
             />
           </div>
+
+          {/* Title */}
+          <h1 className="text-[min(5vw,3rem)] font-bold text-white leading-tight">
+            Keunggulan SI-ITIK
+          </h1>
+
+          {/* Benefits List */}
+          <div className="grid gap-5">
+            {benefits.map((benefit, index) => (
+              <h2
+                key={index}
+                className="text-[min(2vw,1.5rem)] font-semibold text-white flex items-center"
+              >
+                <div className="relative w-[min(2.5vw,2.5rem)] aspect-square mr-2">
+                  <Image
+                    src="/assets/point-benefit.svg"
+                    alt="Point"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+                {benefit}
+              </h2>
+            ))}
+          </div>
+
+          {/* Decorative Elements */}
+          <div className="absolute left-[80%] top-[45%]">
+            <div className="relative w-[min(47vw,27rem)] aspect-square">
+              <Image
+                src="/assets/bebek.svg"
+                alt="Logo SI_ITIK"
+                fill
+                className="hidden xl:block object-contain"
+              />
+            </div>
+          </div>
+
+          <div className="absolute top-[-20%] right-[-90%]">
+            <div className="relative w-[min(25vw,200px)] aspect-square">
+              <Image
+                src="/assets/elips.svg"
+                alt="elips"
+                fill
+                className="object-contain"
+              />
+            </div>
+          </div>
+
+          <div className="absolute top-[125%] left-[-50%]">
+            <div className="relative w-[min(50vw,200px)] aspect-square">
+              <Image
+                src="/assets/elips2.svg"
+                alt="elips"
+                fill
+                className="ml-20 object-contain"
+              />
+            </div>
+          </div>
         </div>
-        <div className="bg-[#CF5804] w-full h-full object-cover"></div>
+
+        {/* Background */}
+        <div className="bg-[#CF5804] w-full h-full" />
       </div>
 
       <div className="w-full h-full bg-[#fff] flex flex-col p-20 justify-between xl:w-2/5">
         <div className="w-full flex flex-col">
           <div className="w-full flex flex-col mb-10 items-center justify-center">
-            <h1 className="text-6xl text-[#060606] font-bold">
+            <h1 className="text-4xl text-[#060606] font-bold md:text-6xl">
               Selamat Datang
             </h1>
-            <p className="text-2xl">Daftarkan Akunmu Sekarang</p>
+            <p className="text-base md:text-2xl">Daftarkan Akunmu Sekarang</p>
           </div>
 
           <div className="w-full flex flex-col">
@@ -177,7 +208,10 @@ const SignUpPage = () => {
                     <FormItem>
                       <FormLabel>Username</FormLabel>
                       <FormControl>
-                        <Input placeholder="Masukkan Username Anda" {...field} />
+                        <Input
+                          placeholder="Masukkan Username Anda"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -190,13 +224,16 @@ const SignUpPage = () => {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="Masukkan Password Anda" {...field} />
+                        <Input
+                          type="password"
+                          placeholder="Masukkan Password Anda"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
 
                 {errorMessage && (
                   <div className="text-red-500 mb-4">{errorMessage}</div> // Menampilkan pesan error
