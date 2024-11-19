@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, CSSProperties } from "react";
+import React, { useState, useEffect, CSSProperties, Suspense } from "react";
 import { db } from "@/lib/firebase";
 import {
   collection,
@@ -418,58 +418,60 @@ export default function PercobaanAnalisis() {
 
   return (
     <div style={styles.pageContainer}>
-      <SidebarDemo>
-        <div
-          style={{
-            ...styles.contentContainer,
-            height: "calc(100vh - 100px)",
-            overflowY: "auto",
-          }}
-        >
-          <div style={styles.titleContainer}>
-            <h1 style={styles.title}>
-              Selamat datang, {user?.displayName ?? "User"}
-            </h1>
-          </div>
-          {error && <p style={styles.error}>{error}</p>}
+      <Suspense fallback={<div>Loading...</div>}>
+        <SidebarDemo>
+          <div
+            style={{
+              ...styles.contentContainer,
+              height: "calc(100vh - 100px)",
+              overflowY: "auto",
+            }}
+          >
+            <div style={styles.titleContainer}>
+              <h1 style={styles.title}>
+                Selamat datang, {user?.displayName ?? "User"}
+              </h1>
+            </div>
+            {error && <p style={styles.error}>{error}</p>}
 
-          {/* Detail Penetasan */}
-          <h2>Detail Penetasan</h2>
-          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-            {detailData.map((item, i) => (
-              <CardDetailPenetasan
-                item={item}
-                key={i}
-                clickDetail={() => handleClick(item.id, "detail_penetasan")}
-              />
-            ))}
-          </div>
+            {/* Detail Penetasan */}
+            <h2>Detail Penetasan</h2>
+            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+              {detailData.map((item, i) => (
+                <CardDetailPenetasan
+                  item={item}
+                  key={i}
+                  clickDetail={() => handleClick(item.id, "detail_penetasan")}
+                />
+              ))}
+            </div>
 
-          {/* Detail Penggemukan */}
-          <h2>Detail Penggemukan</h2>
-          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-            {penggemukanData.map((item, i) => (
-              <CardDetailPenggemukan
-                item={item}
-                key={i}
-                clickDetail={() => handleClick(item.id, "detail_penggemukan")}
-              />
-            ))}
-          </div>
+            {/* Detail Penggemukan */}
+            <h2>Detail Penggemukan</h2>
+            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+              {penggemukanData.map((item, i) => (
+                <CardDetailPenggemukan
+                  item={item}
+                  key={i}
+                  clickDetail={() => handleClick(item.id, "detail_penggemukan")}
+                />
+              ))}
+            </div>
 
-          {/* Detail Layer */}
-          <h2>Detail Layer</h2>
-          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-            {layerData.map((item, i) => (
-              <CardDetaillayer
-                item={item}
-                key={i}
-                clickDetail={() => handleClick(item.id, "detail_layer")}
-              />
-            ))}
+            {/* Detail Layer */}
+            <h2>Detail Layer</h2>
+            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+              {layerData.map((item, i) => (
+                <CardDetaillayer
+                  item={item}
+                  key={i}
+                  clickDetail={() => handleClick(item.id, "detail_layer")}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      </SidebarDemo>
+        </SidebarDemo>
+      </Suspense>
 
       {isModalOpen && (
         <div style={modalStyles.overlay}>
