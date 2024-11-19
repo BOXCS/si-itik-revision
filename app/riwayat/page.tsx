@@ -72,6 +72,17 @@ type PopupProps = {
     totalCost: number;
     periode: string;
   } | null;
+  data2: {
+    analysisName: string;
+    marginOfSafety: number;
+    rcRatio: number;
+    bepHarga: number;
+    bepHasil: number;
+    Laba: number;
+    totalRevenue: number;
+    totalCost: number;
+    periode: string;
+  } | null;
 };
 
 const styles = {
@@ -105,12 +116,12 @@ const styles = {
   card: {
     backgroundColor: "#FFFFFF",
     borderRadius: "12px",
-    boxShadow: "0px 8px 16px rgba(255, 153, 51, 0.5)", // Light orange shadow
-    padding: "20px",
+    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+    padding: "15px",
     cursor: "pointer",
-    transition: "transform 0.2s, box-shadow 0.2s",
-    width: "300px", // Card width
-    height: "200px", // Card height
+    transition: "transform 0.2s",
+    width: "300px", // Atur lebar card
+    height: "200px", // Atur tinggi card
     "&:hover": {
       transform: "scale(1.02)",
       boxShadow: "0px 12px 24px rgba(255, 153, 51, 0.7)", // Darker orange shadow on hover
@@ -464,7 +475,6 @@ export default function RiwayatAnalisis() {
                           {data.created_at.toDate().toLocaleDateString()}
                         </Typography>
                       </Grid>
-
                       <div
                         style={{
                           flexGrow: 1,
@@ -546,8 +556,8 @@ export default function RiwayatAnalisis() {
     }
   }
 
-  function Popup({ open, onClose, data1 }: PopupProps) {
-    if (!data1) return null;
+  function Popup({ open, onClose, data1, data2 }: PopupProps) {
+    if (!data1 || !data2 ) return null;
 
     return (
       <Suspense fallback={<div>Loading...</div>}>
