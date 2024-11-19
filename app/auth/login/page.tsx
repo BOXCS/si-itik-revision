@@ -27,6 +27,14 @@ import { useRouter } from "next/navigation"; // Import useRouter
 import { FirebaseError } from "firebase/app";
 
 const LoginPage = () => {
+  const benefits = [
+    "Pengelolaan terintegrasi",
+    "User Friendly",
+    "Analisis mendalam",
+    "Data finansial akurat",
+    "Fleksible",
+  ];
+
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(""); // State to store error message
   const router = useRouter();
@@ -102,98 +110,79 @@ const LoginPage = () => {
   return (
     <div className="w-full h-screen flex flex-1 justify-center items-center overflow-auto md:overflow-hidden">
       <div className="relative w-2/3 h-full hidden flex-col xl:block">
-        <div className="absolute top-[25%] left-[10%] flex flex-col gap-5">
-          <Image
-            src="/assets/logo-si-itik.svg"
-            alt="Logo SI_ITIK"
-            width={80}
-            height={80}
-            className="w-20"
-          />
-          <h1 className="flex flex-col text-5xl font-bold text-white">
+        <div className="absolute top-1/4 left-[10%] flex flex-col gap-5 max-w-[80%]">
+          {/* Logo */}
+          <div className="relative w-20 aspect-square">
+            <Image
+              src="/assets/logo-si-itik.svg"
+              alt="Logo SI_ITIK"
+              fill
+              className="object-contain"
+            />
+          </div>
+
+          {/* Title */}
+          <h1 className="text-[min(5vw,3rem)] font-bold text-white leading-tight">
             Keunggulan SI-ITIK
           </h1>
-          <div className="benefit-point grid text-2xl font-semibold gap-5">
-            <h2 className="text-white">
-              <Image
-                src="/assets/point-benefit.svg"
-                alt="Point"
-                width={80}
-                height={80}
-                className="inline-block w-10 h-10 mr-2"
-              />
-              Pengelolaan terintegrasi
-            </h2>
-            <h2 className="text-white">
-              <Image
-                src="/assets/point-benefit.svg"
-                alt="Point"
-                width={80}
-                height={80}
-                className="inline-block w-10 h-10 mr-2"
-              />
-              User Friendly
-            </h2>
-            <h2 className="text-white">
-              <Image
-                src="/assets/point-benefit.svg"
-                alt="Point"
-                width={80}
-                height={80}
-                className="inline-block w-10 h-10 mr-2"
-              />
-              Analisis mendalam
-            </h2>
-            <h2 className="text-white">
-              <Image
-                src="/assets/point-benefit.svg"
-                alt="Point"
-                width={80}
-                height={80}
-                className="inline-block w-10 h-10 mr-2"
-              />
-              Data finansial akurat
-            </h2>
-            <h2 className="text-white">
-              <Image
-                src="/assets/point-benefit.svg"
-                alt="Point"
-                width={80}
-                height={80}
-                className="inline-block w-10 h-10 mr-2"
-              />
-              Fleksible
-            </h2>
+
+          {/* Benefits List */}
+          <div className="grid gap-5">
+            {benefits.map((benefit, index) => (
+              <h2
+                key={index}
+                className="text-[min(2vw,1.5rem)] font-semibold text-white flex items-center"
+              >
+                <div className="relative w-[min(2.5vw,2.5rem)] aspect-square mr-2">
+                  <Image
+                    src="/assets/point-benefit.svg"
+                    alt="Point"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+                {benefit}
+              </h2>
+            ))}
           </div>
-          <div className="absolute top-[45%] items-end justify-end">
-            <Image
-              src="/assets/bebek.svg"
-              alt="Logo SI_ITIK"
-              width={80}
-              height={80}
-              className="hidden xl:block xl:ml-80 xl:mt-[-25px] object-contain"
-            />
+
+          {/* Decorative Elements */}
+          <div className="absolute left-[80%] top-[45%]">
+            <div className="relative w-[min(47vw,27rem)] aspect-square">
+              <Image
+                src="/assets/bebek.svg"
+                alt="Logo SI_ITIK"
+                fill
+                className="hidden xl:block object-contain"
+              />
+            </div>
           </div>
-          <div className="absolute top-[-20%] right-[-120%]">
-            <Image
-              src="/assets/elips.svg"
-              alt="elips"
-              width={80}
-              height={80}
-              className="w-[270px] h-[270px]"
-            />
+
+          <div className="absolute top-[-20%] right-[-90%]">
+            <div className="relative w-[min(25vw,200px)] aspect-square">
+              <Image
+                src="/assets/elips.svg"
+                alt="elips"
+                fill
+                className="object-contain"
+              />
+            </div>
           </div>
-          <div className="absolute top-[110%] left-[-50%]">
-            <Image
-              src="/assets/elips2.svg"
-              alt="elips"
-              width={80}
-              height={80}
-              className="ml-20"
-            />
+
+          <div className="absolute top-[125%] left-[-50%]">
+            <div className="relative w-[min(50vw,200px)] aspect-square">
+              <Image
+                src="/assets/elips2.svg"
+                alt="elips"
+                fill
+                className="ml-20 object-contain"
+              />
+            </div>
           </div>
         </div>
-        <div className="bg-[#CF5804] w-full h-full object-cover"></div>
+
+        {/* Background */}
+        <div className="bg-[#CF5804] w-full h-full" />
       </div>
 
       <div className="w-full h-full bg-[#fff] flex flex-col p-20 justify-between xl:w-2/5">
@@ -204,7 +193,9 @@ const LoginPage = () => {
           </button>
 
           <div className="w-full flex flex-col mb-10 items-center justify-center">
-            <h1 className="text-4xl text-[#060606] font-bold md:text-6xl">Halo!</h1>
+            <h1 className="text-4xl text-[#060606] font-bold md:text-6xl">
+              Halo!
+            </h1>
             <p className="text-base md:text-2xl">Masukkan Informasi Akun</p>
           </div>
 
