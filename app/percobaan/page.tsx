@@ -1,13 +1,13 @@
 "use client";
-import React, { useState, useEffect, CSSProperties } from "react";
-// import { db } from "@/lib/firebase";
-import { collection, getDocs, query, doc, getDoc, where } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
+import React, { useState, useEffect, CSSProperties, useMemo } from "react";
+import { db } from "@/lib/firebase";
+import { collection, getDocs, query, orderBy, doc, getDoc, where } from "firebase/firestore";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { SidebarDemo } from "@/components/Sidebar";
 import { Timestamp } from "firebase/firestore"; // Import Timestamp to handle Firebase Timestamps
 import { firestore, auth } from "@/lib/firebase";
-// import { Bar } from 'react-chartjs-2';
-// import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import Typography from '@mui/material/Typography';
 
 
@@ -225,7 +225,7 @@ export default function PercobaanAnalisis() {
         });
 
         newDetailData.forEach(async (item: any, index: number) => {
-          const docRef = doc(firestore, "detail_penetasan", item.id);
+          const docRef = doc(db, "detail_penetasan", item.id);
           const docSnapshot = await getDoc(docRef);
 
           // console.log("tess " + docRef);
@@ -268,7 +268,7 @@ export default function PercobaanAnalisis() {
         });
 
         newPenggemukanData.forEach(async (item: any, index: number) => {
-          const docRef = doc(firestore, "detail_penggemukan", item.id); // Change "detail_penetasan" to "detail_penggemukan"
+          const docRef = doc(db, "detail_penggemukan", item.id); // Change "detail_penetasan" to "detail_penggemukan"
           const docSnapshot = await getDoc(docRef);
 
           // console.log("tess " + docRef);
@@ -309,7 +309,7 @@ export default function PercobaanAnalisis() {
         });
       
         newLayerData.forEach(async (item: any, index: number) => {
-          const docRef = doc(firestore, "detail_layer", item.id); // Change "detail_penggemukan" to "detail_layer"
+          const docRef = doc(db, "detail_layer", item.id); // Change "detail_penggemukan" to "detail_layer"
           const docSnapshot = await getDoc(docRef);
       
           // console.log("tess " + docRef);
@@ -400,7 +400,7 @@ export default function PercobaanAnalisis() {
 
   const handleClick = async (id: string, type: string) => {
     try {
-      const docRef = doc(firestore, type, id);
+      const docRef = doc(db, type, id);
       const docSnapshot = await getDoc(docRef);
 
       // console.log(docSnapshot);
@@ -502,7 +502,6 @@ export default function PercobaanAnalisis() {
                       <p><strong>Laba:</strong> {data.hasilAnalisis.laba.toLocaleString()}</p>
                     </div>
                   </div>
-
                 ))
               ) : (
                 <p>No analisis data available.</p>
@@ -520,6 +519,7 @@ export default function PercobaanAnalisis() {
   );
 
 }
+
 const CardDetailPenetasan = ({ item, clickDetail }: { item: any, clickDetail: () => {} }) => {
 
 
