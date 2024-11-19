@@ -13,15 +13,10 @@ import {
   Timestamp,
 } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
-import { IconMenu2, IconX } from "@tabler/icons-react";
+import { IconX } from "@tabler/icons-react";
 import { firestore } from "@/lib/firebase";
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import { useUser } from "@/app/context/UserContext";
-
-
-interface TabSelectionProps {
-  setSelectedPeriod: (period: string) => void; // Mengatur tipe untuk setSelectedPeriod
-}
 
 // interface TabSelectionProps
 
