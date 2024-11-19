@@ -140,17 +140,25 @@ function CardContainer() {
 
   // Fungsi untuk mengubah foto profil
   const handleChangePhoto = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        setUserPhoto(base64String);
-        localStorage.setItem("userPhoto", base64String);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  const file = event.target.files?.[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      setUserPhoto(base64String);
+      localStorage.setItem("userPhoto", base64String);
+      
+      // Tambahkan toast atau dialog pop-up
+      toast({
+        title: "Foto Profil Berhasil Diubah",
+        description: "Foto profil Anda telah berhasil diperbarui.",
+        variant: "default",
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
 
   const handleRemovePhoto = async () => {
     try {
