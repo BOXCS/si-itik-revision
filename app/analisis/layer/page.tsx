@@ -17,7 +17,6 @@ import { IconMenu2, IconX } from "@tabler/icons-react";
 import { firestore } from "@/lib/firebase";
 import { useNavigate } from 'react-router-dom';
 import { useUser } from "@/app/context/UserContext";
-import { IconX } from "@tabler/icons-react";
 
 
 interface TabSelectionProps {
@@ -406,18 +405,6 @@ const LayerPage = () => {
     setLaba(laba);
   }, [totalRevenue, totalCost]);
 
-  const handleToggle = () => {
-    setIsOpen(!isOpen); // Mengubah state open/close
-  };
-
-  const handleBackForm = () => {
-    if (currentForm === "Pengeluaran") {
-      setCurrentForm("Penerimaan");
-    } else if (currentForm === "HasilAnalisis") {
-      setCurrentForm("Pengeluaran");
-    }
-    
-  };
   const handleToggle = () => {
     setIsOpen(!isOpen); // Mengubah state open/close
   };

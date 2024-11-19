@@ -533,6 +533,7 @@ export default function RiwayatAnalisis() {
               open={openPopup}
               onClose={() => setOpenPopup(false)}
               data1={selectedData}
+              data2={selectedData}
             />
           </div>
         </SidebarDemo>
