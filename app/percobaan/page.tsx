@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, CSSProperties } from "react";
+import React, { useState, useEffect, CSSProperties, useMemo } from "react";
 import { db } from "@/lib/firebase"; // Firebase import
 import { collection, getDocs, query, orderBy, doc, getDoc, where } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
@@ -8,8 +8,7 @@ import { Timestamp } from "firebase/firestore"; // Import Timestamp to handle Fi
 import { firestore, auth } from "@/lib/firebase";
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-
-
+import Typography from '@mui/material/Typography';
 
 
 // Modal Styles for Cards
@@ -64,13 +63,6 @@ const modalStyles: { [key: string]: React.CSSProperties } = {
     flexWrap: 'wrap', // Agar kartu bisa membungkus ke baris berikutnya jika ruang tidak cukup
     justifyContent: 'center', // Memusatkan kartu secara horizontal
     gap: '30px', // Jarak antar kartu lebih besar
-    width: '100%',
-    height: '300px',
-    marginTop: '20px',
-    marginBottom: '40px', // Add space for the close button
-    padding: '20px',
-    backgroundColor: '#f8f9fa',
-    borderRadius: '8px',
   },
   card: {
     backgroundColor: 'white',
@@ -142,6 +134,9 @@ const styles: { [key: string]: CSSProperties } = {
   },
 };
 
+
+
+
 // Helper function to format Firebase Timestamp
 const formatTimestamp = (timestamp: any) => {
   if (timestamp instanceof Timestamp) {
@@ -153,7 +148,7 @@ const formatTimestamp = (timestamp: any) => {
 
 // Component
 export default function PercobaanAnalisis() {
-  const [username, setUsername] = useState<string>("User");
+  const [user, setUser] = useState<any>()
   const [detailData, setDetailData] = useState<any[]>([]);
   const [selectedDetail, setSelectedDetail] = useState<any | null>(null);
   const [analisisPeriodeData, setAnalisisPeriodeData] = useState<any[]>([]);
@@ -162,30 +157,33 @@ export default function PercobaanAnalisis() {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  
+
+
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        setUsername(user.displayName || "User");
+        console.log(user);
+
+        setUser(user);
+        fetchUserSpecificData(user);
+
       }
     });
     return () => unsubscribe();
   }, []);
 
 
-  const fetchUserSpecificData = async () => {
-    const auth = getAuth();
-    const user = auth.currentUser;
 
-    if (!user) {
-      console.error("Pengguna tidak terautentikasi!");
-      return;
-    }
+  const fetchUserSpecificData = async (user: any) => {
 
     try {
       const userEmail = user.email;
+      console.log(userEmail);
+
       console.log("Email pengguna:", userEmail);
+
+
 
       // Query for "detail_penetasan" collection filtered by userId
       const detailQuery = query(
@@ -210,110 +208,215 @@ export default function PercobaanAnalisis() {
       const penggemukanSnapshot = await getDocs(penggemukanQuery);
       const layerSnapshot = await getDocs(layerQuery);
 
-      // Process and set state for each collection
+
+
+      // detail penetasan 
       if (!detailSnapshot.empty) {
-        const detailData = detailSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setDetailData(detailData); // Update state for detail penetasan
+        // console.log(detailSnapshot.docs);
+
+        const newDetailData = detailSnapshot.docs.map(item => {
+          return {
+            id: item.id,
+            detail: [{
+
+            }],
+            ...item.data(),
+          }
+        });
+
+        newDetailData.forEach(async (item: any, index: number) => {
+          const docRef = doc(db, "detail_penetasan", item.id);
+          const docSnapshot = await getDoc(docRef);
+
+          // console.log("tess " + docRef);
+
+          if (docSnapshot.exists()) {
+            const data = docSnapshot.data()
+            console.log("dataaaaaa " + data);
+
+          }
+
+          const analisisPeriodeRef = collection(docRef, "analisis_periode");
+          const analisisPeriodeSnapshot = await getDocs(analisisPeriodeRef);
+
+          if (!analisisPeriodeSnapshot.empty) {
+            const analisisData = analisisPeriodeSnapshot.docs.map((it) => ({
+              id: it.id,
+              ...it.data(),
+            }));
+
+            newDetailData[index].detail = analisisData;
+            setDetailData(newDetailData); // Update state for detail penetasan
+          }
+        })
+
       } else {
         console.log("No detail penetasan data found.");
       }
 
+
+      // Replace detailSnapshot with penggemukanSnapshot
       if (!penggemukanSnapshot.empty) {
-        const penggemukanData = penggemukanSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setPenggemukanData(penggemukanData); // Update state for penggemukan
+        // console.log(penggemukanSnapshot.docs);
+
+        const newPenggemukanData = penggemukanSnapshot.docs.map(item => {
+          return {
+            id: item.id,
+            detail: [{}], // Adjust as necessary
+            ...item.data(),
+          };
+        });
+
+        newPenggemukanData.forEach(async (item: any, index: number) => {
+          const docRef = doc(db, "detail_penggemukan", item.id); // Change "detail_penetasan" to "detail_penggemukan"
+          const docSnapshot = await getDoc(docRef);
+
+          // console.log("tess " + docRef);
+
+          if (docSnapshot.exists()) {
+            const data = docSnapshot.data();
+            console.log("dataaaaaa " + data);
+          }
+
+          const analisisPeriodeRef = collection(docRef, "analisis_periode");
+          const analisisPeriodeSnapshot = await getDocs(analisisPeriodeRef);
+
+          if (!analisisPeriodeSnapshot.empty) {
+            const analisisData = analisisPeriodeSnapshot.docs.map((it) => ({
+              id: it.id,
+              ...it.data(),
+            }));
+
+            newPenggemukanData[index].detail = analisisData;
+            setPenggemukanData(newPenggemukanData); // Update state for detail penggemukan
+          }
+        });
       } else {
-        console.log("No penggemukan data found.");
+        console.log("No detail penggemukan data found.");
       }
+
+
 
       if (!layerSnapshot.empty) {
-        const layerData = layerSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setLayerData(layerData); // Update state for layer data
+        // console.log(layerSnapshot.docs);
+      
+        const newLayerData = layerSnapshot.docs.map(item => {
+          return {
+            id: item.id,
+            detail: [{}], // Adjust as necessary
+            ...item.data(),
+          };
+        });
+      
+        newLayerData.forEach(async (item: any, index: number) => {
+          const docRef = doc(db, "detail_layer", item.id); // Change "detail_penggemukan" to "detail_layer"
+          const docSnapshot = await getDoc(docRef);
+      
+          // console.log("tess " + docRef);
+      
+          if (docSnapshot.exists()) {
+            const data = docSnapshot.data();
+            console.log("dataaaaaa " + data);
+          }
+      
+          const analisisPeriodeRef = collection(docRef, "analisis_periode");
+          const analisisPeriodeSnapshot = await getDocs(analisisPeriodeRef);
+      
+          if (!analisisPeriodeSnapshot.empty) {
+            const analisisData = analisisPeriodeSnapshot.docs.map((it) => ({
+              id: it.id,
+              ...it.data(),
+            }));
+      
+            newLayerData[index].detail = analisisData;
+            setLayerData(newLayerData); // Update state for detail layer
+          }
+        });
       } else {
-        console.log("No layer data found.");
+        console.log("No detail layer data found.");
       }
-
     } catch (error) {
       console.error("Error fetching user specific data:", error);
     }
+
+    
   };
 
-  // Call this function in useEffect or wherever you need to trigger the data fetch
-  useEffect(() => {
-    fetchUserSpecificData();
-  }, []);
+
+
 
 
 
   // Fetch data from Firestore
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const detailCollectionRef = collection(db, "detail_penetasan");
-        const q = query(detailCollectionRef, orderBy("created_at", "desc"));
-        const querySnapshot = await getDocs(q);
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const detailCollectionRef = collection(db, "detail_penetasan");
+  //       const q = query(detailCollectionRef, orderBy("created_at", "desc"));
+  //       const querySnapshot = await getDocs(q);
 
-        if (querySnapshot.empty) {
-          setError("No detail data available.");
-        } else {
-          const detailList = await Promise.all(querySnapshot.docs.map(async (doc) => {
-            const data = doc.data();
-            return {
-              id: doc.id,
-              analisis_periode: data.analisis_periode || "N/A",
-              created_at: data.created_at,  // This will contain Timestamp
-            };
-          }));
-          setDetailData(detailList);
-        }
+  //       if (querySnapshot.empty) {
+  //         setError("No detail data available.");
+  //       } else {
+  //         const detailList = await Promise.all(querySnapshot.docs.map(async (doc) => {
+  //           const data = doc.data();
 
-        // Fetch data for Penggemukan
-        const penggemukanRef = collection(db, "detail_penggemukan");
-        const penggemukanSnapshot = await getDocs(penggemukanRef);
+  //           return {
+  //             id: doc.id,
+  //             analisis_periode: data.analisis_periode || "N/A",
+  //             created_at: data.created_at,  // This will contain Timestamp
+  //           };
+  //         }));
+  //         setDetailData(detailList);
+  //       }
 
-        const penggemukanList = penggemukanSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setPenggemukanData(penggemukanList);
+  //       // Fetch data for Penggemukan
+  //       const penggemukanRef = collection(db, "detail_penggemukan");
+  //       const penggemukanSnapshot = await getDocs(penggemukanRef);
 
-        // Fetch data for Layer
-        const layerRef = collection(db, "detail_layer");
-        const layerSnapshot = await getDocs(layerRef);
+  //       const penggemukanList = penggemukanSnapshot.docs.map((doc) => ({
+  //         id: doc.id,
+  //         ...doc.data(),
+  //       }));
+  //       setPenggemukanData(penggemukanList);
 
-        const layerList = layerSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setLayerData(layerList);
+  //       // Fetch data for Layer
+  //       const layerRef = collection(db, "detail_layer");
+  //       const layerSnapshot = await getDocs(layerRef);
 
-      } catch (error) {
-        console.error("Error fetching detail data:", error);
-        setError("Error fetching data. Please try again later.");
-      }
-    };
-    fetchData();
-  }, []);
+  //       const layerList = layerSnapshot.docs.map((doc) => ({
+  //         id: doc.id,
+  //         ...doc.data(),
+  //       }));
+  //       setLayerData(layerList);
+
+  //     } catch (error) {
+  //       console.error("Error fetching detail data:", error);
+  //       setError("Error fetching data. Please try again later.");
+  //     }
+  //   };
+  //   fetchData();
+  // }, []);
 
   const handleClick = async (id: string, type: string) => {
     try {
       const docRef = doc(db, type, id);
       const docSnapshot = await getDoc(docRef);
 
+      // console.log(docSnapshot);
+
+
       if (docSnapshot.exists()) {
         setSelectedDetail(docSnapshot.data());
+
+
 
         // Fetch 'analisis_periode' for the selected item
         const analisisPeriodeRef = collection(docRef, "analisis_periode");
         const analisisPeriodeSnapshot = await getDocs(analisisPeriodeRef);
+
+        // console.log(analisisPeriodeSnapshot);
+
 
         if (!analisisPeriodeSnapshot.empty) {
           const analisisData = analisisPeriodeSnapshot.docs.map((doc) => {
@@ -322,6 +425,9 @@ export default function PercobaanAnalisis() {
               ...doc.data(),
             };
           });
+
+          console.log(analisisData);
+
           setAnalisisPeriodeData(analisisData);
         } else {
           setAnalisisPeriodeData([]);
@@ -336,7 +442,6 @@ export default function PercobaanAnalisis() {
       setError("Error fetching detail. Please try again later.");
     }
   };
-    
 
 
   return (
@@ -344,269 +449,37 @@ export default function PercobaanAnalisis() {
       <SidebarDemo>
         <div style={{ ...styles.contentContainer, height: 'calc(100vh - 100px)', overflowY: 'auto' }}>
           <div style={styles.titleContainer}>
-            <h1 style={styles.title}>Selamat datang, {username}</h1>
+            <h1 style={styles.title}>Selamat datang, {user?.displayName ?? "User"}</h1>
           </div>
           {error && <p style={styles.error}>{error}</p>}
 
           {/* Detail Penetasan */}
           <h2>Detail Penetasan</h2>
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            {detailData.map((item) => (
-              <div
-                key={item.id}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  width: '200px', // Fixed width
-                  padding: '15px',
-                  border: '1px solid #ddd',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                  backgroundColor: '#fff',
-                }}
-              >
-                {/* Title */}
-                <strong style={{ color: 'black', fontSize: '16px', marginBottom: '5px' }}>Detail Penetasan</strong>
-
-                {/* Separator Line */}
-                <hr
-                  style={{
-                    width: '100%',
-                    border: 'none',
-                    borderTop: '1px solid #ddd',
-                    margin: '10px 0',
-                  }}
-                />
-
-                {/* Button and Icon Section */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', justifyContent: 'center' }}>
-                  <img
-                    src="/assets/Group.png" // Replace with the actual icon path
-                    alt="Icon"
-                    style={{ width: '30px', height: '30px' }}
-                  />
-                  <button
-                    style={{
-                      padding: '5px 15px',
-                      backgroundColor: '#FF8A00',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      textAlign: 'center',
-                    }}
-                    onClick={() => handleClick(item.id, 'detail_penetasan')}
-                  >
-                    Lihat Detail
-                  </button>
-                </div>
-
-                {/* Separator Line */}
-                <hr
-                  style={{
-                    width: '100%',
-                    border: 'none',
-                    borderTop: '1px solid #ddd',
-                    margin: '10px 0',
-                  }}
-                />
-
-                {/* Amount Section */}
-                <span style={{ color: 'black', fontSize: '14px' }}>Rp. -588.000</span>
-
-                {/* Separator Line */}
-                <hr
-                  style={{
-                    width: '100%',
-                    border: 'none',
-                    borderTop: '1px solid #ddd',
-                    margin: '10px 0',
-                  }}
-                />
-
-                {/* Date and Time Section */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                  <span style={{ color: 'gray', fontSize: '12px' }}>01:03 AM</span>
-                  <span style={{ color: 'gray', fontSize: '12px' }}>12/11/2024</span>
-                </div>
-              </div>
-            ))}
+            {detailData.map((item, i) => <CardDetailPenetasan item={item} key={i} clickDetail={() => handleClick(item.id, 'detail_penetasan')} />)}
           </div>
 
           {/* Detail Penggemukan */}
           <h2>Detail Penggemukan</h2>
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            {penggemukanData.map((item) => (
-              <div
-                key={item.id}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  width: '200px', // Fixed width
-                  padding: '15px',
-                  border: '1px solid #ddd',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                  backgroundColor: '#fff',
-                }}
-              >
-                {/* Title */}
-                <strong style={{ color: 'black', fontSize: '16px', marginBottom: '5px' }}>Detail Penggemukan</strong>
-
-                {/* Separator Line */}
-                <hr
-                  style={{
-                    width: '100%',
-                    border: 'none',
-                    borderTop: '1px solid #ddd',
-                    margin: '10px 0',
-                  }}
-                />
-
-                {/* Image and Button Section (second line) */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                  <img
-                    src="/assets/Duck.png" // Replace with the actual icon path
-                    alt="Icon"
-                    style={{ width: '30px', height: '30px' }}
-                  />
-                  <button
-                    style={{
-                      padding: '5px 15px',
-                      backgroundColor: '#FF8A00',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      textAlign: 'center',
-                    }}
-                    onClick={() => handleClick(item.id, 'detail_penggemukan')}
-                  >
-                    Lihat Detail
-                  </button>
-                </div>
-
-                {/* Separator Line */}
-                <hr
-                  style={{
-                    width: '100%',
-                    border: 'none',
-                    borderTop: '1px solid #ddd',
-                    margin: '10px 0',
-                  }}
-                />
-
-                {/* Laba Section (third line) */}
-                <span style={{ color: 'black', fontSize: '14px' }}> Rp. 50.000</span>
-
-                {/* Separator Line */}
-                <hr
-                  style={{
-                    width: '100%',
-                    border: 'none',
-                    borderTop: '1px solid #ddd',
-                    margin: '10px 0',
-                  }}
-                />
-
-                {/* Date and Time Section */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                  <span style={{ color: 'gray', fontSize: '12px' }}>01:03 AM</span>
-                  <span style={{ color: 'gray', fontSize: '12px' }}>12/11/2024</span>
-                </div>
-              </div>
-            ))}
+            {penggemukanData.map((item, i) => <CardDetailPenggemukan item={item} key={i} clickDetail={() => handleClick(item.id, 'detail_penggemukan')} />)}
           </div>
+
+
+
 
 
           {/* Detail Layer */}
           <h2>Detail Layer</h2>
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            {layerData.map((item) => (
-              <div
-                key={item.id}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  width: '200px', // Fixed width
-                  padding: '15px',
-                  border: '1px solid #ddd',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                  backgroundColor: '#fff',
-                }}
-              >
-                {/* Title */}
-                <strong style={{ color: 'black', fontSize: '16px', marginBottom: '5px' }}>Detail Layer</strong>
-
-                {/* Separator Line */}
-                <hr
-                  style={{
-                    width: '100%',
-                    border: 'none',
-                    borderTop: '1px solid #ddd',
-                    margin: '10px 0',
-                  }}
-                />
-                {/* Button and Icon Section */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', justifyContent: 'center' }}>
-                  <img
-                    src="/assets/Group 109.png" // Replace with the actual icon path
-                    alt="Icon"
-                    style={{ width: '30px', height: '30px' }}
-                  />
-                  <button
-                    style={{
-                      padding: '5px 15px',
-                      backgroundColor: '#FF8A00',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      textAlign: 'center',
-                    }}
-                    onClick={() => handleClick(item.id, 'detail_layer')}
-                  >
-                    Lihat Detail
-                  </button>
-                </div>
-
-
-                {/* Separator Line */}
-                <hr
-                  style={{
-                    width: '100%',
-                    border: 'none',
-                    borderTop: '1px solid #ddd',
-                    margin: '10px 0',
-                  }}
-                />
-
-                {/* Laba Section (third line) */}
-                <span style={{ color: 'black', fontSize: '14px' }}> Rp. 50.000</span>
-
-                {/* Separator Line */}
-                <hr
-                  style={{
-                    width: '100%',
-                    border: 'none',
-                    borderTop: '1px solid #ddd',
-                    margin: '10px 0',
-                  }}
-                />
-
-                {/* Date and Time Section */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                  <span style={{ color: 'gray', fontSize: '12px' }}>01:03 AM</span>
-                  <span style={{ color: 'gray', fontSize: '12px' }}>12/11/2024</span>
-                </div>
-              </div>
-            ))}
+            {layerData.map((item, i) => <CardDetaillayer item={item} key={i} clickDetail={() => handleClick(item.id, 'detail_layer')} />)}
           </div>
+
+
+             
         </div>
+              
+                     
       </SidebarDemo>
 
       {isModalOpen && (
@@ -622,11 +495,11 @@ export default function PercobaanAnalisis() {
                       <h3> {data.periode}</h3>
                     </div>
                     <div style={modalStyles.cardContent}>
-                      <p><strong>BEP Hasil:</strong> {data.hasilAnalisis.bepHasil}</p>
-                      <p><strong>BEP Harga:</strong> {data.hasilAnalisis.bepHarga}</p>
-                      <p><strong>RC Ratio:</strong> {data.hasilAnalisis.rcRatio}</p>
-                      <p><strong>Margin of Safety:</strong> {data.hasilAnalisis.marginOfSafety}</p>
-                      <p><strong>Laba:</strong> {data.hasilAnalisis.laba}</p>
+                      <p><strong>BEP Hasil:</strong> {data.hasilAnalisis.bepHasil.toLocaleString()}</p>
+                      <p><strong>BEP Harga:</strong> {data.hasilAnalisis.bepHarga.toLocaleString()}</p>
+                      <p><strong>RC Ratio:</strong> {data.hasilAnalisis.rcRatio.toLocaleString()}</p>
+                      <p><strong>Margin of Safety:</strong> {data.hasilAnalisis.marginOfSafety.toLocaleString()}</p>
+                      <p><strong>Laba:</strong> {data.hasilAnalisis.laba.toLocaleString()}</p>
                     </div>
                   </div>
                 ))
@@ -634,15 +507,446 @@ export default function PercobaanAnalisis() {
                 <p>No analisis data available.</p>
               )}
             </div>
-            
-          {/* Tombol Close di bagian bawah kanan */}
-          <button style={modalStyles.closeButtonBottom} onClick={() => setIsModalOpen(false)}>
-            Close
-          </button>
-        </div>
+
+            {/* Tombol Close di bagian bawah kanan */}
+            <button style={modalStyles.closeButtonBottom} onClick={() => setIsModalOpen(false)}>
+              Close
+            </button>
+          </div>
         </div>
       )}
     </div>
   );
+
 }
 
+const CardDetailPenetasan = ({ item, clickDetail }: { item: any, clickDetail: () => {} }) => {
+
+
+  const [totalLaba, setTotalLaba] = useState(0)
+
+  useEffect(() => {
+    let total = 0;
+    item?.detail.forEach((data: any) => {
+      total += data?.hasilAnalisis?.laba || 0;
+    })
+
+    // console.log(item.detail);
+
+
+    setTotalLaba(total)
+
+  }, [])
+
+  return <div
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      width: '200px', // Fixed width
+      padding: '15px',
+      border: '1px solid #ddd',
+      borderRadius: '8px',
+      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+      backgroundColor: '#fff',
+    }}
+  >
+    {/* Title */}
+    <strong style={{ color: 'black', fontSize: '16px', marginBottom: '5px' }}>Detail Penetasan</strong>
+
+    {/* Separator Line */}
+    <hr
+      style={{
+        width: '100%',
+        border: 'none',
+        borderTop: '1px solid #ddd',
+        margin: '10px 0',
+      }}
+    />
+
+    {/* Button and Icon Section */}
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', justifyContent: 'center' }}>
+      <img
+        src="/assets/Group.png" // Replace with the actual icon path
+        alt="Icon"
+        style={{ width: '30px', height: '30px' }}
+      />
+      <button
+        style={{
+          padding: '5px 15px',
+          backgroundColor: '#FF8A00',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer',
+          textAlign: 'center',
+        }}
+        onClick={clickDetail}
+      >
+        Lihat Detail
+      </button>
+    </div>
+
+    {/* Separator Line */}
+    <hr
+      style={{
+        width: '100%',
+        border: 'none',
+        borderTop: '1px solid #ddd',
+        margin: '10px 0',
+      }}
+    />
+
+    {/* laba */}
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center", // Center horizontally
+        alignItems: "center", // Center vertically
+        width: "100%",
+        marginBottom: "0px",
+        height: "20px", // Optional: Ensure a fixed height for vertical centering
+      }}
+    >
+      {item.Laba !== undefined &&
+        item.Laba !== null &&
+        !isNaN(item.Laba) ? (
+        <Typography
+          variant="h6"
+          style={{
+            color: "#333",
+            fontSize: "13px",
+            fontWeight: "bold",
+            textAlign: "center",
+          }}
+        >
+          Rp. {item.Laba.toLocaleString("id-ID")}
+        </Typography>
+      ) : (
+        <Typography
+          variant="h6"
+          style={{
+            color: "black",
+            fontSize: "13px",
+            fontWeight: "bold",
+            textAlign: "center",
+          }}
+        >
+          Rp. {totalLaba.toLocaleString()}
+        </Typography>
+      )}
+    </div>
+
+    {/* Separator Line */}
+    <hr
+      style={{
+        width: '100%',
+        border: 'none',
+        borderTop: '1px solid #ddd',
+        margin: '10px 0',
+      }}
+    />
+
+    {/* Date and Time Section */}
+    <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+      <div>
+        <p style={{ color: "#333", fontSize: "11px", textAlign: "left" }}>
+          {item.created_at.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        </p>
+      </div>
+      <div>
+        <p style={{ color: "#333", fontSize: "11px", textAlign: "left" }}>
+          {item.created_at.toDate().toLocaleDateString("id-ID")}
+        </p>
+      </div>
+    </div>
+
+  </div>
+}
+
+const CardDetailPenggemukan = ({ item, clickDetail }: { item: any, clickDetail: () => {} }) => {
+
+
+  const [totalLaba, setTotalLaba] = useState(0)
+
+  useEffect(() => {
+    let total = 0;
+    item?.detail.forEach((data: any) => {
+      total += data?.hasilAnalisis?.laba || 0;
+    })
+
+    // console.log(item.detail);
+
+
+    setTotalLaba(total)
+
+  }, [])
+
+  return <div
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      width: '200px', // Fixed width
+      padding: '15px',
+      border: '1px solid #ddd',
+      borderRadius: '8px',
+      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+      backgroundColor: '#fff',
+    }}
+  >
+    {/* Title */}
+    <strong style={{ color: 'black', fontSize: '16px', marginBottom: '5px' }}>Detail Penggemukan</strong>
+
+    {/* Separator Line */}
+    <hr
+      style={{
+        width: '100%',
+        border: 'none',
+        borderTop: '1px solid #ddd',
+        margin: '10px 0',
+      }}
+    />
+
+    {/* Button and Icon Section */}
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', justifyContent: 'center' }}>
+      <img
+        src="/assets/Group.png" // Replace with the actual icon path
+        alt="Icon"
+        style={{ width: '30px', height: '30px' }}
+      />
+      <button
+        style={{
+          padding: '5px 15px',
+          backgroundColor: '#FF8A00',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer',
+          textAlign: 'center',
+        }}
+        onClick={clickDetail}
+      >
+        Lihat Detail
+      </button>
+    </div>
+
+    {/* Separator Line */}
+    <hr
+      style={{
+        width: '100%',
+        border: 'none',
+        borderTop: '1px solid #ddd',
+        margin: '10px 0',
+      }}
+    />
+
+    {/* laba */}
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center", // Center horizontally
+        alignItems: "center", // Center vertically
+        width: "100%",
+        marginBottom: "0px",
+        height: "20px", // Optional: Ensure a fixed height for vertical centering
+      }}
+    >
+      {item.Laba !== undefined &&
+        item.Laba !== null &&
+        !isNaN(item.Laba) ? (
+        <Typography
+          variant="h6"
+          style={{
+            color: "#333",
+            fontSize: "13px",
+            fontWeight: "bold",
+            textAlign: "center",
+          }}
+        >
+          Rp. {item.Laba.toLocaleString("id-ID")}
+        </Typography>
+      ) : (
+        <Typography
+          variant="h6"
+          style={{
+            color: "black",
+            fontSize: "13px",
+            fontWeight: "bold",
+            textAlign: "center",
+          }}
+        >
+          Rp. {totalLaba.toLocaleString()}
+        </Typography>
+      )}
+    </div>
+
+    {/* Separator Line */}
+    <hr
+      style={{
+        width: '100%',
+        border: 'none',
+        borderTop: '1px solid #ddd',
+        margin: '10px 0',
+      }}
+    />
+
+    {/* Date and Time Section */}
+    <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+      <div>
+        <p style={{ color: "#333", fontSize: "11px", textAlign: "left" }}>
+          {item.created_at.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        </p>
+      </div>
+      <div>
+        <p style={{ color: "#333", fontSize: "11px", textAlign: "left" }}>
+          {item.created_at.toDate().toLocaleDateString("id-ID")}
+        </p>
+      </div>
+    </div>
+
+  </div>
+}
+const CardDetaillayer = ({ item, clickDetail }: { item: any, clickDetail: () => {} }) => {
+
+
+  const [totalLaba, setTotalLaba] = useState(0)
+
+  useEffect(() => {
+    let total = 0;
+    item?.detail.forEach((data: any) => {
+      total += data?.hasilAnalisis?.laba || 0;
+    })
+
+    // console.log(item.detail);
+
+
+    setTotalLaba(total)
+
+  }, [])
+
+  return <div
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      width: '200px', // Fixed width
+      padding: '15px',
+      border: '1px solid #ddd',
+      borderRadius: '8px',
+      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+      backgroundColor: '#fff',
+    }}
+  >
+    {/* Title */}
+    <strong style={{ color: 'black', fontSize: '16px', marginBottom: '5px' }}>Detail Penggemukan</strong>
+
+    {/* Separator Line */}
+    <hr
+      style={{
+        width: '100%',
+        border: 'none',
+        borderTop: '1px solid #ddd',
+        margin: '10px 0',
+      }}
+    />
+
+    {/* Button and Icon Section */}
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', justifyContent: 'center' }}>
+      <img
+        src="/assets/Group.png" // Replace with the actual icon path
+        alt="Icon"
+        style={{ width: '30px', height: '30px' }}
+      />
+      <button
+        style={{
+          padding: '5px 15px',
+          backgroundColor: '#FF8A00',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer',
+          textAlign: 'center',
+        }}
+        onClick={clickDetail}
+      >
+        Lihat Detail
+      </button>
+    </div>
+
+    {/* Separator Line */}
+    <hr
+      style={{
+        width: '100%',
+        border: 'none',
+        borderTop: '1px solid #ddd',
+        margin: '10px 0',
+      }}
+    />
+
+    {/* laba */}
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center", // Center horizontally
+        alignItems: "center", // Center vertically
+        width: "100%",
+        marginBottom: "0px",
+        height: "20px", // Optional: Ensure a fixed height for vertical centering
+      }}
+    >
+      {item.Laba !== undefined &&
+        item.Laba !== null &&
+        !isNaN(item.Laba) ? (
+        <Typography
+          variant="h6"
+          style={{
+            color: "#333",
+            fontSize: "13px",
+            fontWeight: "bold",
+            textAlign: "center",
+          }}
+        >
+          Rp. {item.Laba.toLocaleString("id-ID")}
+        </Typography>
+      ) : (
+        <Typography
+          variant="h6"
+          style={{
+            color: "black",
+            fontSize: "13px",
+            fontWeight: "bold",
+            textAlign: "center",
+          }}
+        >
+          Rp. {totalLaba.toLocaleString()}
+        </Typography>
+      )}
+    </div>
+
+    {/* Separator Line */}
+    <hr
+      style={{
+        width: '100%',
+        border: 'none',
+        borderTop: '1px solid #ddd',
+        margin: '10px 0',
+      }}
+    />
+
+    {/* Date and Time Section */}
+    <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+      <div>
+        <p style={{ color: "#333", fontSize: "11px", textAlign: "left" }}>
+          {item.created_at.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        </p>
+      </div>
+      <div>
+        <p style={{ color: "#333", fontSize: "11px", textAlign: "left" }}>
+          {item.created_at.toDate().toLocaleDateString("id-ID")}
+        </p>
+      </div>
+    </div>
+
+  </div>
+}
