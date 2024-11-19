@@ -1,13 +1,13 @@
 "use client";
-import React, { useState, useEffect, CSSProperties, useMemo } from "react";
+import React, { useState, useEffect, CSSProperties } from "react";
 // import { db } from "@/lib/firebase";
-import { collection, getDocs, query, orderBy, doc, getDoc, where } from "firebase/firestore";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { collection, getDocs, query, doc, getDoc, where } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
 import { SidebarDemo } from "@/components/Sidebar";
 import { Timestamp } from "firebase/firestore"; // Import Timestamp to handle Firebase Timestamps
 import { firestore, auth } from "@/lib/firebase";
-import { Bar } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+// import { Bar } from 'react-chartjs-2';
+// import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import Typography from '@mui/material/Typography';
 
 
@@ -502,6 +502,7 @@ export default function PercobaanAnalisis() {
                       <p><strong>Laba:</strong> {data.hasilAnalisis.laba.toLocaleString()}</p>
                     </div>
                   </div>
+
                 ))
               ) : (
                 <p>No analisis data available.</p>
@@ -519,7 +520,6 @@ export default function PercobaanAnalisis() {
   );
 
 }
-
 const CardDetailPenetasan = ({ item, clickDetail }: { item: any, clickDetail: () => {} }) => {
 
 
