@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import UserAvatar from "@/components/ui/avatar";
 import 'remixicon/fonts/remixicon.css';
 import {
   Form,
@@ -157,13 +158,23 @@ const LoginPage = () => {
               className="hidden xl:block xl:ml-80 xl:mt-[-25px] object-contain"
             />
           </div>
-          <div className="absolute top-[-20%] right-[-120%]">
+          <div
+            className="absolute 
+             top-[-20%] right-[-120%] 
+             sm:top-[-10%] sm:right-[-100%] 
+             md:top-[-5%] md:right-[-80%] 
+             lg:top-0 lg:right-[-60%]"
+          >
             <img
               src="/assets/elips.svg"
               alt="elips"
-              className="w-[270px] h-[270px]"
+              className="w-[270px] h-[270px] 
+               sm:w-[220px] sm:h-[220px] 
+               md:w-[200px] md:h-[200px] 
+               lg:w-[180px] lg:h-[180px]"
             />
           </div>
+
           <div className="absolute top-[110%] left-[-50%]">
             <img
               src="/assets/elips2.svg"

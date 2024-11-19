@@ -99,7 +99,7 @@ function CardContainer() {
         }
       });
     }
-  }, []);  
+  }, []);
 
   const handleDeleteAccount = async () => {
     const auth = getAuth();
@@ -123,7 +123,12 @@ function CardContainer() {
       }
     }
   };
-
+  useEffect(() => {
+    const savedPhoto = localStorage.getItem("userPhoto");
+    if (savedPhoto) {
+      setUserPhoto(savedPhoto);
+    }
+  }, [])
 
 
   // Simpan userName ke localStorage setiap kali berubah
@@ -210,19 +215,13 @@ function CardContainer() {
 
 
   return (
-    <div className="w-full p-4">
+    <div className="w-full p-4 ">
       <div className="max-w-[1500px] mx-auto h-[800px]">
-        <div className="bg-white rounded-3xl shadow-lg p-8 relative w-full h-full">
+        <div className="bg-white rounded-3xl shadow-lg p-8 relative w-full h-full overflow-y-auto max-h-[80vh]">
           <div className="absolute inset-0 rounded-3xl bg-white opacity-50 blur-xl -z-10" style={{ boxShadow: '0 0 40px 20px rgba(255, 255, 255, 0.5)' }} />
 
           <div className="flex justify-center items-center mb-4">
-            {userPhoto ? (
-              <img src={userPhoto} alt="User Avatar" className="rounded-full w-40 h-40" />
-            ) : (
-              <div className="bg-blue-500 rounded-full w-40 h-40 flex items-center justify-center text-white text-5xl">
-                {getInitials(userName) || "U"} {/* Tampilkan huruf depan dari nama */}
-              </div>
-            )}
+            <div className="w-40 h-40 rounded-full"><UserAvatar photoURL={userPhoto} /> </div>
           </div>
 
           <div className="flex justify-center space-x-4 mb-4">
@@ -266,13 +265,14 @@ function CardContainer() {
             <label className="font-semibold">Email</label>
             <div className="flex items-center border border-gray-300 rounded-md w-full">
               <input
-                className="border border-gray-300 p-2 rounded-md flex-grow"
+                className="border border-gray-300 p-2 rounded-md flex-grow bg-white text-gray-500 cursor-not-allowed"
                 placeholder="Email otomatis terisi"
                 value={userEmail || ''} // Set nilai email di sini
                 readOnly // Buat menjadi read-only jika tidak ingin pengguna mengeditnya
               />
             </div>
           </div>
+
 
           {/* Modal for editing the username */}
           <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSave={handleSave}>
@@ -317,9 +317,9 @@ function CardContainer() {
               <h1 className="text-2xl font-semibold">Keluar</h1>
               <p className="text-base text-gray-500">Keluar dari akun</p>
             </div>
-            <button 
-            onClick={handleLogoutClick}
-            className="p-2 bg-[#F58110] text-white hover:bg-orange-600 transition duration-300 flex-shrink-0 rounded-md w-28">Keluar</button>
+            <button
+              onClick={handleLogoutClick}
+              className="p-2 bg-[#F58110] text-white hover:bg-orange-600 transition duration-300 flex-shrink-0 rounded-md w-28">Keluar</button>
           </div>
 
           <div className="flex justify-between border-t border-b border-gray-300 my-4 mt-7">
@@ -335,13 +335,11 @@ function CardContainer() {
             </button>
           </div>
 
-          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 mb-4">
-            <h2 className="text-center text-gray-500">
+          <div className="absolute bottom-(-1) left-1/2 transform -translate-x-1/2 mb-4 w-full">
+            <h2 className="text-center text-gray-500 text-sm md:text-base">
               si-itikpolije2024.com
             </h2>
           </div>
-
-
 
           {/* Delete Account Confirmation Modal */}
           <DeleteAccountModal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} onDelete={handleDeleteAccount}>
@@ -352,11 +350,7 @@ function CardContainer() {
 
           <div className="absolute inset-100 rounded-5xl shadow-5xl" style={{ zIndex: -1 }} />
 
-          <div className="flex justify-center items-end w-full h-full">
-            <div className="flex flex-col mb-4 text-center">
-              <h1 className="text-sm font-semibold">polije_MBKMsiitik2024.com</h1>
-            </div>
-          </div>
+
 
 
         </div>
