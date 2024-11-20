@@ -180,6 +180,12 @@ function CardContainer() {
       }
     }
   };
+  useEffect(() => {
+    const savedPhoto = localStorage.getItem("userPhoto");
+    if (savedPhoto) {
+      setUserPhoto(savedPhoto);
+    }
+  }, [])
 
   // Simpan userName ke localStorage setiap kali berubah
   useEffect(() => {
@@ -190,17 +196,25 @@ function CardContainer() {
 
   // Fungsi untuk mengubah foto profil
   const handleChangePhoto = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        setUserPhoto(base64String);
-        localStorage.setItem("userPhoto", base64String);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  const file = event.target.files?.[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      setUserPhoto(base64String);
+      localStorage.setItem("userPhoto", base64String);
+      
+      // Tambahkan toast atau dialog pop-up
+      toast({
+        title: "Foto Profil Berhasil Diubah",
+        description: "Foto profil Anda telah berhasil diperbarui.",
+        variant: "default",
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
 
   const handleRemovePhoto = async () => {
     try {
@@ -268,73 +282,58 @@ function CardContainer() {
   };
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <div className="w-full p-2 sm:p-4">
-        <div className="max-w-[1500px] mx-auto min-h-[600px] sm:h-[800px]">
-          <div className="bg-white overflow-y-auto sm:overflow-y-hidden overflow-x-hidden rounded-xl sm:rounded-3xl shadow-lg p-4 sm:p-8 relative w-full h-full">
-            {/* Background blur effect */}
-            <div
-              className="absolute inset-0 rounded-xl sm:rounded-3xl bg-white opacity-50 blur-xl -z-10"
-              style={{ boxShadow: "0 0 40px 20px rgba(255, 255, 255, 0.5)" }}
+        <Suspense fallback={<div>Loading...</div>}>
+    <div className="w-full p-4 ">
+      <div className="max-w-[1500px] mx-auto h-[800px]">
+        <div className="bg-white rounded-3xl shadow-lg p-8 relative w-full h-full overflow-y-auto max-h-[80vh]">
+          <div className="absolute inset-0 rounded-3xl bg-white opacity-50 blur-xl -z-10" style={{ boxShadow: '0 0 40px 20px rgba(255, 255, 255, 0.5)' }} />
+
+          <div className="flex justify-center items-center mb-4">
+            <div className="w-40 h-40 rounded-full"><UserAvatar photoURL={userPhoto} /> </div>
+          </div>
+
+          <div className="flex justify-center space-x-4 mb-4">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleChangePhoto}
+              className="hidden"
+              id="file-input"
             />
 
-            {/* Profile Photo Section */}
-            <div className="flex flex-col items-center mb-6">
-              {userPhoto ? (
-                <Image
-                  src={userPhoto}
-                  alt="User Avatar"
-                  className="rounded-full w-24 sm:w-36"
-                  width={160}
-                  height={160}
-                  layout="intrinsic"
-                />
-              ) : (
-                <div className="bg-blue-500 rounded-full w-24 h-24 sm:w-40 sm:h-40 flex items-center justify-center text-white text-3xl sm:text-5xl">
-                  {getInitials(userName) || "U"}
-                </div>
-              )}
-
-              {/* Photo buttons */}
-              <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4 mt-4">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleChangePhoto}
-                  className="hidden"
-                  id="file-input"
-                />
-                <label
-                  htmlFor="file-input"
-                  className="px-4 py-2 bg-[#F58110] text-white hover:bg-orange-600 transition duration-300 rounded-md cursor-pointer text-center"
-                >
-                  Ubah Foto Profil
-                </label>
-                <button
-                  onClick={handleRemovePhoto}
-                  disabled={!userPhoto}
-                  className={`px-4 py-2 ${
-                    userPhoto
-                      ? "bg-red-700 hover:bg-red-800"
-                      : "bg-gray-300 hover:bg-gray-400"
-                  } text-white rounded-md transition duration-300`}
-                >
-                  Hapus Foto Profil
-                </button>
-              </div>
+          <div className="flex flex-col mb-4">
+            <label className="font-semibold">Email</label>
+            <div className="flex items-center border border-gray-300 rounded-md w-full">
+              <input
+                className="border border-gray-300 p-2 rounded-md flex-grow bg-white text-gray-500 cursor-not-allowed"
+                placeholder="Email otomatis terisi"
+                value={userEmail || ''} // Set nilai email di sini
+                readOnly // Buat menjadi read-only jika tidak ingin pengguna mengeditnya
+              />
             </div>
 
-            {/* User Info Section */}
-            <div className="space-y-4">
-              <div className="flex flex-col">
-                <label className="font-extrabold mb-2">Username</label>
-                <div className="flex flex-col sm:flex-row items-center gap-2">
-                  <input
-                    className="border border-gray-300 p-2 rounded-md w-full"
-                    placeholder="Masukkan Nama"
-                    value={userName || ""}
-                    readOnly
-                  />
+
+          {/* Modal for editing the username */}
+          <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSave={handleSave}>
+            <h2 className="text-lg font-bold mb-4">Edit Profile</h2>
+            <p className="mb-2 text-gray-500">Ingin ubah nama?</p>
+            <h4 className="text-base font-bold mb-2">Ubah Nama</h4>
+            <input
+              type="text"
+              className="border border-gray-300 p-2 rounded-md w-full"
+              placeholder="Masukkan Nama Baru"
+              value={tempUserName}
+              onChange={(e) => setTempUserName(e.target.value)}
+            />
+          </Modal>
+
+          {/* Modal konfirmasi logout */}
+          {isLogoutModalOpen && (
+            <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
+              <div className="bg-white p-6 rounded-xl shadow-lg w-96">
+                <h3 className="text-xl font-semibold mb-4">Konfirmasi Logout</h3>
+                <p className="mb-4">Apakah Anda yakin ingin keluar?</p>
+                <div className="flex justify-between">
                   <button
                     onClick={handleEditClick}
                     className="p-2 bg-[#F58110] text-white hover:bg-orange-600 transition duration-300 rounded-md w-full sm:w-24"
@@ -344,16 +343,40 @@ function CardContainer() {
                 </div>
               </div>
 
-              <div className="flex flex-col">
-                <label className="font-semibold mb-2">Email</label>
-                <input
-                  className="border border-gray-300 p-2 rounded-md w-full"
-                  placeholder="Email otomatis terisi"
-                  value={userEmail || ""}
-                  readOnly
-                />
-              </div>
+          <div className="flex justify-between border-t border-b border-gray-300 my-4 mt-7">
+            <div className="flex flex-col gap-3 mb-4">
+              <h1 className="text-2xl font-semibold">Keluar</h1>
+              <p className="text-base text-gray-500">Keluar dari akun</p>
             </div>
+            <button
+              onClick={handleLogoutClick}
+              className="p-2 bg-[#F58110] text-white hover:bg-orange-600 transition duration-300 flex-shrink-0 rounded-md w-28">Keluar</button>
+          </div>
+
+          <div className="flex justify-between border-t border-b border-gray-300 my-4 mt-7">
+            <div className="flex flex-col gap-3 mb-4">
+              <h1 className="text-2xl font-semibold">Hapus Akun</h1>
+              <p className="text-base text-gray-500">Setelah akun dihapus, Anda tidak bisa masuk ke SI-Itik maupun mengakses semua fitur.</p>
+            </div>
+            <button
+              onClick={() => setIsDeleteModalOpen(true)} // Open the delete confirmation modal
+              className="p-2 bg-[#F58110] text-white hover:bg-orange-600 transition duration-300 flex-shrink-0 rounded-md w-28"
+            >
+              Hapus Akun
+            </button>
+          </div>
+
+          <div className="absolute bottom-(-1) left-1/2 transform -translate-x-1/2 mb-4 w-full">
+            <h2 className="text-center text-gray-500 text-sm md:text-base">
+              si-itikpolije2024.com
+            </h2>
+          </div>
+
+          {/* Delete Account Confirmation Modal */}
+          <DeleteAccountModal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} onDelete={handleDeleteAccount}>
+
+
+          </DeleteAccountModal>
 
             {/* Action Buttons Section */}
             <div className="space-y-6 mt-8">
@@ -389,11 +412,6 @@ function CardContainer() {
                   Hapus Akun
                 </button>
               </div>
-            </div>
-
-            {/* Footer */}
-            <div className="text-center mt-8 sm:absolute sm:bottom-0 sm:left-1/2 sm:transform sm:-translate-x-1/2 sm:mb-4">
-              <h2 className="text-gray-500">si-itikpolije2024.com</h2>
             </div>
 
             {/* Modals */}

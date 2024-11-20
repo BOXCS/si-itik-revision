@@ -4,7 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import "remixicon/fonts/remixicon.css";
+import UserAvatar from "@/components/ui/avatar";
+import 'remixicon/fonts/remixicon.css';
 import {
   Form,
   FormControl,
