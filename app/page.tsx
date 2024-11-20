@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import LandingPage from "./root/pages/LandingPage";
 import SignUpPage from "./auth/signup/page";
 import LoginPage from "./auth/login/page";
-import UsersPage from "./users";
+// import UsersPage from "./users";
 import Dashboard from "./dashboard/page";
 import { UserProvider } from "./context/UserContext"; // Pastikan ini diimpor
 import PenetasanPage from "./analisis/penetasan/page";
@@ -28,9 +28,9 @@ function Home() {
     case "/auth/forgetPass":
       content = <ForgetPassPage />;
       break;
-    case "/user":
-      content = <UsersPage />;
-      break;
+    // case "/user":
+    //   content = <UsersPage />;
+    //   break;
     case "/dashboard":
       content = <Dashboard />;
       break;
@@ -38,7 +38,7 @@ function Home() {
       content = <PenetasanPage />; // Pastikan ini berada dalam UserProvider
       break;
     case "/user_setting":
-      content = <SettingPage />; // Perbaiki penggunaan komponen
+      content = <SettingPage />;
     case "/analisis/test":
       content = <GetDataPage />; // Pastikan ini berada dalam UserProvider
       break;

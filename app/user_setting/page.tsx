@@ -3,17 +3,32 @@
 // Komponen SettingPage
 import { useRouter } from "next/navigation";
 import { SidebarDemo } from "@/components/Sidebar";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { deleteUser, signOut, updateProfile } from "firebase/auth";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Impor fungsi untuk Firebase Storage
-import { auth, storage } from "@/lib/firebase";
-import { getAuth, reauthenticateWithPopup, GoogleAuthProvider } from 'firebase/auth';
+// import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { auth } from "@/lib/firebase";
+import {
+  getAuth,
+  reauthenticateWithPopup,
+  GoogleAuthProvider,
+} from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
+import Image from "next/image";
 
-import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
-import UserAvatar from "@/components/ui/avatar";
+// import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
+// import UserAvatar from "@/components/ui/avatar";
 
-function Modal({ isOpen, onClose, onSave, children }: { isOpen: boolean; onClose: () => void; onSave: () => void; children: React.ReactNode }) {
+function Modal({
+  isOpen,
+  onClose,
+  onSave,
+  children,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: () => void;
+  children: React.ReactNode;
+}) {
   if (!isOpen) return null;
 
   return (
@@ -21,26 +36,59 @@ function Modal({ isOpen, onClose, onSave, children }: { isOpen: boolean; onClose
       <div className="bg-white rounded-lg p-8 w-96">
         {children}
         <div className="flex justify-end space-x-4 mt-4">
-          <button onClick={onClose} className="px-4 py-2 bg-gray-300 rounded hover:bg-red-400 transition duration-300">Batal</button>
-          <button onClick={onSave} className="px-4 py-2 bg-[#F58110] text-white hover:bg-orange-600 transition duration-300">Simpan</button>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-300 rounded hover:bg-red-400 transition duration-300"
+          >
+            Batal
+          </button>
+          <button
+            onClick={onSave}
+            className="px-4 py-2 bg-[#F58110] text-white hover:bg-orange-600 transition duration-300"
+          >
+            Simpan
+          </button>
         </div>
       </div>
     </div>
   );
 }
 
-function DeleteAccountModal({ isOpen, onClose, onDelete, children }: { isOpen: boolean; onClose: () => void; onDelete: () => void; children?: React.ReactNode }) {
+function DeleteAccountModal({
+  isOpen,
+  onClose,
+  onDelete,
+  children,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onDelete: () => void;
+  children?: React.ReactNode;
+}) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="fixed inset-0 flex items-center justify-center overflow-y-auto bg-black bg-opacity-50 z-50">
       <div className="bg-white rounded-lg p-8 w-96">
         {children}
         <h2 className="text-lg font-bold mb-4">Hapus Akun</h2>
-        <p className="mb-2 text-gray-500">Apakah Anda yakin ingin menghapus akun? Semua data akan hilang dan tidak dapat dipulihkan.</p>
+        <p className="mb-2 text-gray-500">
+          Apakah Anda yakin ingin menghapus akun? Semua data akan hilang dan
+          tidak dapat dipulihkan.
+        </p>
         <div className="flex justify-end space-x-4 mt-4">
-          <button onClick={onClose} className="px-4 py-2 bg-[#F58110] text-white hover:bg-orange-600 transition duration-300">Batal</button>
-          <button onClick={onDelete} className="px-4 py-2 bg-red-700 text-white hover:bg-red-800 transition duration-300">Hapus Akun</button>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-[#F58110] text-white hover:bg-orange-600 transition duration-300"
+          >
+            Batal
+          </button>
+          <button
+            onClick={onDelete}
+            className="px-4 py-2 bg-red-700 text-white hover:bg-red-800 transition duration-300"
+          >
+            Hapus Akun
+          </button>
         </div>
       </div>
     </div>
@@ -48,32 +96,35 @@ function DeleteAccountModal({ isOpen, onClose, onDelete, children }: { isOpen: b
 }
 
 export default function SettingPage() {
-  const router = useRouter();
+  // const router = useRouter();
   return (
     <div className="w-full min-h-screen bg-gray-100 flex">
-      <SidebarDemo>
-        <div className="flex-1 flex flex-col p-10">
-          <h1 className="text-start text-3xl font-bold text-black mb-8">Pengaturan</h1>
-          <CardContainer />
-        </div>
-      </SidebarDemo>
+      <Suspense fallback={<div>Loading...</div>}>
+        <SidebarDemo>
+          <div className="flex-1 flex flex-col p-10 overflow-y-auto h-screen">
+            <h1 className="text-start text-3xl font-bold text-black mb-8">
+              Pengaturan
+            </h1>
+            <CardContainer />
+          </div>
+        </SidebarDemo>
+      </Suspense>
     </div>
   );
 }
 
 function CardContainer() {
   const { toast } = useToast();
-  const [showDialog, setShowDialog] = useState(false);
+  // const [showDialog, setShowDialog] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const router = useRouter();
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
-  const [photoAdded, setPhotoAdded] = useState<boolean>(false);
+  // const [photoAdded, setPhotoAdded] = useState<boolean>(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(() => {
-
     if (typeof window !== "undefined") {
       // Kode ini hanya dijalankan di client-side
-      return localStorage.getItem('userName') || null;
+      return localStorage.getItem("userName") || null;
     }
     return null;
   });
@@ -81,20 +132,19 @@ function CardContainer() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [tempUserName, setTempUserName] = useState<string>("");
 
-
   // Mengatur email dan nama pengguna saat komponen dimuat
   useEffect(() => {
     const currentUser = auth.currentUser;
     if (currentUser) {
-      setUserEmail(currentUser.email || '');
-      setUserName(currentUser.displayName || '');
+      setUserEmail(currentUser.email || "");
+      setUserName(currentUser.displayName || "");
       setUserPhoto(currentUser.photoURL || null);
     } else {
       // Coba fetch user kembali jika currentUser awalnya null
       auth.onAuthStateChanged((user) => {
         if (user) {
-          setUserEmail(user.email || '');
-          setUserName(user.displayName || '');
+          setUserEmail(user.email || "");
+          setUserName(user.displayName || "");
           setUserPhoto(user.photoURL || null);
         }
       });
@@ -115,11 +165,18 @@ function CardContainer() {
 
         // Setelah berhasil reautentikasi, lakukan penghapusan akun
         await deleteUser(user);
-        toast({ title: "Account deleted successfully.", description: "Akun berhasil dihapus" });
+        toast({
+          title: "Account deleted successfully.",
+          description: "Akun berhasil dihapus",
+        });
         router.push("/auth/login/"); // Redirect ke halaman login
       } catch (error) {
         console.error("Reauthentication failed:", error);
-        toast({ title: "Reauthentication failed.", description: "Silakan coba lagi.", variant: "destructive" });
+        toast({
+          title: "Reauthentication failed.",
+          description: "Silakan coba lagi.",
+          variant: "destructive",
+        });
       }
     }
   };
@@ -130,11 +187,10 @@ function CardContainer() {
     }
   }, [])
 
-
   // Simpan userName ke localStorage setiap kali berubah
   useEffect(() => {
     if (userName !== null) {
-      localStorage.setItem('userName', userName);
+      localStorage.setItem("userName", userName);
     }
   }, [userName]);
 
@@ -183,12 +239,16 @@ function CardContainer() {
   // Mengambil huruf pertama dari nama pengguna
   const getInitials = (name: string | null) => {
     if (!name) return "";
-    return name.split(" ").map(word => word.charAt(0)).join("").toUpperCase();
+    return name
+      .split(" ")
+      .map((word) => word.charAt(0))
+      .join("")
+      .toUpperCase();
   };
 
-  const handleChangeName = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUserName(e.target.value);
-  };
+  // const handleChangeName = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   setUserName(e.target.value);
+  // };
 
   const handleEditClick = () => {
     setTempUserName(userName || "");
@@ -214,15 +274,15 @@ function CardContainer() {
   const confirmLogout = async () => {
     setIsLogoutModalOpen(false); // Tutup modal
     await signOut(auth); // Logout dari Firebase
-    router.push('/auth/login/'); // Redirect ke halaman login
+    router.push("/auth/login/"); // Redirect ke halaman login
   };
 
   const cancelLogout = () => {
     setIsLogoutModalOpen(false); // Tutup modal jika batal logout
   };
 
-
   return (
+        <Suspense fallback={<div>Loading...</div>}>
     <div className="w-full p-4 ">
       <div className="max-w-[1500px] mx-auto h-[800px]">
         <div className="bg-white rounded-3xl shadow-lg p-8 relative w-full h-full overflow-y-auto max-h-[80vh]">
@@ -240,34 +300,6 @@ function CardContainer() {
               className="hidden"
               id="file-input"
             />
-            <label
-              htmlFor="file-input"
-              className="px-4 py-2 bg-[#F58110] text-white hover:bg-orange-600 transition duration-300 rounded-md cursor-pointer"
-            >
-              Ubah Foto Profil
-            </label>
-            <button
-              onClick={handleRemovePhoto}
-              disabled={!userPhoto}
-              className={`px-4 py-2 ${userPhoto ? "bg-red-700 hover:bg-red-800" : "bg-gray-300 hover:bg-gray-400"} text-white rounded-md transition duration-300`}
-            >
-              Hapus Foto Profil
-            </button>
-
-          </div>
-
-          <div className="flex flex-col mb-4">
-            <label className="font-extrabold">Username</label>
-            <div className="flex items-center border border-gray-300 rounded-md w-full">
-              <input
-                className="border border-gray-300 p-2 rounded-md flex-grow"
-                placeholder="Masukkan Nama"
-                value={userName || ""}
-                readOnly
-              />
-              <button onClick={handleEditClick} className="p-2 bg-[#F58110] text-white hover:bg-orange-600 transition duration-300 flex-shrink-0 rounded-md w-24">Edit</button>
-            </div>
-          </div>
 
           <div className="flex flex-col mb-4">
             <label className="font-semibold">Email</label>
@@ -279,7 +311,6 @@ function CardContainer() {
                 readOnly // Buat menjadi read-only jika tidak ingin pengguna mengeditnya
               />
             </div>
-          </div>
 
 
           {/* Modal for editing the username */}
@@ -304,21 +335,13 @@ function CardContainer() {
                 <p className="mb-4">Apakah Anda yakin ingin keluar?</p>
                 <div className="flex justify-between">
                   <button
-                    onClick={confirmLogout}
-                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                    onClick={handleEditClick}
+                    className="p-2 bg-[#F58110] text-white hover:bg-orange-600 transition duration-300 rounded-md w-full sm:w-24"
                   >
-                    Ya, Keluar
-                  </button>
-                  <button
-                    onClick={cancelLogout}
-                    className="px-4 py-2 bg-gray-300 text-black rounded-md hover:bg-gray-400"
-                  >
-                    Batal
+                    Edit
                   </button>
                 </div>
               </div>
-            </div>
-          )}
 
           <div className="flex justify-between border-t border-b border-gray-300 my-4 mt-7">
             <div className="flex flex-col gap-3 mb-4">
@@ -355,14 +378,93 @@ function CardContainer() {
 
           </DeleteAccountModal>
 
+            {/* Action Buttons Section */}
+            <div className="space-y-6 mt-8">
+              <div className="flex flex-col sm:flex-row justify-between border-t border-b border-gray-300 py-4">
+                <div className="space-y-2 mb-4 sm:mb-0">
+                  <h1 className="text-xl sm:text-2xl font-semibold">Keluar</h1>
+                  <p className="text-sm sm:text-base text-gray-500">
+                    Keluar dari akun
+                  </p>
+                </div>
+                <button
+                  onClick={handleLogoutClick}
+                  className="p-2 bg-[#F58110] text-white hover:bg-orange-600 transition duration-300 rounded-md w-full sm:w-28"
+                >
+                  Keluar
+                </button>
+              </div>
 
-          <div className="absolute inset-100 rounded-5xl shadow-5xl" style={{ zIndex: -1 }} />
+              <div className="flex flex-col sm:flex-row justify-between border-t border-b border-gray-300 py-4">
+                <div className="space-y-2 mb-4 sm:mb-0">
+                  <h1 className="text-xl sm:text-2xl font-semibold">
+                    Hapus Akun
+                  </h1>
+                  <p className="text-sm sm:text-base text-gray-500">
+                    Setelah akun dihapus, Anda tidak bisa masuk ke SI-Itik
+                    maupun mengakses semua fitur.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setIsDeleteModalOpen(true)}
+                  className="p-2 bg-[#F58110] text-white hover:bg-orange-600 transition duration-300 rounded-md w-full sm:w-28"
+                >
+                  Hapus Akun
+                </button>
+              </div>
+            </div>
 
+            {/* Modals */}
+            <Modal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              onSave={handleSave}
+            >
+              <h2 className="text-lg font-bold mb-4">Edit Profile</h2>
+              <p className="mb-2 text-gray-500">Ingin ubah nama?</p>
+              <h4 className="text-base font-bold mb-2">Ubah Nama</h4>
+              <input
+                type="text"
+                className="border border-gray-300 p-2 rounded-md w-full"
+                placeholder="Masukkan Nama Baru"
+                value={tempUserName}
+                onChange={(e) => setTempUserName(e.target.value)}
+              />
+            </Modal>
 
+            {isLogoutModalOpen && (
+              <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50 p-4">
+                <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-sm">
+                  <h3 className="text-xl font-semibold mb-4">
+                    Konfirmasi Logout
+                  </h3>
+                  <p className="mb-4">Apakah Anda yakin ingin keluar?</p>
+                  <div className="flex flex-col sm:flex-row justify-between gap-2">
+                    <button
+                      onClick={confirmLogout}
+                      className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 w-full"
+                    >
+                      Ya, Keluar
+                    </button>
+                    <button
+                      onClick={cancelLogout}
+                      className="px-4 py-2 bg-gray-300 text-black rounded-md hover:bg-gray-400 w-full"
+                    >
+                      Batal
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
-
+            <DeleteAccountModal
+              isOpen={isDeleteModalOpen}
+              onClose={() => setIsDeleteModalOpen(false)}
+              onDelete={handleDeleteAccount}
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </Suspense>
   );
 }

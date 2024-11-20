@@ -11,23 +11,23 @@ export const getYAxisDomain = (
     return [minDomain, maxDomain]
   }
 
-export function hasOnlyOneValueForKey(
-    array: any[],
-    keyToCheck: string,
+  export function hasOnlyOneValueForKey<T extends Record<string, unknown>>(
+    array: T[],
+    keyToCheck: keyof T,
   ): boolean {
-    const val: any[] = []
+    const val: unknown[] = [];
   
     for (const obj of array) {
       if (Object.prototype.hasOwnProperty.call(obj, keyToCheck)) {
-        val.push(obj[keyToCheck])
+        val.push(obj[keyToCheck]);
         if (val.length > 1) {
-          return false
+          return false;
         }
       }
     }
   
-    return true
-  }
+    return true;
+  }  
 
 export const chartColors = {
   blue: {
