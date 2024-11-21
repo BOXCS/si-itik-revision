@@ -3,7 +3,7 @@
 // Komponen SettingPage
 import { useRouter } from "next/navigation";
 import { SidebarDemo } from "@/components/Sidebar";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { deleteUser, signOut, updateProfile } from "firebase/auth";
 // import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { auth } from "@/lib/firebase";
@@ -98,14 +98,16 @@ export default function SettingPage() {
   // const router = useRouter();
   return (
     <div className="w-full min-h-screen bg-gray-100 flex">
-      <SidebarDemo>
-        <div className="flex-1 flex flex-col p-10">
-          <h1 className="text-start text-3xl font-bold text-black mb-8">
-            Pengaturan
-          </h1>
-          <CardContainer />
-        </div>
-      </SidebarDemo>
+      <Suspense fallback={<div>Loading...</div>}>
+        <SidebarDemo>
+          <div className="flex-1 flex flex-col p-10">
+            <h1 className="text-start text-3xl font-bold text-black mb-8">
+              Pengaturan
+            </h1>
+            <CardContainer />
+          </div>
+        </SidebarDemo>
+      </Suspense>
     </div>
   );
 }
