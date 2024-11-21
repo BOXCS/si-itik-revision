@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { collection, getDocs, orderBy, query, where, Timestamp } from "firebase/firestore";
-import { firestore } from "@/lib/firebase";
+import { collection, getDocs, orderBy, query, where, Timestamp, } from "firebase/firestore";
+import { auth, firestore } from "@/lib/firebase";
 import { useSearchParams } from "next/navigation";
 import { SidebarDemo } from "@/components/Sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,9 +10,11 @@ import { AreaChart } from "@/components/ui/chart"
 import { Tooltip } from "@/components/ui/tooltip";
 import UserAvatar from "@/components/ui/avatar";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import Link from 'next/link';
 import {
   Grid,
   Card,
+  Divider,
   CardContent,
   Typography,
   Dialog,
@@ -20,22 +22,16 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  FormControl,
+  InputLabel,
+  SelectChangeEvent,
+  Select,
+  MenuItem,
 } from "@mui/material";
-import { auth } from "@/lib/firebase";
-import { unsubscribe } from "diagnostics_channel";
-
-interface AnalisisPeriode {
-  id: string;
-  periode: string;
-  created_at: Timestamp;
-  laba: number;
-  revenue: number;
-  cost: number;
-  analysisName: string;
-}
 
 interface AnalysisPeriodData {
   id: string;
+  analysisId: string;
   created_at: Timestamp;
   bepHarga: number;
   bepHasil: number;
@@ -51,14 +47,21 @@ export default function Dashboard() {
   const searchParams = useSearchParams();
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
-  const [data, setData] = useState<AnalysisPeriodData[]>([]);
-  const [analysisHistory, setAnalysisHistory] = useState<{ id: string; time: string; type: string }[]>([]);
-  const username = searchParams?.get("username") || "User";
+  const [userName, setUserName] = useState<string | null>(() => {
+
+    if (typeof window !== "undefined") {
+      // Kode ini hanya dijalankan di client-side
+      return localStorage.getItem('userName') || null;
+    }
+    return null;
+  });
   const [loading, setLoading] = useState(true);
-  const [chartDataPenetasan, setChartDataPenetasan] = useState<{ Prd: string; Revenue: number; Cost: number; Laba: number; }[]>([]);
-  const [chartDataPenggemukan, setChartDataPenggemukan] = useState<{ Prd: string; Revenue: number; Cost: number; Laba: number; }[]>([]);
-  const [chartDataLayer, setChartDataLayer] = useState<{ Prd: string; Revenue: number; Cost: number; Laba: number; }[]>([]);
+  const [chartDataPenetasan, setChartDataPenetasan] = useState<{ Prd: number; Revenue: number; Cost: number; Laba: number; }[]>([]);
+  const [chartDataPenggemukan, setChartDataPenggemukan] = useState<{ Prd: number; Revenue: number; Cost: number; Laba: number; }[]>([]);
+  const [chartDataLayer, setChartDataLayer] = useState<{ Prd: number; Revenue: number; Cost: number; Laba: number; }[]>([]);
   const [dataAnalisis, setDataAnalisis] = useState<AnalysisPeriodData[]>([]);
+  const [originalData, setOriginalData] = useState<AnalysisPeriodData[]>([]);
+  const [sortCriteria, setSortCriteria] = useState<string>("terbaru");
 
   const styles = {
     pageContainer: {
@@ -79,15 +82,18 @@ export default function Dashboard() {
       color: "#333",
       marginBottom: "15px",
     },
+    sortControl: {
+      minWidth: "150px",
+    },
     card: {
       backgroundColor: "#FFFFFF",
       borderRadius: "12px",
-      boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+      boxShadow: "6px 6px 12px rgba(255, 165, 0, 0.5)",
       padding: "15px",
       cursor: "pointer",
       transition: "transform 0.2s",
-      width: "200px", // Atur lebar card
-      height: "200px", // Atur tinggi card
+      width: "380px", // Atur lebar card
+      height: "140px", // Atur tinggi card
       "&:hover": {
         transform: "scale(1.02)",
       },
@@ -118,6 +124,34 @@ export default function Dashboard() {
     },
   };
 
+  useEffect(() => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const savedPhoto = localStorage.getItem("userPhoto");
+      if (savedPhoto) {
+        setUserPhoto(savedPhoto); // Gunakan foto dari localStorage
+      } else {
+        setUserPhoto(currentUser.photoURL || null); // Gunakan foto dari Google
+      }
+      setUserEmail(currentUser.email || '');
+      setUserName(currentUser.displayName || '');
+    } else {
+      // Coba fetch user kembali jika currentUser  awalnya null
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          const savedPhoto = localStorage.getItem("userPhoto");
+          if (savedPhoto) {
+            setUserPhoto(savedPhoto); // Gunakan foto dari localStorage
+          } else {
+            setUserPhoto(user.photoURL || null); // Gunakan foto dari Google
+          }
+          setUserEmail(user.email || '');
+          setUserName(user.displayName || '');
+        }
+      });
+    }
+  }, []);
+
   // Memeriksa login
   useEffect(() => {
     const auth = getAuth();
@@ -131,173 +165,12 @@ export default function Dashboard() {
     return () => unsubscribe();
   }, []);
 
-  // useEffect(() => {
-  //   if (!userEmail) return;
-  //   const fetchData = async () => {
-  //     try {
-  //       console.log("Mencari dokumen dengan email:", userEmail);
-  //       //Detail Penetasan
-  //       const detailpenetasan = query(
-  //         collection(firestore, "detail_penetasan"),
-  //         where("userId", "==", userEmail)
-  //       );
-
-  //       const querySnapshot = await getDocs(detailpenetasan);
-
-  //       if (!querySnapshot.empty) {
-  //         const userDocref = querySnapshot.docs[0].ref;
-  //         const subCollectionRef = query(
-  //           collection(userDocref, "analisis_periode"),
-  //           orderBy("created_at", "asc") // Mengurutkan berdasarkan `created_at`
-  //         );
-  //         const subCollectionSnapshot = await getDocs(subCollectionRef);
-
-  //         console.log("SubCollection Snapshot: ", subCollectionSnapshot.docs);
-
-  //         const fetchData: AnalisisPeriode[] = subCollectionSnapshot.docs.map((doc) => {
-  //           const docData = doc.data();
-  //           console.log("Data Dokumen: ", docData);
-
-  //           const hasilAnalisis = docData.hasilAnalisis || {};
-  //           const penerimaan = docData.penerimaan || {};
-  //           const pengeluaran = docData.pengeluaran || {};
-  //           const periode = docData.periode || {};
-
-  //           return {
-  //             id: doc.id,
-  //             created_at: docData.created_at || Timestamp.now(),
-  //             laba: hasilAnalisis.laba ?? 0,
-  //             revenue: penerimaan.totalRevenue ?? 0,
-  //             cost: pengeluaran.totalCost ?? 0,
-  //             periode: periode ??0,
-  //           } as AnalisisPeriode;
-  //         });
-
-  //         setData(fetchData);
-  //         console.log("Data yang di set: ", fetchData);          
-  //         const updatedChartData = fetchData.map(item => ({
-  //           Prd: item.periode,
-  //           Revenue: item.revenue,
-  //           Cost: item.cost,
-  //           Laba: item.laba,
-  //         }));
-  //         setChartDataPenetasan(updatedChartData);
-  //       } else {
-  //         console.error("Dokumen tidak ditemukan untuk email yang diberikan");
-  //       }
-
-  //       //Detail Penggemukan
-  //       const detailpenggemukan = query(
-  //         collection(firestore, "detail_penggemukan"),
-  //         where("userId", "==", userEmail)
-  //       );
-
-  //       const querySnapshot1 = await getDocs(detailpenggemukan);
-
-  //       if (!querySnapshot1.empty) {
-  //         const userDocref = querySnapshot1.docs[0].ref;
-  //         const subCollectionRef = query(
-  //           collection(userDocref, "analisis_periode"),
-  //           orderBy("created_at", "asc") // Mengurutkan berdasarkan `created_at`
-  //         );
-  //         const subCollectionSnapshot = await getDocs(subCollectionRef);
-
-  //         console.log("SubCollection Snapshot:                                                                                    ", subCollectionSnapshot.docs);
-
-  //         const fetchData: AnalisisPeriode[] = subCollectionSnapshot.docs.map((doc) => {
-  //           const docData = doc.data();
-  //           console.log("Data Dokumen: ", docData);
-
-  //           const hasilAnalisis = docData.hasilAnalisis || {};
-  //           const penerimaan = docData.penerimaan || {};
-  //           const pengeluaran = docData.pengeluaran || {};
-  //           const periode = docData.periode || {};
-
-  //           return {
-  //             id: doc.id,
-  //             created_at: docData.created_at || Timestamp.now(),
-  //             laba: hasilAnalisis.laba ?? 0,
-  //             revenue: penerimaan.totalRevenue ?? 0,
-  //             cost: pengeluaran.totalCost ?? 0,
-  //             periode: periode ??0,
-  //           } as AnalisisPeriode;
-  //         });
-
-  //         setData(fetchData);
-  //         console.log("Data yang di set: ", fetchData);          
-  //         const updatedChartData = fetchData.map(item => ({
-  //           Prd: item.periode,
-  //           Revenue: item.revenue,
-  //           Cost: item.cost,
-  //           Laba: item.laba,
-  //         }));
-  //         setChartDataPenggemukan(updatedChartData);
-  //       } else {
-  //         console.error("Dokumen tidak ditemukan untuk email yang diberikan");
-  //       }
-
-  //       //Detail Layering
-  //       const detaillayer = query(
-  //         collection(firestore, "detail_layer"),
-  //         where("userId", "==", userEmail)
-  //       );
-
-  //       const querySnapshot2 = await getDocs(detaillayer);
-
-  //       if (!querySnapshot2.empty) {
-  //         const userDocref = querySnapshot2.docs[0].ref;
-  //         const subCollectionRef = query(
-  //           collection(userDocref, "analisis_periode"),
-  //           orderBy("created_at", "asc") // Mengurutkan berdasarkan `created_at`
-  //         );
-  //         const subCollectionSnapshot = await getDocs(subCollectionRef);
-
-  //         console.log("SubCollection Snapshot: ", subCollectionSnapshot.docs);
-
-  //         const fetchData: AnalisisPeriode[] = subCollectionSnapshot.docs.map((doc) => {
-  //           const docData = doc.data();
-  //           console.log("Data Dokumen: ", docData);
-
-  //           const hasilAnalisis = docData.hasilAnalisis || {};
-  //           const penerimaan = docData.penerimaan || {};
-  //           const pengeluaran = docData.pengeluaran || {};
-  //           const periode = docData.periode || {};
-
-  //           return {
-  //             id: doc.id,
-  //             created_at: docData.created_at || Timestamp.now(),
-  //             laba: hasilAnalisis.laba ?? 0,
-  //             revenue: penerimaan.totalRevenue ?? 0,
-  //             cost: pengeluaran.totalCost ?? 0,
-  //             periode: periode ??0,
-  //           } as AnalisisPeriode;
-  //         });
-
-  //         setData(fetchData);
-  //         console.log("Data yang di set: ", fetchData);          
-  //         const updatedChartData = fetchData.map(item => ({
-  //           Prd: item.periode,
-  //           Revenue: item.revenue,
-  //           Cost: item.cost,
-  //           Laba: item.laba,
-  //         }));
-  //         setChartDataLayer(updatedChartData);
-  //       } else {
-  //         console.error("Dokumen tidak ditemukan untuk email yang diberikan");
-  //       }
-
-
-  //     } catch (error) {
-  //       console.error("Error mengambil Data: ", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   fetchData();
-  // }, [userEmail]);
-  // if (loading) {
-  //   return <p>Loading...</p>
-  // }
+  useEffect(() => {
+    const savedPhoto = localStorage.getItem("userPhoto");
+    if (savedPhoto) {
+      setUserPhoto(savedPhoto);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchUserSpecificData = async () => {
@@ -314,15 +187,20 @@ export default function Dashboard() {
         const detailQueries = [
           query(
             collection(firestore, "detail_penetasan"),
-            where("userId", "==", userEmail)
+            where("userId", "==", userEmail),
+            orderBy("created_at", "desc")
+
           ),
           query(
             collection(firestore, "detail_penggemukan"),
-            where("userId", "==", userEmail)
+            where("userId", "==", userEmail),
+            orderBy("created_at", "desc")
+
           ),
           query(
             collection(firestore, "detail_layer"),
-            where("userId", "==", userEmail)
+            where("userId", "==", userEmail),
+            orderBy("created_at", "desc")
           ),
         ];
 
@@ -330,94 +208,83 @@ export default function Dashboard() {
           detailQueries.map(async (q, index) => {
             const querySnapshot = await getDocs(q);
             if (!querySnapshot.empty) {
-              const userDocRef = querySnapshot.docs[0].ref;
-              const subCollectionRef = collection(
-                userDocRef,
-                "analisis_periode"
+              const subCollectionData: AnalysisPeriodData[] = [];
+              for (const userDoc of querySnapshot.docs) {
+                const userDocRef = userDoc.ref;
+                const subCollectionRef = query(
+                  collection(userDocRef, "analisis_periode"),
+                  orderBy("periode", "asc")
+                );
+                const subCollectionSnapshot = await getDocs(subCollectionRef);
+
+                console.log(
+                  `Subcollection snapshot untuk ${index}:`,
+                  subCollectionSnapshot
+                );
+
+                const analysisNames = [
+                  "Detail Penetasan",
+                  "Detail Penggemukan",
+                  "Detail Layer",
+                ];
+                const analysisName = analysisNames[index];
+
+                subCollectionSnapshot.docs.forEach((doc) => {
+                  const docData = {
+                    id: doc.id,
+                    analysisId: userDoc.id,
+                    created_at: doc.data().created_at || Timestamp.now(),
+                    bepHarga: doc.data().hasilAnalisis?.bepHarga || 0,
+                    bepHasil: doc.data().hasilAnalisis?.bepHasil || 0,
+                    laba: doc.data().hasilAnalisis?.laba || 0,
+                    periode: doc.data().periode ?? 0,
+                    revenue: doc.data().penerimaan?.totalRevenue || 0,
+                    cost: doc.data().pengeluaran?.totalCost || 0,
+                    marginOfSafety: doc.data().hasilAnalisis?.marginOfSafety || 0,
+                    rcRatio: doc.data().hasilAnalisis?.rcRatio || 0,
+                    analysisName: analysisName,
+                  };
+                  subCollectionData.push(docData);
+                });
+              }
+              return subCollectionData;
+            }
+            return [];
+          })
+        );
+
+        {/* Chart */ }
+        const [penetasanData, penggemukanData, layerData] = await Promise.all(
+          detailQueries.map(async (q, index) => {
+            const querySnapshot = await getDocs(q);
+            if (!querySnapshot.empty) {
+              const latestDoc = querySnapshot.docs[0]; // Ambil dokumen terbaru
+              const userDocRef = latestDoc.ref;
+
+              // Ambil data dari subkoleksi analisis_periode
+              const subCollectionRef = query(
+                collection(userDocRef, "analisis_periode"),
+                orderBy("periode", "asc")
               );
               const subCollectionSnapshot = await getDocs(subCollectionRef);
-              const subCollectionSnapshot1 = await getDocs(subCollectionRef);
 
+              if (subCollectionSnapshot.empty) {
+                console.log(
+                  `Subcollection analisis_periode kosong untuk dokumen: ${userDocRef.id}`
+                );
+                return []; // Abaikan jika analisis_periode kosong
+              }
 
-              // Tentukan nama analisis berdasarkan index
               const analysisNames = [
                 "Detail Penetasan",
                 "Detail Penggemukan",
                 "Detail Layer",
               ];
-
-              const [penetasanData, penggemukanData, layerData] = await Promise.all(
-                detailQueries.map(async (q, index) => {
-                  const querySnapshot = await getDocs(q);
-                  if (!querySnapshot.empty) {
-                    const userDocRef = querySnapshot.docs[0].ref;
-                    const subCollectionRef = query(
-                                collection(userDocRef, "analisis_periode"),
-                                orderBy("created_at", "asc") // Mengurutkan berdasarkan `created_at`
-                              );
-                    const subCollectionSnapshot = await getDocs(subCollectionRef);
-
-                    return subCollectionSnapshot.docs.map((doc) => ({
-                      id: doc.id,
-                      created_at: doc.data().created_at || Timestamp.now(),
-                      bepHarga: doc.data().hasilAnalisis?.bepHarga || 0,
-                      bepHasil: doc.data().hasilAnalisis?.bepHasil || 0,
-                      laba: doc.data().hasilAnalisis?.laba || 0,
-                      periode: doc.data().periode ?? 0,
-                      revenue: doc.data().penerimaan?.totalRevenue || 0,
-                      cost: doc.data().pengeluaran?.totalCost || 0,
-                      marginOfSafety: doc.data().hasilAnalisis?.marginOfSafety || 0,
-                      rcRatio: doc.data().hasilAnalisis?.rcRatio || 0,
-                      analysisName: analysisNames[index],
-                    }));
-                  }
-                  return [];
-                })
-              );
-
-            return subCollectionSnapshot.docs.map((doc) => ({
-              id: doc.id,
-              created_at: doc.data().created_at || Timestamp.now(),
-              bepHarga: doc.data().hasilAnalisis?.bepHarga || 0,
-              bepHasil: doc.data().hasilAnalisis?.bepHasil || 0,
-              laba: doc.data().hasilAnalisis?.laba || 0,
-              periode: doc.data().periode ??0,
-            revenue: doc.data().penerimaan?.totalRevenue || 0,
-            cost: doc.data().pengeluaran?.totalCost || 0,
-              marginOfSafety: doc.data().hasilAnalisis?.marginOfSafety || 0,
-              rcRatio: doc.data().hasilAnalisis?.rcRatio || 0,
-              analysisName: analysisNames[index],
-            }));
-          }
-          return [];
-        })
-      );
-
-              setChartDataPenetasan(penetasanData.map(item => ({
-                Prd: item.periode,
-                Revenue: item.revenue,
-                Cost: item.cost,
-                Laba: item.laba,
-              })));
-
-              setChartDataPenggemukan(penggemukanData.map(item => ({
-                Prd: item.periode,
-                Revenue: item.revenue,
-                Cost: item.cost,
-                Laba: item.laba,
-              })));
-
-              setChartDataLayer(layerData.map(item => ({
-                Prd: item.periode,
-                Revenue: item.revenue,
-                Cost: item.cost,
-                Laba: item.laba,
-              })));
-
               const analysisName = analysisNames[index];
 
               return subCollectionSnapshot.docs.map((doc) => ({
                 id: doc.id,
+                analysisId: latestDoc.id,
                 created_at: doc.data().created_at || Timestamp.now(),
                 bepHarga: doc.data().hasilAnalisis?.bepHarga || 0,
                 bepHasil: doc.data().hasilAnalisis?.bepHasil || 0,
@@ -425,24 +292,41 @@ export default function Dashboard() {
                 periode: doc.data().periode ?? 0,
                 revenue: doc.data().penerimaan?.totalRevenue || 0,
                 cost: doc.data().pengeluaran?.totalCost || 0,
-                periode: doc.data().periode ??0,
-              revenue: doc.data().penerimaan?.totalRevenue || 0,
-              cost: doc.data().pengeluaran?.totalCost || 0,
                 marginOfSafety: doc.data().hasilAnalisis?.marginOfSafety || 0,
                 rcRatio: doc.data().hasilAnalisis?.rcRatio || 0,
-                analysisName: analysisName, // Menyimpan nama analisis
+                analysisName: analysisName,
               }));
-
             }
             return [];
           })
         );
 
+        setChartDataPenetasan(penetasanData.map((item, index) => ({
+          Prd: index + 1,
+          Revenue: item.revenue,
+          Cost: item.cost,
+          Laba: item.laba,
+        })));
+
+        setChartDataPenggemukan(penggemukanData.map((item, index) => ({
+          Prd: index + 1,
+          Revenue: item.revenue,
+          Cost: item.cost,
+          Laba: item.laba,
+        })));
+
+        setChartDataLayer(layerData.map((item, index) => ({
+          Prd: index + 1,
+          Revenue: item.revenue,
+          Cost: item.cost,
+          Laba: item.laba,
+        })));
+
         // Menggabungkan data berdasarkan analysisName
         const aggregatedData: { [key: string]: AnalysisPeriodData } = {};
 
         userData.flat().forEach((data) => {
-          const key = data.analysisName; // Gunakan analysisName sebagai kunci untuk pengelompokan
+          const key = data.analysisId; // Gunakan analysisName sebagai kunci untuk pengelompokan
           if (aggregatedData[key]) {
             // Jika kunci sudah ada, tambahkan laba dan lainnya
             aggregatedData[key].laba += data.laba;
@@ -458,8 +342,12 @@ export default function Dashboard() {
           }
         });
 
+        console.log("Data yang sudah digabungkan:", aggregatedData);
+
         // Convert the aggregated data back to an array and update state
         setDataAnalisis(Object.values(aggregatedData));
+        setOriginalData(Object.values(aggregatedData));
+        setDataAnalisis(Object.values(aggregatedData)); // Simpan data asli
       } catch (error) {
         console.error("Error mengambil data: ", error);
       }
@@ -468,6 +356,32 @@ export default function Dashboard() {
     fetchUserSpecificData();
   }, []);
 
+  const handleSortChange = (event: SelectChangeEvent<string>) => {
+    const criteria = event.target.value;
+    setSortCriteria(criteria);
+
+    // Mulai dari data asli untuk menghindari penyaringan berulang-ulang yang menghilangkan data
+    let sortedData = [...originalData];
+
+    if (criteria === "terbaru") {
+      sortedData.sort((a, b) => b.created_at.seconds - a.created_at.seconds);
+    } else if (criteria === "terlama") {
+      sortedData.sort((a, b) => a.created_at.seconds - b.created_at.seconds);
+    } else if (criteria === "detail_penetasan") {
+      sortedData = sortedData.filter((data) => data.analysisName === "Detail Penetasan");
+    } else if (criteria === "detail_penggemukan") {
+      sortedData = sortedData.filter((data) => data.analysisName === "Detail Penggemukan");
+    } else if (criteria === "detail_layer") {
+      sortedData = sortedData.filter((data) => data.analysisName === "Detail Layer");
+    }
+    setDataAnalisis(sortedData);
+  };
+
+  const analysisImages: { [key: string]: string } = {
+    "Detail Penetasan": "/assets/Telur.svg", // Ganti dengan path yang sesuai
+    "Detail Penggemukan": "/assets/Duck.svg", // Ganti dengan path yang sesuai
+    "Detail Layer": "/assets/DuckdanTelur.svg", // Ganti dengan path yang sesuai
+  };
 
   function formatNumber(number: number): string {
     if (number >= 1000000) {
@@ -486,27 +400,28 @@ export default function Dashboard() {
       <SidebarDemo>
         <div className="flex-1 items-center justify-center">
           {/* Title Menu */}
-          <div className="flex flex-wrap justify-between p-5 pt-5 pb-0">
+          <div className="flex flex-wrap justify-between p-5 pt-0">
             <h1 className="text-1xl font-bold">Beranda </h1>
             <Tooltip
               side="bottom"
               showArrow={false}
-              content={username}
+              content={userName}
             >
-              <div className="flex items-center">
-                <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                  <div className="w-8 h-8 rounded-full"><UserAvatar photoURL={userPhoto} /> </div>
-
+              <Link href="/user_setting"> {/* Ganti "/pengaturan" */}
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full"><UserAvatar photoURL={userPhoto} /> </div>
+                  </div>
                 </div>
-              </div>
+              </Link>
             </Tooltip>
           </div>
 
-          <div className="flex flex-cols grid-rows-2 pb-0">
+          <div className="flex flex-col md:flex-row h-screen overflow-y-auto grid-rows-2 g-5 p-5 pt-0">
             {/* Main */}
-            <div className="flex-1 flex-wrap 4grid-cols items-center justify-center p-5 pb-0">
+            <div className="flex-1 flex-wrap 4grid-cols items-center justify-center">
               {/* Card Tab */}
-              <div className="flex-1 bg-white to-orange-100 rounded-lg shadow-md height-1/2 p-8">
+              <div className="flex-1 bg-white to-orange-100 rounded-lg shadow-md height-1/2 p-8 pb-5">
                 <div className="flex-1">
                   <Tabs defaultValue="tab1">
                     <TabsList>
@@ -537,7 +452,7 @@ export default function Dashboard() {
                             alt="DB_penggemukan"
                             style={{ width: '100px', height: '100%', }} />
                           <p>
-                            Penetasan merupakan fitur yang dirancang untuk mengoptimalkan proses penetasan telur itik, memastikan kesuksesan menetas maksimal dan kualitas anakan itik yang terbaik.
+                            Penggemukan merupakan fitur yang dirancang untuk mengoptimalkan proses penggemukan itik yang bertujuan untuk meningkatkan kualitas daging itik, sehingga memiliki nilai jual daging itik yang lebih di pasaran.
                           </p>
                         </div>
                       </TabsContent>
@@ -550,7 +465,7 @@ export default function Dashboard() {
                             alt="DB_layeri"
                             style={{ width: '100px', height: '100%', }} />
                           <p>
-                            Penetasan merupakan fitur yang dirancang untuk mengoptimalkan proses penetasan telur itik, memastikan kesuksesan menetas maksimal dan kualitas anakan itik yang terbaik.
+                            Layer merupakan fitur yang dirancang untuk melihat kualitas dan biaya yang keluarkan saat itik dalam proses hamil, sehingga nanti dapa menghindari gagalnya itik bertelur.
                           </p>
                         </div>
                       </TabsContent>
@@ -559,8 +474,9 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 justify-center gap-5 pt-5">
-                <div className="bg-white p-3 rounded-lg shadow-md">
+              {/*Chart Tab*/}
+              <div className="flex justify-center gap-5 pt-5 pb-5">
+                <div className="flex-1 bg-white p-3 rounded-lg shadow-md">
                   <div className="flex-1">
                     <Tabs defaultValue="tab1">
                       <TabsList>
@@ -573,154 +489,213 @@ export default function Dashboard() {
                           value="tab1"
                           className="space-y-2 text-sm leading-7 text-gray-600 dark:text-gray-500"
                         >
-                          <div className="flex space-x-4">
-                            <AreaChart
-                              className=" flex items-center justify-center h-50"
-                              data={chartDataPenetasan}
-                              index="Prd"
-                              categories={["Revenue", "Cost", "Laba"]}
-                              valueFormatter={(number: number) =>
-                                `${formatNumber(number)}`}
-                              onValueChange={(v) => console.log(v)}
-                              xAxisLabel="Periode"
-                              yAxisLabel="Rp"
-                              fill="solid"
-                            />
-                          </div>
+                          {chartDataPenetasan.length > 0 ? (
+                            <div className="flex space-x-4">
+                              <AreaChart
+                                className="flex items-center justify-center h-50"
+                                data={chartDataPenetasan}
+                                index="Prd"
+                                categories={["Revenue", "Cost", "Laba"]}
+                                valueFormatter={(number: number) => `${formatNumber(number)}`}
+                                onValueChange={(v) => console.log(v)}
+                                xAxisLabel="Periode"
+                                yAxisLabel="Rp"
+                                fill="solid"
+                              />
+                            </div>
+                          ) : (
+                            <div className="flex bg-white items-center justify-center" style={{ height: "320px" }}>
+                              <Typography
+                                variant="body1"
+                                style={{ color: "gray", fontStyle: "italic" }}
+                              >
+                                Tidak ada data analisis.
+                              </Typography>
+                            </div>
+                          )}
                         </TabsContent>
                         <TabsContent
                           value="tab2"
                           className="space-y-2 text-sm leading-7 text-gray-600 dark:text-gray-500"
                         >
-                          <div className="flex space-x-4">
-                            <AreaChart
-                              className=" flex items-center justify-center h-50"
-                              data={chartDataPenggemukan}
-                              index="Prd"
-                              categories={["Revenue", "Cost", "Laba"]}
-                              valueFormatter={(number: number) =>
-                                `${formatNumber(number)}`}
-                              onValueChange={(v) => console.log(v)}
-                              xAxisLabel="Periode"
-                              yAxisLabel="Rp"
-                              fill="solid"
-                            />
-                          </div>
+                         {chartDataPenggemukan.length > 0 ? (
+                            <div className="flex space-x-4">
+                              <AreaChart
+                                className="flex items-center justify-center h-50"
+                                data={chartDataPenggemukan}
+                                index="Prd"
+                                categories={["Revenue", "Cost", "Laba"]}
+                                valueFormatter={(number: number) => `${formatNumber(number)}`}
+                                onValueChange={(v) => console.log(v)}
+                                xAxisLabel="Periode"
+                                yAxisLabel="Rp"
+                                fill="solid"
+                              />
+                            </div>
+                          ) : (
+                            <div className="flex bg-white items-center justify-center" style={{ height: "320px" }}>
+                              <Typography
+                                variant="body1"
+                                style={{ color: "gray", fontStyle: "italic" }}
+                              >
+                                Tidak ada data analisis.
+                              </Typography>
+                            </div>
+                          )}
                         </TabsContent>
                         <TabsContent
                           value="tab3"
-
                           className="space-y-2 text-sm leading-7 text-gray-600 dark:text-gray-500"
                         >
-                          <div className="flex space-x-4">
-                            <AreaChart
-                              className=" flex items-center justify-center h-50"
-                              data={chartDataLayer}
-                              index="Prd"
-                              categories={["Revenue", "Cost", "Laba"]}
-                              valueFormatter={(number: number) =>
-                                `${formatNumber(number)}`}
-                              onValueChange={(v) => console.log(v)}
-                              xAxisLabel="Periode"
-                              yAxisLabel="Rp"
-                              fill="solid"
-                            />
-                          </div>
+                          {chartDataLayer.length > 0 ? (
+                            <div className="flex space-x-4">
+                              <AreaChart
+                                className="flex items-center justify-center h-50"
+                                data={chartDataLayer}
+                                index="Prd"
+                                categories={["Revenue", "Cost", "Laba"]}
+                                valueFormatter={(number: number) => `${formatNumber(number)}`}
+                                onValueChange={(v) => console.log(v)}
+                                xAxisLabel="Periode"
+                                yAxisLabel="Rp"
+                                fill="solid"
+                              />
+                            </div>
+                          ) : (
+                            <div className="flex bg-white items-center justify-center" style={{ height: "320px" }}>
+                              <Typography
+                                variant="body1"
+                                style={{ color: "gray", fontStyle: "italic" }}
+                              >
+                                Tidak ada data analisis.
+                              </Typography>
+                            </div>
+                          )}
                         </TabsContent>
                       </div>
                     </Tabs>
                   </div>
                 </div>
-                <div className="bg-white p-3 rounded-lg shadow-md">
-                </div>
               </div>
             </div>
 
             {/* Riwayat */}
-            <div className="flex justify-center p-5 gap-5 pl-0">
-              <div className="bg-white p-3 rounded-lg shadow-md w-200">
-                <h2 className="text-lg sm-bold">Riwayat Analisis</h2>
-                <Grid container spacing={3}>
-                  {dataAnalisis.map((data, index) => (
-                    <Grid item xs={12} key={index}>
-                      <Card style={styles.card}>
-                        <CardContent
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            height: "180px",
-                          }}
+            <div className="flex justify-center pl-5 gap-5">
+              {/* Parent Card */}
+              <div className="bg-white p-3" style={{ width: '400px', height: '608px', borderRadius: '8px', boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)' }}>
+                <div className="flex items-center grid grid-cols-1 justify-between">
+                  <div className="flex items-center justify-between pb-3"
+                    style={{ maxHeight: '500px' }}>
+                    <Typography
+                      variant="h6"
+                    >
+                      Riwayat Analisis
+                    </Typography>
+                    <div>
+                      <FormControl variant="outlined" style={styles.sortControl}>
+                        <InputLabel id="sort-label">Sort By</InputLabel>
+                        <Select
+                          labelId="sort-label"
+                          value={sortCriteria}
+                          onChange={handleSortChange}
+                          label="Sort By"
                         >
-                          {/* Display Time and Date */}
-                          <Grid container justifyContent="space-between">
-                            <Typography variant="body2" style={styles.time}>
-                              {data.created_at.toDate().toLocaleTimeString()}
-                            </Typography>
-                            <Typography variant="body2" style={styles.date}>
-                              {data.created_at.toDate().toLocaleDateString()}
-                            </Typography>
-                          </Grid>
+                          <MenuItem value="terbaru">Terbaru</MenuItem>
+                          <MenuItem value="terlama">Terlama</MenuItem>
+                          <MenuItem value="detail_penetasan">Detail Penetasan</MenuItem>
+                          <MenuItem value="detail_penggemukan">Detail Penggemukan</MenuItem>
+                          <MenuItem value="detail_layer">Detail Layer</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </div>
+                  </div>
 
-                          {/* Display Profit */}
-                          {/* <Typography variant="h6" style={styles.amount}>
-                      Rp. {data.laba.toLocaleString("id-ID")}
-                    </Typography> */}
-
-                          <div
-                            style={{
-                              flexGrow: 1,
-                              display: "flex",
-                              alignItems: "center",
+                  {/*Card Riwayat Analisis */}
+                  <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
+                    {dataAnalisis.length > 0 ? (
+                      <Grid container spacing={3} style={{ width: "100%", margin: "0" }}>
+                        {dataAnalisis.map((data, index) => (
+                          <Grid item xs={12} key={index} style={{ paddingLeft: "0px" }}>
+                            <Card style={{
+                              ...styles.card,
+                              flexDirection: "column",
+                              width: "100%",
+                              height: "140px",
                             }}
-                          >
-                            {data.laba !== undefined &&
-                              data.laba !== null &&
-                              !isNaN(data.laba) ? (
+                            >
+                              {/* Display Analysis Name */}
                               <Typography
-                                variant="h6"
-                                style={{ ...styles.amount, textAlign: "center" }}
-                              >
-                                Rp. {data.laba.toLocaleString("id-ID")}
-                              </Typography>
-                            ) : (
-                              <Typography
-                                variant="h6"
+                                variant="body1"
                                 style={{
-                                  ...styles.amount,
+                                  borderRadius: "9999px",
                                   textAlign: "center",
-                                  color: "red",
+                                  display: "inline-block",
+                                  marginTop: "0px",
+                                  fontWeight: "bold",
                                 }}
                               >
-                                Laba tidak tersedia
+                                {data.analysisName} {/* Menampilkan nama analisis */}
                               </Typography>
-                            )}
-                          </div>
 
-                          {/* Display Analysis Name */}
-                          <Typography
-                            variant="body1"
-                            style={{
-                              backgroundColor: "#FFD580",
-                              padding: "5px 10px",
-                              borderRadius: "9999px",
-                              textAlign: "center",
-                              display: "inline-block",
-                              marginTop: "10px",
-                              fontWeight: "bold",
-                            }}
-                          >
-                            {data.analysisName} {/* Menampilkan nama analisis */}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                  ))}
-                </Grid>
+                              {/* Garis pemisah */}
+                              <Divider style={{ margin: "10px 0" }} />
+
+                              {/* Tombol Lihat Detail */}
+                              <Grid container justifyContent="space-between">
+                                <img
+                                  src={analysisImages[data.analysisName]}
+                                  alt={data.analysisName}
+                                  style={{ width: '25px', height: '25px', objectFit: 'cover', borderRadius: '12px 12px 0 0' }} // Gaya gambar
+                                />
+                                <Typography
+                                  variant="body1"
+                                  style={{
+                                    backgroundColor: "#FFD580",
+                                    padding: "5px 10px",
+                                    borderRadius: "9999px",
+                                    textAlign: "center",
+                                    display: "inline-block",
+                                    marginTop: "2px",
+                                    fontWeight: "bold",
+                                  }}
+                                >
+                                  Lihat Detail
+                                </Typography>
+                              </Grid>
+
+                              {/* Garis pemisah */}
+                              <Divider style={{ margin: "10px 0" }} />
+
+                              {/* Display Time and Date */}
+                              <Grid container justifyContent="space-between">
+                                <Typography variant="body2" style={styles.time}>
+                                  {data.created_at.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
+                                </Typography>
+                                <Typography variant="body2" style={styles.date}>
+                                  {data.created_at.toDate().toLocaleDateString()}
+                                </Typography>
+                              </Grid>
+                            </Card>
+                          </Grid>
+                        ))}
+                      </Grid>
+                    ) : (
+                      <div className="flex items-center justify-center h-full">
+                        <Typography
+                          variant="body1"
+                          style={{ color: "gray", fontStyle: "italic" }}
+                        >
+                          Tidak ada riwayat.
+                        </Typography>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
           <div>
-            <h1 className="text-sm flex-center">@si-itik.polije</h1>
+            <p className="text-sm">@si-itik.polije</p>
           </div>
         </div>
       </SidebarDemo>

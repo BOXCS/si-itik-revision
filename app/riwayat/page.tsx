@@ -502,9 +502,7 @@ export default function RiwayatAnalisis() {
                 <MenuItem value="terlama">Terlama</MenuItem>
                 <MenuItem value="laba">Laba Terbanyak</MenuItem>
                 <MenuItem value="detail_penetasan">Detail Penetasan</MenuItem>
-                <MenuItem value="detail_penggemukan">
-                  Detail Penggemukan
-                </MenuItem>
+                <MenuItem value="detail_penggemukan">Detail Penggemukan</MenuItem>
                 <MenuItem value="detail_layer">Detail Layer</MenuItem>
               </Select>
             </FormControl>
