@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { SidebarDemo } from "@/components/Sidebar";
 import { useEffect, useState } from "react";
 import { deleteUser, signOut, updateProfile } from "firebase/auth";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Impor fungsi untuk Firebase Storage
-import { auth, storage } from "@/lib/firebase";
+// import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { auth } from "@/lib/firebase";
 import {
   getAuth,
   reauthenticateWithPopup,
@@ -14,7 +14,7 @@ import {
 } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
 
-import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
+// import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
 import UserAvatar from "@/components/ui/avatar";
 
 function Modal({
@@ -95,7 +95,7 @@ function DeleteAccountModal({
 }
 
 export default function SettingPage() {
-  const router = useRouter();
+  // const router = useRouter();
   return (
     <div className="w-full min-h-screen bg-gray-100 flex">
       <SidebarDemo>
@@ -113,11 +113,11 @@ export default function SettingPage() {
 function CardContainer() {
   const { toast } = useToast();
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
-  const [showDialog, setShowDialog] = useState(false);
+  // const [showDialog, setShowDialog] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const router = useRouter();
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
-  const [photoAdded, setPhotoAdded] = useState<boolean>(false);
+  // const [photoAdded, setPhotoAdded] = useState<boolean>(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(() => {
     if (typeof window !== "undefined") {
@@ -239,18 +239,18 @@ function CardContainer() {
   }, []);
 
   // Mengambil huruf pertama dari nama pengguna
-  const getInitials = (name: string | null) => {
-    if (!name) return "";
-    return name
-      .split(" ")
-      .map((word) => word.charAt(0))
-      .join("")
-      .toUpperCase();
-  };
+  // const getInitials = (name: string | null) => {
+  //   if (!name) return "";
+  //   return name
+  //     .split(" ")
+  //     .map((word) => word.charAt(0))
+  //     .join("")
+  //     .toUpperCase();
+  // };
 
-  const handleChangeName = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUserName(e.target.value);
-  };
+  // const handleChangeName = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   setUserName(e.target.value);
+  // };
 
   const handleEditClick = () => {
     setTempUserName(userName || "");
