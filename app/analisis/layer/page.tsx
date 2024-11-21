@@ -34,6 +34,7 @@ const LayerPage = () => {
   const [disabledPeriods, setDisabledPeriods] = useState<string[]>([]);
 
   // Tambahkan state untuk mengatur status analisis baru
+  const [activeTab, setActiveTab] = useState("info");
   const [isOpen, setIsOpen] = useState(false);
   const [isNewAnalysis, setIsNewAnalysis] = useState(false);
   const [newAnalysisDocRef, setNewAnalysisDocRef] =
@@ -530,8 +531,8 @@ const LayerPage = () => {
 
             {/* Kontainer Form */}
             <div className="form-container bg-white overflow-y-auto overflow-x-hidden p-8 shadow-lg rounded-lg max-w-7xl w-full h-full sm:h-auto sm:w-full flex flex-col">
-              {/* Horizontal Timeline */}
-              <div className="w-full flex justify-center mb-6">
+              {/* Horizontal Timeline for Desktop */}
+              <div className="hidden md:flex w-full justify-center mb-6">
                 <HorizontalTimeline
                   progress={
                     currentForm === "Penerimaan"
@@ -544,6 +545,266 @@ const LayerPage = () => {
                   }
                 />
               </div>
+
+              {/* Button for Mobile */}
+              <div className="flex md:hidden w-full justify-center mb-6">
+                <button
+                  className="px-4 py-2 bg-orange-500 text-white rounded-lg shadow hover:bg-orange-600 focus:outline-none"
+                  onClick={handleToggle}
+                >
+                  Lihat Info dan Rumus
+                </button>
+              </div>
+
+              {/* Dialog */}
+              {isOpen && (
+                <div
+                  className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+                  onClick={handleToggle}
+                >
+                  <div
+                    className="bg-white w-11/12 max-w-md overflow-y-auto max-h-[90vh] rounded-lg p-6"
+                    onClick={(e) => e.stopPropagation()} // Prevent dialog close on content click
+                  >
+                    <h2 className="text-xl font-semibold mb-4">
+                      Info dan Rumus
+                    </h2>
+
+                    {/* Sub Buttons */}
+                    <div className="flex justify-center gap-4 mb-4">
+                      <button
+                        className={`px-4 py-2 rounded-lg ${
+                          activeTab === "info"
+                            ? "bg-orange-500 text-white"
+                            : "bg-gray-200 text-gray-600"
+                        }`}
+                        onClick={() => setActiveTab("info")}
+                      >
+                        Info
+                      </button>
+                      <button
+                        className={`px-4 py-2 rounded-lg ${
+                          activeTab === "rumus"
+                            ? "bg-orange-500 text-white"
+                            : "bg-gray-200 text-gray-600"
+                        }`}
+                        onClick={() => setActiveTab("rumus")}
+                      >
+                        Rumus
+                      </button>
+                    </div>
+
+                    {/* Content */}
+                    {activeTab === "info" && (
+                      <p className="mb-4">
+                        Berikut adalah informasi terkait proses analisis:
+                        <ul className="list-disc pl-5 mt-2">
+                          <li>
+                            Penerimaan (revenue) merupakan total pendapatan yang
+                            akan diperoleh dari hasil penjualan dalam 1 periode
+                            sebelum dikurangi dengan biaya atau pengeluaran.
+                          </li>
+                          <br />
+                          <li>
+                            Pengeluaran (cost) adalah seluruh biaya yang
+                            dikeluarkan untuk menjalankan suatu usaha, pada cost
+                            dibagi menjadi 2 yaitu fixed cost atau biaya tetap
+                            dan variable cost atau biaya variable.
+                          </li>
+                          <br />
+                          <li>
+                            (Margin of Safety) adalah analisis lanjutan dari
+                            titik impas yang menunjukkan seberapa besar
+                            persentase penjualan yang dapat turun sebelum
+                            perusahaan mengalami kerugian (Devi, 2023). MOS
+                            biasanya dinyatakan dalam bentuk persentase, dan
+                            semakin besar nilai MOS, semakin aman posisi
+                            keuangan suatu bisnis.
+                          </li>
+                          <br />
+                          <li>
+                            R/C Ratio atau Revenue-Cost Ratio adalah
+                            perbandingan antara total pendapatan (revenue) yang
+                            dihasilkan dari penjualan suatu produk atau layanan
+                            dengan total biaya (cost) yang dikeluarkan untuk
+                            menghasilkan produk atau layanan tersebut. Rasio ini
+                            digunakan untuk mengevaluasi efisiensi dan
+                            profitabilitas suatu usaha.
+                          </li>
+                          <br />
+                          <li>
+                            Break-Even Point (BEP) adalah titik impas, yaitu
+                            kondisi di mana total pendapatan sama dengan total
+                            biaya, sehingga tidak ada keuntungan maupun
+                            kerugian. Dalam konteks BEP, terdapat dua jenis
+                            pengukuran utama:
+                            <ul className="list-disc pl-5">
+                              <br />
+                              <li>
+                                BEP unit menunjukkan jumlah unit produk yang
+                                harus terjual agar perusahaan mencapai titik
+                                impas. BEP unit dihitung untuk mengetahui
+                                seberapa banyak produk yang perlu dijual untuk
+                                menutup seluruh biaya (tetap dan variabel).
+                              </li>
+                            </ul>
+                            <ul className="list-disc pl-5">
+                              <br />
+                              <li>
+                                BEP harga menunjukkan jumlah pendapatan atau
+                                nilai penjualan dalam bentuk uang yang
+                                dibutuhkan untuk mencapai titik impas. Ini
+                                membantu menentukan target pendapatan yang harus
+                                dicapai.
+                              </li>
+                            </ul>
+                          </li>
+                          <br />
+                          <li>
+                            Laba adalah selisih positif antara total pendapatan
+                            dengan total biaya yang dikeluarkan dalam suatu
+                            aktivitas bisnis atau usaha. Laba menunjukkan
+                            keuntungan yang diperoleh perusahaan setelah
+                            menutupi semua biaya, baik biaya tetap maupun biaya
+                            variabel. Jika hasil perhitungan bernilai negatif,
+                            maka perusahaan mengalami kerugian (rugi). Laba
+                            merupakan indikator penting untuk mengukur
+                            keberhasilan operasional dan kesehatan finansial
+                            suatu bisnis.
+                          </li>
+                        </ul>
+                      </p>
+                    )}
+                    {activeTab === "rumus" && (
+                      <div className="mb-4">
+                        <p>Berikut adalah rumus yang digunakan:</p>
+                        <ul className="list-disc pl-5 mt-2">
+                          {/* Semua rumus di sini */}
+                          <li>
+                            Penerimaan
+                            <ul className="list-disc pl-5">
+                              <li>
+                                Persentase Mortalitas:{" "}
+                                <code>
+                                  (Jumlah itik Mati / Jumlah Itik Awal) × 100%
+                                </code>
+                              </li>
+                              <br />
+                              <li>
+                                Jumlah Itik:{" "}
+                                <code>
+                                  Jumlah itik Awal × (1 - Persentase Mortalitas)
+                                </code>
+                              </li>
+                              <br />
+                              <li>
+                                Total Revenue:{" "}
+                                <code>Jumlah itik × Harga Itik</code>
+                              </li>
+                            </ul>
+                          </li>
+                          <br />
+                          <li>
+                            Pengeluaran
+                            <ul className="list-disc pl-5">
+                              <li>
+                                Total Biaya:{" "}
+                                <code>Sewa Kandang + Penyusutan Peralatan</code>
+                              </li>
+                              <br />
+                              <li>
+                                Total Fixed Cost: <code>Total Biaya × 60</code>
+                              </li>
+                              <br />
+                              <li>
+                                Biaya Operasional:{" "}
+                                <code>
+                                  Biaya Tenaga Kerja + Biaya Listrik + Biaya OVK
+                                </code>
+                              </li>
+                              <br />
+                              <li>
+                                Total Biaya Operasional:{" "}
+                                <code>Biaya Operasional × 60</code>
+                              </li>
+                              <br />
+                              <li>
+                                Jumlah Pakan:{" "}
+                                <code>Standard pakan × 60 × Jumlah Itik</code>
+                              </li>
+                              <br />
+                              <li>
+                                Total Biaya Pakan:{" "}
+                                <code>Jumlah × Harga Pakan Per Kg</code>
+                              </li>
+                              <br />
+                              <li>
+                                Total Variable Cost:{" "}
+                                <code>
+                                  Total Biaya Operasional + Total Biaya Pakan
+                                </code>
+                              </li>
+                              <br />
+                              <li>
+                                Total Cost:{" "}
+                                <code>
+                                  Total Variable Cost + Total Fixed Cost
+                                </code>
+                              </li>
+                            </ul>
+                          </li>
+                          <br />
+                          <li>
+                            Hasil Analisis
+                            <ul className="list-disc pl-5">
+                              <li>
+                                BEP Hasil:{" "}
+                                <code>
+                                  Total Fixed Cost / (Harga DOD - (Total
+                                  Variable Cost / Jumlah DOD))
+                                </code>
+                              </li>
+                              <br />
+                              <li>
+                                BEP Harga:{" "}
+                                <code>
+                                  Total Fixed Cost / (1 - (Total Variable Cost /
+                                  (Jumlah DOD × Harga DOD)))
+                                </code>
+                              </li>
+                              <br />
+                              <li>
+                                Margin of Safety:{" "}
+                                <code>
+                                  ((Total Revenue - BEP Harga) / Total Revenue)
+                                  × 100
+                                </code>
+                              </li>
+                              <br />
+                              <li>
+                                RC Ratio:{" "}
+                                <code>Total Revenue / Total Cost</code>
+                              </li>
+                              <br />
+                              <li>
+                                Laba: <code>Total Revenue - Total Cost</code>
+                              </li>
+                            </ul>
+                          </li>
+                        </ul>
+                      </div>
+                    )}
+
+                    <button
+                      className="px-4 py-2 bg-orange-500 text-white rounded-lg shadow hover:bg-orange-600 focus:outline-none"
+                      onClick={handleToggle}
+                    >
+                      Tutup
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {currentForm === "Penerimaan" && (
                 <div className="flex flex-col w-full px-4 md:px-6 py-4">
                   <h2 className="text-lg md:text-xl font-extrabold mb-4 md:mb-6">

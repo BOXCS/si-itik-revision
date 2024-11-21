@@ -12,6 +12,7 @@ import {
   DocumentReference,
   Timestamp,
   getDocs,
+  getDoc,
 } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 import { IconX } from "@tabler/icons-react";
@@ -79,6 +80,13 @@ const PenetasanPage = () => {
   useEffect(() => {
     console.log(isNewAnalysis); // Or any other usage of periode
   }, [isNewAnalysis]); // If you want to react to changes in 'periode'
+
+  useEffect(() => {
+    const savedDocRefId = localStorage.getItem("activeDocRef");
+    if (savedDocRefId) {
+      setNewAnalysisDocRef(doc(firestore, "detail_penetasan", savedDocRefId));
+    }
+  }, []);
 
   const handleAddPeriod = () => {
     if (periods.length >= 13) {
@@ -158,24 +166,43 @@ const PenetasanPage = () => {
       return; // Hentikan eksekusi jika user tidak ada
     }
 
-    try {
-      // Cek apakah data periode sudah ada dalam analisis_periode
-      if (newAnalysisDocRef) {
-        const periodeSnapshot = await getDocs(
-          collection(newAnalysisDocRef, "analisis_periode")
-        );
-        const existingPeriode = periodeSnapshot.docs.find(
-          (doc) => doc.data().periode === selectedPeriod
-        );
+    if (!newAnalysisDocRef) {
+      toast({
+        title: "Analisis tidak ditemukan.",
+        description: "Silahkan buat analisis baru terlebih dahulu.",
+        variant: "destructive",
+      });
+      return; // Hentikan eksekusi jika analisis belum ada
+    }
 
-        if (existingPeriode) {
-          toast({
-            title: "Data periode sudah ada.",
-            description: "Silahkan tambah periode atau buat analisis baru.",
-            variant: "destructive",
-          });
-          return; // Hentikan eksekusi jika periode sudah ada
-        }
+    try {
+      // Pengecekan apakah dokumen analisis benar-benar ada di Firestore
+      const docSnapshot = await getDoc(newAnalysisDocRef);
+      if (!docSnapshot.exists()) {
+        toast({
+          title: "Gagal",
+          description:
+            "Analisis tidak ditemukan di Firestore. Silahkan buat analisis baru.",
+          variant: "destructive",
+        });
+        return; // Hentikan jika dokumen tidak ada
+      }
+
+      // Cek apakah periode sudah ada dalam sub-koleksi analisis_periode
+      const periodeSnapshot = await getDocs(
+        collection(newAnalysisDocRef, "analisis_periode")
+      );
+      const existingPeriode = periodeSnapshot.docs.find(
+        (doc) => doc.data().periode === selectedPeriod
+      );
+
+      if (existingPeriode) {
+        toast({
+          title: "Data periode sudah ada.",
+          description: "Silahkan tambah periode baru atau buat analisis baru.",
+          variant: "destructive",
+        });
+        return; // Hentikan eksekusi jika periode sudah ada
       }
 
       // Siapkan data untuk periode
@@ -214,23 +241,11 @@ const PenetasanPage = () => {
         created_at: Timestamp.now(),
       };
 
-      // Jika isNewAnalysis adalah true, simpan ke dokumen baru
-      if (newAnalysisDocRef) {
-        await addDoc(
-          collection(newAnalysisDocRef, "analisis_periode"),
-          periodeData
-        );
-      } else {
-        // Buat dokumen baru jika tidak ada referensi sebelumnya
-        const docRef = await addDoc(collection(firestore, "detail_penetasan"), {
-          userId: user.email || user.username,
-          created_at: Timestamp.now(),
-        });
-
-        await addDoc(collection(docRef, "analisis_periode"), periodeData);
-        setNewAnalysisDocRef(docRef);
-        localStorage.setItem("activeDocRef", docRef.id);
-      }
+      // Tambahkan data ke sub-koleksi analisis_periode di dokumen yang sudah ada
+      await addDoc(
+        collection(newAnalysisDocRef, "analisis_periode"),
+        periodeData
+      );
 
       // Tambahkan periode ke dalam disabledPeriods
       setDisabledPeriods((prev) => [...prev, selectedPeriod]);
@@ -586,14 +601,78 @@ const PenetasanPage = () => {
                       <p className="mb-4">
                         Berikut adalah informasi terkait proses analisis:
                         <ul className="list-disc pl-5 mt-2">
-                          <li>Penerimaan (revenue) merupakan total pendapatan yang akan diperoleh dari hasil penjualan dalam 1 periode sebelum dikurangi dengan biaya atau pengeluaran.</li>
+                          <li>
+                            Penerimaan (revenue) merupakan total pendapatan yang
+                            akan diperoleh dari hasil penjualan dalam 1 periode
+                            sebelum dikurangi dengan biaya atau pengeluaran.
+                          </li>
                           <br />
-                          <li>Pengeluaran (cost) adalah seluruh biaya yang dikeluarkan untuk menjalankan suatu usaha, pada cost dibagi menjadi 2 yaitu fixed cost atau biaya tetap dan variable cost atau biaya variable.</li>
+                          <li>
+                            Pengeluaran (cost) adalah seluruh biaya yang
+                            dikeluarkan untuk menjalankan suatu usaha, pada cost
+                            dibagi menjadi 2 yaitu fixed cost atau biaya tetap
+                            dan variable cost atau biaya variable.
+                          </li>
                           <br />
-                          <li>(Margin of Safety) adalah analisis lanjutan dari titik impas yang menunjukkan seberapa besar persentase penjualan yang dapat turun sebelum perusahaan mengalami kerugian (Devi, 2023). MOS biasanya dinyatakan dalam bentuk persentase, dan semakin besar nilai MOS, semakin aman posisi keuangan suatu bisnis.</li>
-                          <li>R/C Ratio atau Revenue-Cost Ratio adalah perbandingan antara total pendapatan (revenue) yang dihasilkan dari penjualan suatu produk atau layanan dengan total biaya (cost) yang dikeluarkan untuk menghasilkan produk atau layanan tersebut. Rasio ini digunakan untuk mengevaluasi efisiensi dan profitabilitas suatu usaha.</li>
-                          <li>Break-Even Point (BEP) adalah titik impas, yaitu kondisi di mana total pendapatan sama dengan total biaya, sehingga tidak ada keuntungan maupun kerugian. Dalam konteks BEP, terdapat dua jenis pengukuran utama:
-                            <ul>BEP unit menunjukkan jumlah unit produk yang harus terjual agar perusahaan mencapai titik impas. BEP unit dihitung untuk mengetahui seberapa banyak produk yang perlu dijual untuk menutup seluruh biaya (tetap dan variabel).</ul>
+                          <li>
+                            (Margin of Safety) adalah analisis lanjutan dari
+                            titik impas yang menunjukkan seberapa besar
+                            persentase penjualan yang dapat turun sebelum
+                            perusahaan mengalami kerugian (Devi, 2023). MOS
+                            biasanya dinyatakan dalam bentuk persentase, dan
+                            semakin besar nilai MOS, semakin aman posisi
+                            keuangan suatu bisnis.
+                          </li>
+                          <br />
+                          <li>
+                            R/C Ratio atau Revenue-Cost Ratio adalah
+                            perbandingan antara total pendapatan (revenue) yang
+                            dihasilkan dari penjualan suatu produk atau layanan
+                            dengan total biaya (cost) yang dikeluarkan untuk
+                            menghasilkan produk atau layanan tersebut. Rasio ini
+                            digunakan untuk mengevaluasi efisiensi dan
+                            profitabilitas suatu usaha.
+                          </li>
+                          <br />
+                          <li>
+                            Break-Even Point (BEP) adalah titik impas, yaitu
+                            kondisi di mana total pendapatan sama dengan total
+                            biaya, sehingga tidak ada keuntungan maupun
+                            kerugian. Dalam konteks BEP, terdapat dua jenis
+                            pengukuran utama:
+                            <ul className="list-disc pl-5">
+                              <br />
+                              <li>
+                                BEP unit menunjukkan jumlah unit produk yang
+                                harus terjual agar perusahaan mencapai titik
+                                impas. BEP unit dihitung untuk mengetahui
+                                seberapa banyak produk yang perlu dijual untuk
+                                menutup seluruh biaya (tetap dan variabel).
+                              </li>
+                            </ul>
+                            <ul className="list-disc pl-5">
+                              <br />
+                              <li>
+                                BEP harga menunjukkan jumlah pendapatan atau
+                                nilai penjualan dalam bentuk uang yang
+                                dibutuhkan untuk mencapai titik impas. Ini
+                                membantu menentukan target pendapatan yang harus
+                                dicapai.
+                              </li>
+                            </ul>
+                          </li>
+                          <br />
+                          <li>
+                            Laba adalah selisih positif antara total pendapatan
+                            dengan total biaya yang dikeluarkan dalam suatu
+                            aktivitas bisnis atau usaha. Laba menunjukkan
+                            keuntungan yang diperoleh perusahaan setelah
+                            menutupi semua biaya, baik biaya tetap maupun biaya
+                            variabel. Jika hasil perhitungan bernilai negatif,
+                            maka perusahaan mengalami kerugian (rugi). Laba
+                            merupakan indikator penting untuk mengukur
+                            keberhasilan operasional dan kesehatan finansial
+                            suatu bisnis.
                           </li>
                         </ul>
                       </p>

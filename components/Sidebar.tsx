@@ -84,7 +84,7 @@ export function SidebarDemo({
 
     {
       label: "Riwayat Analisis",
-      href: createLinkWithUsername(`/riwayat`),
+    href: '/percobaan?username=${username}',
       icon: (
         <IconHistory className="text-neutral-700 dark:text-neutral-200 h-7 w-7 flex-shrink-0" />
       ),
@@ -97,11 +97,11 @@ export function SidebarDemo({
         <IconSettings2 className="text-neutral-700 dark:text-neutral-200 h-7 w-7 flex-shrink-0" />
       ),
     },
-  {
-    label: "Percobaan",
-    href: '/percobaan?username=${username}', // Replace '#' with the URL or functionality for "Percobaan" if needed
-    icon: <IconSettings className="text-neutral-700 dark:text-neutral-200 h-7 w-7 flex-shrink-0" />,
-  },
+  // {
+  //   label: "Percobaan",
+  //   href: '/percobaan?username=${username}', // Replace '#' with the URL or functionality for "Percobaan" if needed
+  //   icon: <IconSettings className="text-neutral-700 dark:text-neutral-200 h-7 w-7 flex-shrink-0" />,
+  // },
 ];
 
 
