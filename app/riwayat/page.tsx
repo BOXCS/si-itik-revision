@@ -183,6 +183,8 @@ export default function RiwayatAnalisis() {
   const [chartData, setChartData] = useState<{ Prd: number; Revenue: number; Cost: number; Laba: number; }[]>([]);
   const [sortCriteria, setSortCriteria] = useState<string>("terbaru");
 
+  console.log(chartData)
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {

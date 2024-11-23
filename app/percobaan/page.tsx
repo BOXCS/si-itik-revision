@@ -94,54 +94,54 @@ const modalStyles: { [key: string]: React.CSSProperties } = {
   },
 };
 
-const styles: { [key: string]: CSSProperties } = {
-  pageContainer: {
-    background: "linear-gradient(180deg, #FFD580, #FFCC80)",
-    minHeight: "100vh",
-    padding: "0px",
-    margin: "0px",
-    fontFamily: "'Arial', sans-serif",
-  },
-  contentContainer: {
-    padding: "20px",
-  },
-  titleContainer: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "20px",
-  },
-  title: {
-    color: "#333",
-    marginBottom: "20px",
-  },
-  table: {
-    display: "flex",
-    flexDirection: "row" as "row" | "column" | "row-reverse" | "column-reverse", // Explicit type
-    flexWrap: "wrap" as "wrap" | "nowrap" | "wrap-reverse", // Explicit type
-    gap: "20px",
-    marginTop: "20px",
-  },
-  cell: {
-    padding: "10px",
-    border: "1px solid #ddd",
-    cursor: "pointer",
-    minWidth: "150px",
-    backgroundColor: "#FFFFFF", //ganati background card
-    color: "#fff",
-    textAlign: "left",
-  },
-  error: {
-    color: "red",
-    marginTop: "20px",
-  },
-  detailContainer: {
-    marginTop: "20px",
-    padding: "10px",
-    backgroundColor: "#f0f0f0",
-    borderRadius: "5px",
-  },
-};
+// const styles: { [key: string]: CSSProperties } = {
+//   pageContainer: {
+//     background: "linear-gradient(180deg, #FFD580, #FFCC80)",
+//     minHeight: "100vh",
+//     padding: "0px",
+//     margin: "0px",
+//     fontFamily: "'Arial', sans-serif",
+//   },
+//   contentContainer: {
+//     padding: "20px",
+//   },
+//   titleContainer: {
+//     display: "flex",
+//     justifyContent: "space-between",
+//     alignItems: "center",
+//     marginBottom: "20px",
+//   },
+//   title: {
+//     color: "#333",
+//     marginBottom: "20px",
+//   },
+//   table: {
+//     display: "flex",
+//     flexDirection: "row" as "row" | "column" | "row-reverse" | "column-reverse", // Explicit type
+//     flexWrap: "wrap" as "wrap" | "nowrap" | "wrap-reverse", // Explicit type
+//     gap: "20px",
+//     marginTop: "20px",
+//   },
+//   cell: {
+//     padding: "10px",
+//     border: "1px solid #ddd",
+//     cursor: "pointer",
+//     minWidth: "150px",
+//     backgroundColor: "#FFFFFF", //ganati background card
+//     color: "#fff",
+//     textAlign: "left",
+//   },
+//   error: {
+//     color: "red",
+//     marginTop: "20px",
+//   },
+//   detailContainer: {
+//     marginTop: "20px",
+//     padding: "10px",
+//     backgroundColor: "#f0f0f0",
+//     borderRadius: "5px",
+//   },
+// };
 
 // Component
 export default function PercobaanAnalisis() {

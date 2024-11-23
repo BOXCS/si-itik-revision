@@ -6,13 +6,13 @@ import { auth, firestore } from "@/lib/firebase";
 import { useSearchParams } from "next/navigation";
 import { SidebarDemo } from "@/components/Sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AreaChart, TooltipProps } from "@/components/ui/chart";
+import { AreaChart } from "@/components/ui/chart";
 import { Tooltip } from "@/components/ui/tooltip";
 import UserAvatar from "@/components/ui/avatar";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import Link from 'next/link';
 import Image from "next/image";
-import { cx } from "@/lib/utils";
+// import { cx } from "@/lib/utils";
 import {
   Grid,
   Card,
@@ -40,7 +40,7 @@ interface AnalysisPeriodData {
 }
 
 export default function Dashboard() {
-  const searchParams = useSearchParams();
+  // const searchParams = useSearchParams();
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(() => {
@@ -57,6 +57,8 @@ export default function Dashboard() {
   const [dataAnalisis, setDataAnalisis] = useState<AnalysisPeriodData[]>([]);
   const [originalData, setOriginalData] = useState<AnalysisPeriodData[]>([]);
   const [sortCriteria, setSortCriteria] = useState<string>("terbaru");
+
+  console.log("email user" + userEmail);
 
   const styles = {
     pageContainer: {
