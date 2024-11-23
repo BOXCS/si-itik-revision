@@ -100,7 +100,7 @@ export default function SettingPage() {
     <div className="w-full min-h-screen bg-gray-100 flex overflow-y-auto">
       <Suspense fallback={<div>Loading...</div>}>
         <SidebarDemo>
-          <div className="flex-1 flex flex-col p-10">
+          <div className="flex-1 flex flex-col p-10 overflow-y-auto md:overflow-y-hidden">
             <h1 className="text-start text-3xl font-bold text-black mb-8">
               Pengaturan
             </h1>
@@ -307,9 +307,9 @@ function CardContainer() {
   };
 
   return (
-    <div className="w-full h-screen overflow-y-auto">
+    <div className="w-full min-h-screen overflow-y-auto">
       <div className="w-full">
-        <div className="max-w-[1500px] mx-auto min-h-[600px] sm:min-h-[800px]">
+        <div className="max-w-[1500px] mx-auto min-h-[600px] sm:min-h-[800px] md:min-h-[900px]">
           <div className="bg-white rounded-xl sm:rounded-3xl shadow-lg p-4 sm:p-8 relative w-full h-full sm:h-auto sm:w-full overflow-y-auto">
             {/* Background blur effect */}
             <div
@@ -485,7 +485,7 @@ function CardContainer() {
               </div>
             </div>
 
-            <div className="text-center mt-8 sm:absolute sm:bottom-0 sm:left-1/2 sm:transform sm:-translate-x-1/2 sm:mb-4">
+            <div className="text-center mt-8 sm:absolute sm:bottom-0 sm:left-1/2 sm:transform sm:-translate-x-1/2 sm:mb-1">
               <h2 className="text-gray-500">si-itikpolije2024.com</h2>
             </div>
 
