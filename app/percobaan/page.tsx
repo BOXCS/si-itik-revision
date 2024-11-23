@@ -474,7 +474,7 @@ export default function PercobaanAnalisis() {
             </h3>
             <div className="flex space-x-4">
               <AreaChart
-                className="flex items-center justify-center h-10 md:h-50"
+                className="flex items-center justify-center h-[180px] sm:h-[150px] md:h-[250px] w-full sm:w-[320px] md:w-[100%]"
                 data={chartData}
                 index="Prd"
                 categories={["Revenue", "Cost", "Laba"]}
