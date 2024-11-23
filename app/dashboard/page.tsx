@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { collection, getDocs, orderBy, query, where, Timestamp, } from "firebase/firestore";
 import { auth, firestore } from "@/lib/firebase";
-import { useSearchParams } from "next/navigation";
+// import { useSearchParams } from "next/navigation";
 import { SidebarDemo } from "@/components/Sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AreaChart } from "@/components/ui/chart";
