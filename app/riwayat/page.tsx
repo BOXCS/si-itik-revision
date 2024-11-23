@@ -180,17 +180,8 @@ export default function RiwayatAnalisis() {
     null //Variabel state ini menyimpan data analisis yang dipilih saat ini. Awalnya diatur ke null (menandakan tidak ada data yang dipilih). Tipe AnalysisPeriodData | null berarti dapat menyimpan data dari tipe AnalysisPeriodData atau null
   );
   const [dataAnalisis, setDataAnalisis] = useState<AnalysisPeriodData[]>([]); //
+  const [chartData, setChartData] = useState<{ Prd: number; Revenue: number; Cost: number; Laba: number; }[]>([]);
   const [sortCriteria, setSortCriteria] = useState<string>("terbaru");
-
-  const [chartDataPenetasan, setChartDataPenetasan] = useState<
-    { Prd: string; Revenue: number; Cost: number; Laba: number }[]
-  >([]);
-  const [chartDataPenggemukan, setChartDataPenggemukan] = useState<
-    { Prd: string; Revenue: number; Cost: number; Laba: number }[]
-  >([]);
-  const [chartDataLayer, setChartDataLayer] = useState<
-    { Prd: string; Revenue: number; Cost: number; Laba: number }[]
-  >([]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -280,7 +271,7 @@ export default function RiwayatAnalisis() {
                 ];
                 const analysisName = analysisNames[index];
 
-                const [penetasanData, penggemukanData, layerData] =
+                const [penetasanData] =
                   await Promise.all(
                     detailQueries.map(async (q) => {
                       // Removed `index`
@@ -321,26 +312,8 @@ export default function RiwayatAnalisis() {
                     })
                   );
 
-                setChartDataPenetasan(
+                setChartData(
                   penetasanData.map((item) => ({
-                    Prd: item.periode,
-                    Revenue: item.totalRevenue,
-                    Cost: item.totalCost,
-                    Laba: item.laba,
-                  }))
-                );
-
-                setChartDataPenggemukan(
-                  penggemukanData.map((item) => ({
-                    Prd: item.periode,
-                    Revenue: item.totalRevenue,
-                    Cost: item.totalCost,
-                    Laba: item.laba,
-                  }))
-                );
-
-                setChartDataLayer(
-                  layerData.map((item) => ({
                     Prd: item.periode,
                     Revenue: item.totalRevenue,
                     Cost: item.totalCost,
@@ -559,6 +532,14 @@ export default function RiwayatAnalisis() {
 
   function Popup({ open, onClose, data1, data2 }: PopupProps) {
     if (!data1 || !data2 ) return null;
+    const chartData = [
+      {
+        Prd: data1.periode, // Pastikan data1.periode berisi nama atau label periode
+        Revenue: data1.totalRevenue || 0,
+        Cost: data1.totalCost || 0,
+        Laba: data1.Laba || 0,
+      },
+    ];
 
     return (
       <Suspense fallback={<div>Loading...</div>}>
@@ -663,49 +644,7 @@ export default function RiwayatAnalisis() {
                 <AreaChart
                   style={{ width: "175%" }} // Mengatur grafik agar memenuhi lebar kolom
                   className="flex items-center justify-center h-100"
-                  data={chartDataPenetasan}
-                  index="Prd"
-                  categories={["Revenue", "Cost", "Laba"]}
-                  valueFormatter={(number: number) => `${formatNumber(number)}`}
-                  onValueChange={(v) => console.log(v)}
-                  xAxisLabel="Periode"
-                  yAxisLabel="Rp"
-                  fill="solid"
-                />
-              </Grid>
-            </Grid>
-
-            <Grid
-              container
-              justifyContent="left"
-              style={{ marginTop: "20px", width: "100%" }}
-            >
-              <Grid item xs={10} md={8} lg={6} style={{ marginLeft: "15px" }}>
-                <AreaChart
-                  style={{ width: "175%" }}
-                  className="flex items-center justify-center h-100"
-                  data={chartDataPenggemukan} // Data untuk chart penggemukan
-                  index="Prd"
-                  categories={["Revenue", "Cost", "Laba"]}
-                  valueFormatter={(number: number) => `${formatNumber(number)}`}
-                  onValueChange={(v) => console.log(v)}
-                  xAxisLabel="Periode"
-                  yAxisLabel="Rp"
-                  fill="solid"
-                />
-              </Grid>
-            </Grid>
-
-            <Grid
-              container
-              justifyContent="left"
-              style={{ marginTop: "20px", width: "100%" }}
-            >
-              <Grid item xs={10} md={8} lg={6} style={{ marginLeft: "15px" }}>
-                <AreaChart
-                  style={{ width: "175%" }}
-                  className="flex items-center justify-center h-100"
-                  data={chartDataLayer} // Data untuk chart layer
+                  data={chartData}
                   index="Prd"
                   categories={["Revenue", "Cost", "Laba"]}
                   valueFormatter={(number: number) => `${formatNumber(number)}`}

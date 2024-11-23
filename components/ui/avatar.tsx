@@ -12,8 +12,7 @@ function getRandomColor() {
 }
 
 interface UserAvatarProps {
-  // Optionally accept photoURL from props (e.g., if you have it from a parent component)
-  photoURL?: string | null; // Allow photoURL to be null
+  photoURL?: string | null;
 }
 
 export default function UserAvatar({ photoURL }: UserAvatarProps) {
@@ -30,13 +29,10 @@ export default function UserAvatar({ photoURL }: UserAvatarProps) {
 
   if (!isMounted) return null; // Prevent SSR mismatches
 
-  // If photoURL is null or undefined, use undefined to avoid passing 'null' to AvatarImage
-  const displayPhotoURL: string | undefined = photoURL || user?.photoURL || undefined;
-
   return (
     <Avatar className="w-24 h-24 rounded-full">
       <AvatarImage 
-        src={displayPhotoURL} 
+        src={photoURL || user?.photoURL || undefined} 
         alt={user?.displayName || "User Avatar"} 
         className="rounded-full w-full h-full object-cover"
       />

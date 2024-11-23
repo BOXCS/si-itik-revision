@@ -17,6 +17,7 @@ import { firestore, auth } from "@/lib/firebase";
 // import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import Typography from "@mui/material/Typography";
 import Image from "next/image";
+import { AreaChart } from "@/components/ui/chart";
 
 // Modal Styles for Cards
 const modalStyles: { [key: string]: React.CSSProperties } = {
@@ -158,6 +159,7 @@ export default function PercobaanAnalisis() {
   const [layerData, setLayerData] = useState<any[]>([]); // Data for Layer
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [chartData, setChartData] = useState<{ Prd: number; Revenue: string; Cost: string; Laba: string; }[]>([]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -395,12 +397,22 @@ export default function PercobaanAnalisis() {
           const analisisData = analisisPeriodeSnapshot.docs.map((doc) => {
             return {
               id: doc.id,
+              laba: doc.data().hasilAnalisis?.laba || 0,
+                periode: doc.data().periode ?? 0,
+                revenue: doc.data().penerimaan?.totalRevenue || 0,
+                cost: doc.data().pengeluaran?.totalCost || 0,
               ...doc.data(),
             };
           });
 
           console.log(analisisData);
 
+          setChartData(analisisData.map((item, index) => ({
+            Prd: index + 1,
+            Revenue: item.revenue,
+            Cost: item.cost,
+            Laba: item.laba,
+          })));
           setAnalisisPeriodeData(analisisData);
         } else {
           setAnalisisPeriodeData([]);
@@ -415,6 +427,14 @@ export default function PercobaanAnalisis() {
       setError("Error fetching detail. Please try again later.");
     }
   };
+
+  const formatNumber = (num: number) =>
+  new Intl.NumberFormat("id-ID", { 
+  style: "currency", 
+  currency: "IDR",
+  minimumFractionDigits: 0, // Menghapus desimal
+  maximumFractionDigits: 0, }).format(num);
+
 
   return (
     <div style={styles.pageContainer}>
@@ -485,6 +505,18 @@ export default function PercobaanAnalisis() {
             <h3>
               Detail: {selectedDetail?.analisis_periode || selectedDetail?.nama}
             </h3>
+            <div className="flex space-x-4">
+              <AreaChart
+                className="flex items-center justify-center h-50"
+                data={chartData}
+                index="Prd"
+                categories={["Revenue", "Cost", "Laba"]}
+                valueFormatter={(number: number) => `${formatNumber(number)}`}
+                onValueChange={(v) => console.log(v)}
+                xAxisLabel="Periode"
+                fill="solid"
+              />
+            </div>
             <div style={modalStyles.cardContainer}>
               {analisisPeriodeData.length > 0 ? (
                 analisisPeriodeData.map((data) => (
@@ -638,8 +670,8 @@ const CardDetailPenetasan = ({
         }}
       >
         {item.Laba !== undefined &&
-        item.Laba !== null &&
-        !isNaN(Number(item.Laba)) ? (
+          item.Laba !== null &&
+          !isNaN(Number(item.Laba)) ? (
           <Typography variant="h6">
             Rp. {Number(item.Laba).toLocaleString("id-ID")}
           </Typography>
@@ -961,8 +993,8 @@ const CardDetaillayer = ({
         }}
       >
         {item.Laba !== undefined &&
-        item.Laba !== null &&
-        !isNaN(Number(item.Laba)) ? (
+          item.Laba !== null &&
+          !isNaN(Number(item.Laba)) ? (
           <Typography variant="h6">
             Rp. {Number(item.Laba).toLocaleString("id-ID")}
           </Typography>
