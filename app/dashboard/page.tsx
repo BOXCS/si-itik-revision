@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { collection, getDocs, orderBy, query, where, Timestamp, } from "firebase/firestore";
 import { auth, firestore } from "@/lib/firebase";
 // import { useSearchParams } from "next/navigation";
@@ -393,6 +393,7 @@ export default function Dashboard() {
 
   return (
     <div>
+      <Suspense fallback={<div className="p-4">Loading...</div>}>
       <SidebarDemo>
         <div className="flex-1 items-center justify-center">
           {/* Title Menu */}
@@ -720,6 +721,7 @@ export default function Dashboard() {
           </div>
         </div>
       </SidebarDemo>
+      </Suspense>
     </div>
   );
 }
