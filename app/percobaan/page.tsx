@@ -34,12 +34,14 @@ const modalStyles: { [key: string]: React.CSSProperties } = {
   },
   modal: {
     backgroundColor: "white",
+    height: "100%",
     padding: "20px",
     borderRadius: "10px",
     width: "80%",
     maxWidth: "1000px", // Lebih lebar agar lebih banyak kartu bisa ditampilkan
     boxSizing: "border-box",
     position: "relative", // Agar tombol Close di bawah bisa menggunakan posisi absolute
+    overflowY: "auto",
   },
   closeButton: {
     background: "none",
@@ -67,8 +69,9 @@ const modalStyles: { [key: string]: React.CSSProperties } = {
   },
   cardContainer: {
     display: "flex",
-    flexDirection: "row", // Menampilkan kartu secara horizontal
+    flexDirection: "column", // Menampilkan kartu secara horizontal
     flexWrap: "wrap", // Agar kartu bisa membungkus ke baris berikutnya jika ruang tidak cukup
+    width: "100%",
     justifyContent: "center", // Memusatkan kartu secara horizontal
     gap: "30px", // Jarak antar kartu lebih besar
   },
@@ -78,7 +81,7 @@ const modalStyles: { [key: string]: React.CSSProperties } = {
     borderRadius: "8px",
     boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)", // Menambahkan bayangan hitam
     transition: "box-shadow 0.3s ease", // Efek bayangan ketika hover
-    width: "30%", // Setiap kartu akan mengambil sekitar 30% dari lebar kontainer
+    width: "100%", // Setiap kartu akan mengambil sekitar 30% dari lebar kontainer
     boxSizing: "border-box",
     margin: "auto", // Menjaga kartu tetap terpusat dalam baris
   },
@@ -140,15 +143,6 @@ const styles: { [key: string]: CSSProperties } = {
   },
 };
 
-// Helper function to format Firebase Timestamp
-// const formatTimestamp = (timestamp: any) => {
-//   if (timestamp instanceof Timestamp) {
-//     const date = timestamp.toDate();
-//     return date.toLocaleString(); // Or use other date formatting methods as required
-//   }
-//   return timestamp;
-// };
-
 // Component
 export default function PercobaanAnalisis() {
   const [user, setUser] = useState<any>();
@@ -159,7 +153,11 @@ export default function PercobaanAnalisis() {
   const [layerData, setLayerData] = useState<any[]>([]); // Data for Layer
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [chartData, setChartData] = useState<{ Prd: number; Revenue: string; Cost: string; Laba: string; }[]>([]);
+  const [chartData, setChartData] = useState<
+    { Prd: number; Revenue: string; Cost: string; Laba: string }[]
+  >([]);
+
+  console.log("user telah tiba di riwayat" + user);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -326,57 +324,6 @@ export default function PercobaanAnalisis() {
     }
   };
 
-  // Fetch data from Firestore
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const detailCollectionRef = collection(db, "detail_penetasan");
-  //       const q = query(detailCollectionRef, orderBy("created_at", "desc"));
-  //       const querySnapshot = await getDocs(q);
-
-  //       if (querySnapshot.empty) {
-  //         setError("No detail data available.");
-  //       } else {
-  //         const detailList = await Promise.all(querySnapshot.docs.map(async (doc) => {
-  //           const data = doc.data();
-
-  //           return {
-  //             id: doc.id,
-  //             analisis_periode: data.analisis_periode || "N/A",
-  //             created_at: data.created_at,  // This will contain Timestamp
-  //           };
-  //         }));
-  //         setDetailData(detailList);
-  //       }
-
-  //       // Fetch data for Penggemukan
-  //       const penggemukanRef = collection(db, "detail_penggemukan");
-  //       const penggemukanSnapshot = await getDocs(penggemukanRef);
-
-  //       const penggemukanList = penggemukanSnapshot.docs.map((doc) => ({
-  //         id: doc.id,
-  //         ...doc.data(),
-  //       }));
-  //       setPenggemukanData(penggemukanList);
-
-  //       // Fetch data for Layer
-  //       const layerRef = collection(db, "detail_layer");
-  //       const layerSnapshot = await getDocs(layerRef);
-
-  //       const layerList = layerSnapshot.docs.map((doc) => ({
-  //         id: doc.id,
-  //         ...doc.data(),
-  //       }));
-  //       setLayerData(layerList);
-
-  //     } catch (error) {
-  //       console.error("Error fetching detail data:", error);
-  //       setError("Error fetching data. Please try again later.");
-  //     }
-  //   };
-  //   fetchData();
-  // }, []);
-
   const handleClick = async (id: string, type: string) => {
     try {
       const docRef = doc(db, type, id);
@@ -398,21 +345,23 @@ export default function PercobaanAnalisis() {
             return {
               id: doc.id,
               laba: doc.data().hasilAnalisis?.laba || 0,
-                periode: doc.data().periode ?? 0,
-                revenue: doc.data().penerimaan?.totalRevenue || 0,
-                cost: doc.data().pengeluaran?.totalCost || 0,
+              periode: doc.data().periode ?? 0,
+              revenue: doc.data().penerimaan?.totalRevenue || 0,
+              cost: doc.data().pengeluaran?.totalCost || 0,
               ...doc.data(),
             };
           });
 
           console.log(analisisData);
 
-          setChartData(analisisData.map((item, index) => ({
-            Prd: index + 1,
-            Revenue: item.revenue,
-            Cost: item.cost,
-            Laba: item.laba,
-          })));
+          setChartData(
+            analisisData.map((item, index) => ({
+              Prd: index + 1,
+              Revenue: item.revenue,
+              Cost: item.cost,
+              Laba: item.laba,
+            }))
+          );
           setAnalisisPeriodeData(analisisData);
         } else {
           setAnalisisPeriodeData([]);
@@ -429,65 +378,83 @@ export default function PercobaanAnalisis() {
   };
 
   const formatNumber = (num: number) =>
-  new Intl.NumberFormat("id-ID", { 
-  style: "currency", 
-  currency: "IDR",
-  minimumFractionDigits: 0, // Menghapus desimal
-  maximumFractionDigits: 0, }).format(num);
-
+    new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0, // Menghapus desimal
+      maximumFractionDigits: 0,
+    }).format(num);
 
   return (
-    <div style={styles.pageContainer}>
-      <Suspense fallback={<div>Loading...</div>}>
+    <div className="min-h-screen bg-gradient-to-b from-[#FFD580] to-[#FFCC80]">
+      <Suspense fallback={<div className="p-4">Loading...</div>}>
         <SidebarDemo>
-          <div
-            style={{
-              ...styles.contentContainer,
-              height: "calc(100vh - 100px)",
-              overflowY: "auto",
-            }}
-          >
-            <div style={styles.titleContainer}>
-              <h1 style={styles.title}>
-                Selamat datang, {user?.displayName ?? "User"}
+          <div className="p-6 h-screen w-full overflow-y-auto">
+            {/* Header */}
+            <div className="flex justify-between items-center mb-8">
+              <h1 className="text-2xl font-bold text-gray-800">
+                Riwayat Analisis
               </h1>
             </div>
-            {error && <p style={styles.error}>{error}</p>}
 
-            {/* Detail Penetasan */}
-            <h2>Detail Penetasan</h2>
-            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-              {detailData.map((item, i) => (
-                <CardDetailPenetasan
-                  item={item}
-                  key={i}
-                  clickDetail={() => handleClick(item.id, "detail_penetasan")}
-                />
-              ))}
-            </div>
+            {error && <p className="text-red-500 mb-6">{error}</p>}
 
-            {/* Detail Penggemukan */}
-            <h2>Detail Penggemukan</h2>
-            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-              {penggemukanData.map((item, i) => (
-                <CardDetailPenggemukan
-                  item={item}
-                  key={i}
-                  clickDetail={() => handleClick(item.id, "detail_penggemukan")}
-                />
-              ))}
-            </div>
+            {/* Sections */}
+            <div className="space-y-8">
+              {/* Penetasan Section */}
+              <section>
+                <h2 className="text-xl font-semibold text-gray-800 bg-[#F58110] h-8 rounded-full text-center mb-4">
+                  Detail Penetasan
+                </h2>
+                <div className="flex flex-wrap gap-4">
+                  {detailData.map((item, i) => (
+                    <CardDetailPenetasan
+                      item={item}
+                      key={i}
+                      clickDetail={() =>
+                        handleClick(item.id, "detail_penetasan")
+                      }
+                      className="flex-grow basis-[calc(25%-1rem)] max-w-[calc(25%-1rem)] sm:basis-[calc(50%-1rem)] sm:max-w-[calc(50%-1rem)] lg:basis-[calc(33.333%-1rem)] lg:max-w-[calc(33.333%-1rem)] xl:basis-[calc(25%-1rem)] xl:max-w-[calc(25%-1rem)] h-full"
+                    />
+                  ))}
+                </div>
+              </section>
 
-            {/* Detail Layer */}
-            <h2>Detail Layer</h2>
-            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-              {layerData.map((item, i) => (
-                <CardDetaillayer
-                  item={item}
-                  key={i}
-                  clickDetail={() => handleClick(item.id, "detail_layer")}
-                />
-              ))}
+              {/* Penggemukan Section */}
+              <section>
+                <h2 className="text-xl font-semibold text-gray-800 bg-[#F58110] h-8 rounded-full text-center mb-4">
+                  Detail Penggemukan
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {penggemukanData.map((item, i) => (
+                    <CardDetailPenggemukan
+                      item={item}
+                      key={i}
+                      clickDetail={() =>
+                        handleClick(item.id, "detail_penggemukan")
+                      }
+                      className="h-full"
+                    />
+                  ))}
+                </div>
+              </section>
+
+              {/* Layer Section */}
+              <section>
+                <h2 className="text-xl font-semibold text-gray-800 bg-[#F58110] h-8 rounded-full text-center mb-4">
+                  Detail Layer
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {layerData.map((item, i) => (
+                    <CardDetaillayer
+                      item={item}
+                      key={i}
+                      clickDetail={() => handleClick(item.id, "detail_layer")}
+                      className="h-full"
+                    />
+                  ))}
+                </div>
+              </section>
             </div>
           </div>
         </SidebarDemo>
@@ -507,7 +474,7 @@ export default function PercobaanAnalisis() {
             </h3>
             <div className="flex space-x-4">
               <AreaChart
-                className="flex items-center justify-center h-50"
+                className="flex items-center justify-center h-10 md:h-50"
                 data={chartData}
                 index="Prd"
                 categories={["Revenue", "Cost", "Laba"]}
@@ -554,12 +521,6 @@ export default function PercobaanAnalisis() {
             </div>
 
             {/* Tombol Close di bagian bawah kanan */}
-            <button
-              style={modalStyles.closeButtonBottom}
-              onClick={() => setIsModalOpen(false)}
-            >
-              Close
-            </button>
           </div>
         </div>
       )}
@@ -570,11 +531,14 @@ export default function PercobaanAnalisis() {
 const CardDetailPenetasan = ({
   item,
   clickDetail,
-}: {
+}: // className,
+{
   item: any;
   clickDetail: () => void;
+  className?: string; // Tambahkan className sebagai opsional
 }) => {
   const [totalLaba, setTotalLaba] = useState(0);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   useEffect(() => {
     if (item?.detail) {
@@ -590,20 +554,43 @@ const CardDetailPenetasan = ({
   console.log("item.Laba:", item.Laba);
   console.log("totalLaba:", totalLaba);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const style: CSSProperties = {
+    display: "flex",
+    flexWrap: "wrap",
+    flexBasis: "calc(25% - 15px)",
+    maxWidth: "calc(25% - 15px)",
+    flexDirection: "column", // Ensure 'flexDirection' is valid
+    alignItems: "center",
+    width: "100%",
+    padding: "15px",
+    border: "1px solid #ddd",
+    borderRadius: "8px",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+    backgroundColor: "#fff",
+  };
+
+  // Update the style based on the screen width
+  if (windowWidth <= 768) {
+    style.flexBasis = "100%";
+    style.maxWidth = "100%";
+  }
+
+  if (windowWidth <= 480) {
+    style.flexBasis = "100%";
+    style.maxWidth = "100%";
+  }
+
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        width: "200px",
-        padding: "15px",
-        border: "1px solid #ddd",
-        borderRadius: "8px",
-        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-        backgroundColor: "#fff",
-      }}
-    >
+    <div style={style}>
       <strong style={{ color: "black", fontSize: "16px", marginBottom: "5px" }}>
         Detail Penetasan
       </strong>
@@ -629,9 +616,9 @@ const CardDetailPenetasan = ({
         <Image
           src="/assets/Group.png"
           alt="Icon"
-          width={100} // Atur width dalam pixel
-          height={50} // Atur height dalam pixel
-          layout="fixed" // Pastikan ukuran gambar tetap
+          width={100}
+          height={50}
+          layout="fixed"
           className="w-5 h-auto"
         />
         <button
@@ -670,8 +657,8 @@ const CardDetailPenetasan = ({
         }}
       >
         {item.Laba !== undefined &&
-          item.Laba !== null &&
-          !isNaN(Number(item.Laba)) ? (
+        item.Laba !== null &&
+        !isNaN(Number(item.Laba)) ? (
           <Typography variant="h6">
             Rp. {Number(item.Laba).toLocaleString("id-ID")}
           </Typography>
@@ -729,8 +716,10 @@ const CardDetailPenggemukan = ({
 }: {
   item: any;
   clickDetail: () => void;
+  className?: string;
 }) => {
   const [totalLaba, setTotalLaba] = useState(0);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   useEffect(() => {
     let total = 0;
@@ -743,20 +732,41 @@ const CardDetailPenggemukan = ({
     setTotalLaba(total);
   }, [item]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const style: CSSProperties = {
+    display: "flex",
+    flexWrap: "wrap",
+    flexDirection: "column", // Ensure 'flexDirection' is valid
+    alignItems: "center",
+    width: "100%",
+    padding: "15px",
+    border: "1px solid #ddd",
+    borderRadius: "8px",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+    backgroundColor: "#fff",
+  };
+
+  // Update the style based on the screen width
+  if (windowWidth <= 768) {
+    style.flexBasis = "100%";
+    style.maxWidth = "100%";
+  }
+
+  if (windowWidth <= 480) {
+    style.flexBasis = "100%";
+    style.maxWidth = "100%";
+  }
+
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        width: "200px", // Fixed width
-        padding: "15px",
-        border: "1px solid #ddd",
-        borderRadius: "8px",
-        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-        backgroundColor: "#fff",
-      }}
-    >
+    <div style={style}>
       {/* Title */}
       <strong style={{ color: "black", fontSize: "16px", marginBottom: "5px" }}>
         Detail Penggemukan
@@ -894,8 +904,10 @@ const CardDetaillayer = ({
 }: {
   item: any;
   clickDetail: () => void;
+  className?: string;
 }) => {
   const [totalLaba, setTotalLaba] = useState(0);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   useEffect(() => {
     let total = 0;
@@ -908,20 +920,41 @@ const CardDetaillayer = ({
     setTotalLaba(total);
   }, [item]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const style: CSSProperties = {
+    display: "flex",
+    flexWrap: "wrap",
+    flexDirection: "column", // Ensure 'flexDirection' is valid
+    alignItems: "center",
+    width: "100%",
+    padding: "15px",
+    border: "1px solid #ddd",
+    borderRadius: "8px",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+    backgroundColor: "#fff",
+  };
+
+  // Update the style based on the screen width
+  if (windowWidth <= 768) {
+    style.flexBasis = "100%";
+    style.maxWidth = "100%";
+  }
+
+  if (windowWidth <= 480) {
+    style.flexBasis = "100%";
+    style.maxWidth = "100%";
+  }
+
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        width: "200px", // Fixed width
-        padding: "15px",
-        border: "1px solid #ddd",
-        borderRadius: "8px",
-        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-        backgroundColor: "#fff",
-      }}
-    >
+    <div style={style}>
       {/* Title */}
       <strong style={{ color: "black", fontSize: "16px", marginBottom: "5px" }}>
         Detail Layer
@@ -993,8 +1026,8 @@ const CardDetaillayer = ({
         }}
       >
         {item.Laba !== undefined &&
-          item.Laba !== null &&
-          !isNaN(Number(item.Laba)) ? (
+        item.Laba !== null &&
+        !isNaN(Number(item.Laba)) ? (
           <Typography variant="h6">
             Rp. {Number(item.Laba).toLocaleString("id-ID")}
           </Typography>

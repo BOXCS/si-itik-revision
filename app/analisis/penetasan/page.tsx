@@ -35,6 +35,7 @@ const PenetasanPage = () => {
   // Tambahkan state untuk mengatur status analisis baru
   const [activeTab, setActiveTab] = useState("info");
   const [isOpen, setIsOpen] = useState(false);
+  const [isOpenRumus, setIsOpenRumus] = useState(false);
   const [isNewAnalysis, setIsNewAnalysis] = useState(false);
   const [newAnalysisDocRef, setNewAnalysisDocRef] =
     useState<DocumentReference | null>(null);
@@ -409,6 +410,10 @@ const PenetasanPage = () => {
     setIsOpen(!isOpen); // Mengubah state open/close
   };
 
+  const handleToggleRumus = () => {
+    setIsOpenRumus(!isOpenRumus); // Mengubah state open/close
+  };
+
   return (
     <div className="w-full min-h-screen bg-gray-100 flex flex-col md:flex-row">
       <Suspense fallback={<div>Loading...</div>}>
@@ -552,17 +557,17 @@ const PenetasanPage = () => {
               <div className="flex md:hidden w-full justify-center mb-6">
                 <button
                   className="px-4 py-2 bg-orange-500 text-white rounded-lg shadow hover:bg-orange-600 focus:outline-none"
-                  onClick={handleToggle}
+                  onClick={handleToggleRumus}
                 >
                   Lihat Info dan Rumus
                 </button>
               </div>
 
               {/* Dialog */}
-              {isOpen && (
+              {isOpenRumus && (
                 <div
                   className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-                  onClick={handleToggle}
+                  onClick={handleToggleRumus}
                 >
                   <div
                     className="bg-white w-11/12 max-w-md overflow-y-auto max-h-[90vh] rounded-lg p-6"
@@ -793,7 +798,7 @@ const PenetasanPage = () => {
 
                     <button
                       className="px-4 py-2 bg-orange-500 text-white rounded-lg shadow hover:bg-orange-600 focus:outline-none"
-                      onClick={handleToggle}
+                      onClick={handleToggleRumus}
                     >
                       Tutup
                     </button>

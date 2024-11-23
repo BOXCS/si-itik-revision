@@ -69,7 +69,8 @@ const LayerPage = () => {
   const [totalBiayaOperasional, setTotalBiayaOperasional] = useState<number>(0);
 
   const [standardPakanGram, setstandardPakanGram] = useState(0);
-    
+  const [hargaPakan, setHargaPakan] = useState(0);
+
   // const [jumlahItik, setJumlahItik] = useState(0);
   const [jumlahPakanKilogram, setjumlahPakanKilogram] = useState(0);
   const [totalBiayaPakan, setTotalBiayaPakan] = useState<number>(0);
@@ -297,6 +298,7 @@ const LayerPage = () => {
   const formatNumber = (number: number) => {
     return new Intl.NumberFormat("id-ID", {
       minimumFractionDigits: 0, // Menghilangkan desimal
+      maximumFractionDigits: 0, // Pastikan tidak ada desimal
     }).format(number);
   };
 
@@ -359,9 +361,9 @@ const LayerPage = () => {
   }, [standardPakanGram, jumlahItikAwal]);
 
   useEffect(() => {
-    const totalBiayaPakan = jumlahPakanKilogram * 180;
+    const totalBiayaPakan = jumlahPakanKilogram * hargaPakan;
     setTotalBiayaPakan(totalBiayaPakan);
-  }, [totalBiayaPakan, jumlahPakanKilogram]);
+  }, [totalBiayaPakan, jumlahPakanKilogram, hargaPakan]);
 
   useEffect(() => {
     const totalVariableCost = totalBiayaOperasional + totalBiayaPakan;
@@ -405,8 +407,6 @@ const LayerPage = () => {
     setIsOpen(!isOpen); // Mengubah state open/close
   };
 
-  
-      
   return (
     <div className="w-full min-h-screen bg-gray-100 flex flex-col md:flex-row">
       <Suspense fallback={<div>Loading...</div>}>
@@ -1459,14 +1459,25 @@ const LayerPage = () => {
 
                           <div className="col-span-1">
                             <label className="font-semibold text-sm md:text-base mb-1 block">
-                              Jumlah hari
+                              harga pakan
                             </label>
-                            <input
-                              type="text"
-                              value={"180 Hari"}
-                              readOnly
-                              className="w-full border border-gray-300 p-2 rounded-md bg-gray-100 cursor-not-allowed"
-                            />
+                            <div className="flex items-center border border-gray-300 rounded-md">
+                              <span className="p-2 bg-gray-100">Rp.</span>
+                              <input
+                                type="number"
+                                value={formatNumber(hargaPakan)}
+                                onChange={handleInputChange(setHargaPakan)}
+                                onBlur={(e) =>
+                                  setHargaPakan(
+                                    parseFloat(
+                                      e.target.value.replace(/[^0-9]/g, "")
+                                    )
+                                  )
+                                }
+                                className="w-full border border-gray-300 p-2 rounded-md"
+                                placeholder="Masukkan Penyusutan Peralatan"
+                              />
+                            </div>
                           </div>
 
                           <div className="hidden md:flex items-center justify-center font-semibold text-3xl mt-5">
@@ -1636,86 +1647,86 @@ const LayerPage = () => {
               {/* Form Hasil Analisis */}
               {currentForm === "HasilAnalisis" && (
                 <div className="flex flex-col w-full px-4 md:px-6 py-4">
-                <h2 className="text-lg md:text-xl font-extrabold mb-4 md:mb-6">
-                  Hasil Analisis
-                </h2>
+                  <h2 className="text-lg md:text-xl font-extrabold mb-4 md:mb-6">
+                    Hasil Analisis
+                  </h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center justify-center">
-                  <div className="col-span-1">
-                    <label className="font-semibold text-sm md:text-base mb-1 block">
-                      Margin Of Safety (MOS)
-                    </label>
-                    <div className="flex items-center border border-gray-300 rounded-md">
-                      <input
-                        type="text"
-                        value={formatNumber(marginOfSafety)}
-                        readOnly
-                        className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
-                      />
-                      <span className="p-2 bg-orange-200">%</span>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center justify-center">
+                    <div className="col-span-1">
+                      <label className="font-semibold text-sm md:text-base mb-1 block">
+                        Margin Of Safety (MOS)
+                      </label>
+                      <div className="flex items-center border border-gray-300 rounded-md">
+                        <input
+                          type="text"
+                          value={formatNumber(marginOfSafety)}
+                          readOnly
+                          className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
+                        />
+                        <span className="p-2 bg-orange-200">%</span>
+                      </div>
+                    </div>
+
+                    <div className="col-span-1">
+                      <label className="font-semibold text-sm md:text-base mb-1 block">
+                        R/C Ratio
+                      </label>
+                      <div className="flex items-center border border-gray-300 rounded-md">
+                        <input
+                          type="text"
+                          value={rcRatio.toFixed(2)}
+                          readOnly
+                          className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="col-span-1">
+                      <label className="font-semibold text-sm md:text-base mb-1 block">
+                        BEP Harga
+                      </label>
+                      <div className="flex items-center border border-gray-300 rounded-md">
+                        <span className="p-2 bg-orange-200">Rp.</span>
+                        <input
+                          type="text"
+                          value={formatNumber(bepHarga)}
+                          readOnly
+                          className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
+                        />
+                      </div>
                     </div>
                   </div>
 
-                  <div className="col-span-1">
-                    <label className="font-semibold text-sm md:text-base mb-1 block">
-                      R/C Ratio
-                    </label>
-                    <div className="flex items-center border border-gray-300 rounded-md">
-                      <input
-                        type="text"
-                        value={rcRatio.toFixed(2)}
-                        readOnly
-                        className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
-                      />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5 items-center justify-center">
+                    <div className="col-span-1">
+                      <label className="font-semibold text-sm md:text-base mb-1 block">
+                        BEP Unit
+                      </label>
+                      <div className="flex items-center border border-gray-300 rounded-md">
+                        <input
+                          type="text"
+                          value={formatNumber(bepHasil)}
+                          readOnly
+                          className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
+                        />
+                        <span className="p-2 bg-orange-200">Ekor</span>
+                      </div>
+                    </div>
+                    <div className="col-span-1">
+                      <label className="font-semibold text-sm md:text-base mb-1 block">
+                        Laba
+                      </label>
+                      <div className="flex items-center border border-gray-300 rounded-md">
+                        <span className="p-2 bg-orange-200">Rp.</span>
+                        <input
+                          type="text"
+                          value={formatNumber(laba)}
+                          readOnly
+                          className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
+                        />
+                      </div>
                     </div>
                   </div>
-
-                  <div className="col-span-1">
-                    <label className="font-semibold text-sm md:text-base mb-1 block">
-                      BEP Harga
-                    </label>
-                    <div className="flex items-center border border-gray-300 rounded-md">
-                      <span className="p-2 bg-orange-200">Rp.</span>
-                      <input
-                        type="text"
-                        value={formatNumber(bepHarga)}
-                        readOnly
-                        className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5 items-center justify-center">
-                  <div className="col-span-1">
-                    <label className="font-semibold text-sm md:text-base mb-1 block">
-                      BEP Unit
-                    </label>
-                    <div className="flex items-center border border-gray-300 rounded-md">
-                      <input
-                        type="text"
-                        value={formatNumber(bepHasil)}
-                        readOnly
-                        className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
-                      />
-                      <span className="p-2 bg-orange-200">Ekor</span>
-                    </div>
-                  </div>
-                  <div className="col-span-1">
-                    <label className="font-semibold text-sm md:text-base mb-1 block">
-                      Laba
-                    </label>
-                    <div className="flex items-center border border-gray-300 rounded-md">
-                      <span className="p-2 bg-orange-200">Rp.</span>
-                      <input
-                        type="text"
-                        value={formatNumber(laba)}
-                        readOnly
-                        className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
-                      />
-                    </div>
-                  </div>
-                </div>
 
                   {/* Tombol Kembali untuk kembali ke form pengeluaran */}
                   <div className="flex justify-between mt-6">
