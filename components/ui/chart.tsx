@@ -1,4 +1,4 @@
- "use client"
+"use client"
 
 import React from "react"
 import { RiArrowLeftSLine, RiArrowRightSLine } from "@remixicon/react"
@@ -401,12 +401,12 @@ const ChartTooltip = ({
           <p
             className={cx(
               // base
-              "font-small",
+              "font-medium",
               // text color
               "text-gray-900 dark:text-gray-50",
             )}
           >
-            {label}
+            Periode {label}
           </p>
         </div>
         <div className={cx("space-y-1 px-4 py-2")}>
@@ -525,7 +525,7 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
       enableLegendSlider = false,
       tickGap = 5,
       xAxisLabel,
-      yAxisLabel, 
+      yAxisLabel,
       type = "default",
       legendPosition = "right",
       fill = "gradient",
@@ -677,7 +677,7 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
               padding={{ left: paddingValue, right: paddingValue }}
               hide={!showXAxis}
               dataKey={index}
-              interval={0}
+              interval={startEndOnly ? "preserveStartEnd" : intervalType}
               tick={{ transform: "translate(0, 6)" }}
               ticks={
                 startEndOnly
@@ -707,7 +707,7 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
               )}
             </XAxis>
             <YAxis
-              width={yAxisWidth}
+              width={105}
               hide={!showYAxis}
               axisLine={false}
               tickLine={false}
@@ -744,7 +744,7 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
               isAnimationActive={true}
               animationDuration={100}
               cursor={{ stroke: "#d1d5db", strokeWidth: 1 }}
-              offset={10}
+              offset={20}
               position={{ y: 0 }}
               content={({ active, payload, label }) => {
                 const cleanPayload: TooltipProps["payload"] = payload

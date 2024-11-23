@@ -1,5 +1,4 @@
 // app/api/auth/signup/route.ts
-import { NextApiRequest, NextApiResponse } from "next";
 import { auth } from "@/lib/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { firestore } from "@/lib/firebase"; 

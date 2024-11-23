@@ -1,12 +1,12 @@
 "use client";
 import React, { useState } from "react";
 import {
-  IconArrowLeft,
+  // IconArrowLeft,
   IconBrandTabler,
-  IconSettings,
-  IconUserBolt,
+  // IconSettings,
+  // IconUserBolt,
   IconChevronDown,
-  IconAnalyze,
+  // IconAnalyze,
   IconAnalyzeFilled,
   IconHistory,
   IconSettings2,
@@ -17,34 +17,37 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Sidebar, SidebarBody, SidebarLink } from "./ui/sidebar";
 import { useSearchParams } from "next/navigation";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/app/auth/Log_out/page";
-import { Button } from "./ui/button";
-import { useRouter } from "next/navigation"; // Import useRouter
-
+// import {
+//   Dialog,
+//   DialogClose,
+//   DialogContent,
+//   DialogDescription,
+//   DialogFooter,
+//   DialogHeader,
+//   DialogTitle,
+//   DialogTrigger,
+// } from "@/app/auth/Log_out/page";
+// import { Button } from "./ui/button";
+// import { useRouter } from "next/navigation";
 
 export function SidebarDemo({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const [open, setOpen] = useState(false);
   const [subMenuOpen, setSubMenuOpen] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const searchParams = useSearchParams();
   const username = searchParams?.get("username") || "User";
+
+  const createLinkWithUsername = (href: string) =>
+    `${href}?username=${username}`;
 
   const links = [
     {
       label: "Beranda",
-      href: `/dashboard/?username=${username}`, // Beranda dengan username
-      icon: <IconBrandTabler className="text-neutral-700 dark:text-neutral-200 h-7 w-7 flex-shrink-0" />,
+      href: createLinkWithUsername(`/dashboard`), // Beranda dengan username
+      icon: (
+        <IconBrandTabler className="text-neutral-700 dark:text-neutral-200 h-7 w-7 flex-shrink-0" />
+      ),
     },
     {
       label: "Analisis",
@@ -60,35 +63,57 @@ export function SidebarDemo({
         </div>
       ),
       subLinks: [
-        { label: "Penetasan", href: `/analisis/penetasan?username=${username}`, icon: <IconAnalyzeFilled className="h-7 w-7 ml-3" /> },
-        { label: "Penggemukan", href: `/analisis/penggemukan?username=${username}`, icon: <IconAnalyzeFilled className="h-7 w-7 ml-3" /> },
-        { label: "Layer", href: `/analisis/layer?username=${username}`, icon: <IconAnalyzeFilled className="h-7 w-7 ml-3" /> },
-        { label: "test Data", href: `/analisis/test?username=${username}`, icon: <IconAnalyzeFilled className="h-7 w-7 ml-3" /> },
+        {
+          label: "Penetasan",
+          href: createLinkWithUsername(`/analisis/penetasan`),
+          icon: <IconAnalyzeFilled className="h-7 w-7 ml-3" />,
+        },
+        {
+          label: "Penggemukan",
+          href: createLinkWithUsername(`/analisis/penggemukan`),
+          icon: <IconAnalyzeFilled className="h-7 w-7 ml-3" />,
+        },
+        {
+          label: "Layer",
+          href: createLinkWithUsername(`/analisis/layer`),
+          icon: <IconAnalyzeFilled className="h-7 w-7 ml-3" />,
+        },
       ],
+    },
+
+    {
+      label: "Riwayat Analisis",
+    href: '/percobaan?username=${username}',
+      icon: (
+        <IconHistory className="text-neutral-700 dark:text-neutral-200 h-7 w-7 flex-shrink-0" />
+      ),
     },
     
     {
-      label: "Riwayat Analisis",
-      href: `/riwayat?username=${username}`, // Tambahkan username ke riwayat
-      icon: <IconHistory className="text-neutral-700 dark:text-neutral-200 h-7 w-7 flex-shrink-0" />,
-    },
-    {
       label: "Pengaturan",
-      href: `/user_setting?username=${username}`, // Tambahkan username ke pengaturan
-      icon: <IconSettings2 className="text-neutral-700 dark:text-neutral-200 h-7 w-7 flex-shrink-0" />,
+      href: createLinkWithUsername(`/user_setting`),
+      icon: (
+        <IconSettings2 className="text-neutral-700 dark:text-neutral-200 h-7 w-7 flex-shrink-0" />
+      ),
     },
-  ]; 
+  // {
+  //   label: "Percobaan",
+  //   href: '/percobaan?username=${username}', // Replace '#' with the URL or functionality for "Percobaan" if needed
+  //   icon: <IconSettings className="text-neutral-700 dark:text-neutral-200 h-7 w-7 flex-shrink-0" />,
+  // },
+];
 
-  const handleLogout = () => {
-    setIsDialogOpen(true); // Open the dialog on logout click
-  };
+
+  // const handleLogout = () => {
+  //   setIsDialogOpen(true); // Open the dialog on logout click
+  // };
 
   return (
     <div
-    className={cn(
-        "rounded-md flex flex-col md:flex-row bg-gradient-to-t from-[#F9AC45] to-white w-full flex-1 max-w-full mx-auto border border-neutral-200 dark:border-neutral-700 overflow-hidden",
+      className={cn(
+        "rounded-md flex flex-col md:flex-row bg-gradient-to-t from-[#F68211] to-[rgba(249, 170, 69, 0.47)] w-full flex-1 max-w-full mx-auto border border-neutral-200 dark:border-neutral-700 overflow-hidden",
         "h-dvh"
-      )}      
+      )}
     >
       <Sidebar open={open} setOpen={setOpen}>
         <SidebarBody className="justify-between gap-10">
@@ -117,52 +142,6 @@ export function SidebarDemo({
               ))}
             </div>
           </div>
-          <div>
-            {/* Tombol Keluar yang memicu popup */} 
-            <Dialog>
-              <DialogTrigger asChild>
-            <SidebarLink
-              link={{
-                label: "Keluar",
-                href: "#",
-                icon: (
-                  <Image
-                    src="/assets/sign-out-fill.svg"
-                    className="h-7 w-7 flex-shrink-0 rounded-full"
-                    width={50}
-                    height={50}
-                    alt="Avatar"
-                  />
-                ),
-              }}
-            />
-            </DialogTrigger>
-            <DialogContent className="lg:max-w-lg">
-            <DialogHeader>
-                  <DialogTitle className="text-center">Konfirmasi Logout</DialogTitle>
-                  <DialogDescription className="text-center mt-1 text-lg leading-6">
-                    Apakah kamu yakin ingin Logout.
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter className="mt-6">
-                  <DialogClose asChild>
-                    <Button
-                      className="mt-2 w-full lg:mt-0 lg:w-fit bg-[#E4E4E4] hover:bg-[#C9C8C8]"
-                      variant="secondary"
-                      onClick={() => setIsDialogOpen(false)} // Close dialog without logging out
-                    >
-                      Batal
-                    </Button>
-                  </DialogClose>
-                  <DialogClose asChild>
-                  <Link href="/auth/login">
-                      <Button className="w-full lg:w-fit bg-orange-500 text-white hover:bg-orange-600">Logout!</Button>
-                    </Link>
-                  </DialogClose>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
         </SidebarBody>
       </Sidebar>
       {children}
@@ -176,7 +155,15 @@ export const Logo = () => {
       href="#"
       className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
     >
-      <div className="h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
+      <div className="logo-si-itik w-8">
+        <Image
+          src="/assets/logo-si-itik.svg"
+          alt="Logo SI-ITIK"
+          width={32} // Specify the width (8 * 4 = 32px for consistency with your design)
+          height={32} // Specify the height (8 * 4 = 32px for consistency with your design)
+          layout="intrinsic" // Ensures the image is responsive
+        />
+      </div>
       <motion.span
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -194,33 +181,14 @@ export const LogoIcon = () => {
       href="#"
       className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
     >
-      <div className="h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
-    </Link>
-  );
-};
-
-// Dummy dashboard component with content
-const Dashboard = () => {
-  return (
-    <div className="flex flex-1">
-      <div className="p-2 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full">
-        <div className="flex gap-2">
-          {[...new Array(4)].map((i) => (
-            <div
-              key={"first-array" + i}
-              className="h-20 w-full rounded-lg bg-gray-100 dark:bg-neutral-800 animate-pulse"
-            ></div>
-          ))}
-        </div>
-        <div className="flex gap-2 flex-1">
-          {[...new Array(2)].map((i) => (
-            <div
-              key={"second-array" + i}
-              className="h-full w-full rounded-lg bg-gray-100 dark:bg-neutral-800 animate-pulse"
-            ></div>
-          ))}
-        </div>
+      <div className="logo-si-itik w-8">
+        <Image
+          src="/assets/logo-si-itik.svg"
+          alt="Logo SI-ITIK"
+          width={32} // Sesuaikan dengan ukuran yang diinginkan
+          height={32} // Sesuaikan dengan ukuran yang diinginkan
+        />
       </div>
-    </div>
+    </Link>
   );
 };

@@ -4,6 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+// import UserAvatar from "@/components/ui/avatar";
+import 'remixicon/fonts/remixicon.css';
 import {
   Form,
   FormControl,
@@ -15,17 +17,25 @@ import {
 import { Input } from "@/components/ui/input";
 import { SigninValidation } from "@/lib/validation";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
-import { auth, firestore } from "@/lib/firebase";
+// import { doc, getDoc } from "firebase/firestore";
+import { auth } from "@/lib/firebase";
 import { z } from "zod";
 import Loader from "@/components/shared/Loader";
 import Link from "next/link";
 import { useState } from "react";
 import { signInWithGoogle } from "@/lib/authProviders"; // Ensure these functions are defined
 import { useRouter } from "next/navigation"; // Import useRouter
-// import "@/app/auth.css";
+import { FirebaseError } from "firebase/app";
 
 const LoginPage = () => {
+  const benefits = [
+    "Pengelolaan terintegrasi",
+    "User Friendly",
+    "Analisis mendalam",
+    "Data finansial akurat",
+    "Fleksible",
+  ];
+
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(""); // State to store error message
   const router = useRouter();
@@ -38,15 +48,8 @@ const LoginPage = () => {
     },
   });
 
-  const getUserFromEmail = async (email: string) => {
-    const userRef = doc(firestore, "users", email); // Ganti 'users' dengan nama koleksi yang sesuai
-    const userDoc = await getDoc(userRef);
-
-    if (userDoc.exists()) {
-      return userDoc.data(); // Kembalikan data pengguna, termasuk username
-    } else {
-      throw new Error("User not found"); // Atau tangani error sesuai kebutuhan
-    }
+  const handleback = () => {
+    router.push(`/`);
   };
 
   const onSubmit = async (values: z.infer<typeof SigninValidation>) => {
@@ -56,34 +59,47 @@ const LoginPage = () => {
 
     try {
       // Proses login dengan Firebase Authentication menggunakan email (username di sini adalah email)
-      const userCredential = await signInWithEmailAndPassword(auth, username, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        username,
+        password
+      );
 
       // Dapatkan user yang login dari userCredential
       const user = userCredential.user;
 
       // Redirect ke dashboard setelah login berhasil
       router.push(`/dashboard?username=${user.displayName || "User"}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Login error:", error);
 
-      // Custom pesan error berdasarkan kode error dari Firebase
-      if (error.code) {
+      // Type narrowing to ensure `error` is a FirebaseError
+      if (error instanceof FirebaseError) {
         switch (error.code) {
           case "auth/user-not-found":
-            setErrorMessage("Akun tidak ditemukan. Mohon periksa kembali email.");
+            setErrorMessage(
+              "Akun tidak ditemukan. Mohon periksa kembali email."
+            );
             break;
           case "auth/invalid-credential":
             setErrorMessage("Email atau Password salah. Mohon coba lagi.");
             break;
           case "auth/invalid-email":
-            setErrorMessage("Format email tidak valid. Mohon masukkan email yang benar.");
+            setErrorMessage(
+              "Format email tidak valid. Mohon masukkan email yang benar."
+            );
             break;
           case "auth/too-many-requests":
-            setErrorMessage("Terlalu banyak percobaan login. Silakan coba lagi nanti.");
+            setErrorMessage(
+              "Terlalu banyak percobaan login. Silakan coba lagi nanti."
+            );
             break;
           default:
             setErrorMessage(`Error: ${error.message}`); // Tampilkan pesan error default
         }
+      } else if (error instanceof Error) {
+        // Handle generic errors
+        setErrorMessage(`Terjadi kesalahan: ${error.message}`);
       } else {
         setErrorMessage("Terjadi kesalahan. Mohon coba lagi.");
       }
@@ -92,77 +108,96 @@ const LoginPage = () => {
     }
   };
 
-
   return (
-    <div className="w-full h-screen flex flex-1 justify-center items-center overflow-hidden">
+    <div className="w-full h-screen flex flex-1 justify-center items-center overflow-auto md:overflow-hidden">
       <div className="relative w-2/3 h-full hidden flex-col xl:block">
-        <div className="absolute top-[25%] left-[10%] flex flex-col gap-5">
-          <img
-            src="/assets/logo-si-itik.svg"
-            alt="Logo SI_ITIK"
-            className="w-20"
-          />
-          <h1 className="flex flex-col text-5xl font-bold text-white">
-            Keunggulan SI-ITIK
-          </h1>
-          <div className="benefit-point grid text-2xl font-semibold gap-5">
-            <h2 className="text-white">
-              <img
-                src="/assets/point-benefit.svg"
-                alt="Point"
-                className="inline-block w-10 h-10 mr-2"
-              />
-              Pengelolaan terintegrasi
-            </h2>
-            <h2 className="text-white">
-              <img
-                src="/assets/point-benefit.svg"
-                alt="Point"
-                className="inline-block w-10 h-10 mr-2"
-              />
-              User Friendly
-            </h2>
-            <h2 className="text-white">
-              <img
-                src="/assets/point-benefit.svg"
-                alt="Point"
-                className="inline-block w-10 h-10 mr-2"
-              />
-              Analisis mendalam
-            </h2>
-            <h2 className="text-white">
-              <img
-                src="/assets/point-benefit.svg"
-                alt="Point"
-                className="inline-block w-10 h-10 mr-2"
-              />
-              Data finansial akurat
-            </h2>
-            <h2 className="text-white">
-              <img
-                src="/assets/point-benefit.svg"
-                alt="Point"
-                className="inline-block w-10 h-10 mr-2"
-              />
-              Fleksible
-            </h2>
-          </div>
-          <div className="absolute top-[45%] items-end justify-end">
-            <img
-              src="/assets/itik-cartoon.svg"
+        <div className="absolute top-1/4 left-[10%] flex flex-col gap-5 max-w-[80%]">
+          {/* Logo */}
+          <div className="relative w-20 aspect-square">
+            <Image
+              src="/assets/logo-si-itik.svg"
               alt="Logo SI_ITIK"
-              className="hidden xl:block ml-72"
+              fill
+              className="object-contain"
             />
           </div>
+
+          {/* Title */}
+          <h1 className="text-[min(5vw,3rem)] font-bold text-white leading-tight">
+            Keunggulan SI-ITIK
+          </h1>
+
+          {/* Benefits List */}
+          <div className="grid gap-5">
+            {benefits.map((benefit, index) => (
+              <h2
+                key={index}
+                className="text-[min(2vw,1.5rem)] font-semibold text-white flex items-center"
+              >
+                <div className="relative w-[min(2.5vw,2.5rem)] aspect-square mr-2">
+                  <Image
+                    src="/assets/point-benefit.svg"
+                    alt="Point"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+                {benefit}
+              </h2>
+            ))}
+          </div>
+
+          {/* Decorative Elements */}
+          <div className="absolute left-[80%] top-[45%]">
+            <div className="relative w-[min(47vw,27rem)] aspect-square">
+              <Image
+                src="/assets/bebek.svg"
+                alt="Logo SI_ITIK"
+                fill
+                className="hidden xl:block object-contain"
+              />
+            </div>
+          </div>
+
+          <div className="absolute top-[-20%] right-[-90%]">
+            <div className="relative w-[min(25vw,200px)] aspect-square">
+              <Image
+                src="/assets/elips.svg"
+                alt="elips"
+                fill
+                className="object-contain"
+              />
+            </div>
+          </div>
+
+          <div className="absolute top-[125%] left-[-50%]">
+            <div className="relative w-[min(50vw,200px)] aspect-square">
+              <Image
+                src="/assets/elips2.svg"
+                alt="elips"
+                fill
+                className="ml-20 object-contain"
+              />
+            </div>
+          </div>
         </div>
-        <div className="bg-[#CF5804] w-full h-full object-cover"></div>
+
+        {/* Background */}
+        <div className="bg-[#CF5804] w-full h-full" />
       </div>
 
       <div className="w-full h-full bg-[#fff] flex flex-col p-20 justify-between xl:w-2/5">
         <div className="w-full flex flex-col">
+          <button className="flex items-center space-x-2 " onClick={handleback}>
+            <i className="ri-arrow-left-line text-2xl "></i>
+            <span>Kembali</span>
+          </button>
+
           <div className="w-full flex flex-col mb-10 items-center justify-center">
-            <h1 className="text-6xl text-[#060606] font-bold">Halo!</h1>
-            <p className="text-2xl">Masukkan Informasi Akun</p>
+            <h1 className="text-4xl text-[#060606] font-bold md:text-6xl">
+              Halo!
+            </h1>
+            <p className="text-base md:text-2xl">Masukkan Informasi Akun</p>
           </div>
 
           <div className="w-full flex flex-col">
@@ -192,13 +227,16 @@ const LoginPage = () => {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="Masukkan Password Anda" {...field} />
+                        <Input
+                          type="password"
+                          placeholder="Masukkan Password Anda"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
 
                 {errorMessage && (
                   <div className="text-red-500 text-sm mt-2">
@@ -264,7 +302,7 @@ const LoginPage = () => {
         </div>
 
         <div className="w-full flex items-center justify-center">
-          <p className="text-sm font-normal text-black">
+          <p className="text-xs font-normal text-black md:text-sm">
             Tidak Punya Akun?{" "}
             <Link href="/auth/signup">
               <span className="font-semibold underline underline-offset-2 cursor-pointer text-orange-500">

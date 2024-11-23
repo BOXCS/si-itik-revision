@@ -6,22 +6,18 @@ import { auth, firestore } from "@/lib/firebase";
 import { useSearchParams } from "next/navigation";
 import { SidebarDemo } from "@/components/Sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AreaChart } from "@/components/ui/chart"
+import { AreaChart, TooltipProps } from "@/components/ui/chart";
 import { Tooltip } from "@/components/ui/tooltip";
 import UserAvatar from "@/components/ui/avatar";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import Link from 'next/link';
+import Image from "next/image";
+import { cx } from "@/lib/utils";
 import {
   Grid,
   Card,
   Divider,
-  CardContent,
   Typography,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
   FormControl,
   InputLabel,
   SelectChangeEvent,
@@ -55,7 +51,6 @@ export default function Dashboard() {
     }
     return null;
   });
-  const [loading, setLoading] = useState(true);
   const [chartDataPenetasan, setChartDataPenetasan] = useState<{ Prd: number; Revenue: number; Cost: number; Laba: number; }[]>([]);
   const [chartDataPenggemukan, setChartDataPenggemukan] = useState<{ Prd: number; Revenue: number; Cost: number; Laba: number; }[]>([]);
   const [chartDataLayer, setChartDataLayer] = useState<{ Prd: number; Revenue: number; Cost: number; Laba: number; }[]>([]);
@@ -159,7 +154,7 @@ export default function Dashboard() {
       if (user) {
         setUserEmail(user.email);
       } else {
-        console.error("Pengguna tidak login")
+        console.error("Pengguna tidak login");
       }
     });
     return () => unsubscribe();
@@ -379,35 +374,34 @@ export default function Dashboard() {
 
   const analysisImages: { [key: string]: string } = {
     "Detail Penetasan": "/assets/Telur.svg", // Ganti dengan path yang sesuai
-    "Detail Penggemukan": "/assets/Duck.svg", // Ganti dengan path yang sesuai
-    "Detail Layer": "/assets/DuckdanTelur.svg", // Ganti dengan path yang sesuai
+    "Detail Penggemukan": "/assets/Duck.png", // Ganti dengan path yang sesuai
+    "Detail Layer": "/assets/Group 109.png", // Ganti dengan path yang sesuai
   };
 
-  function formatNumber(number: number): string {
-    if (number >= 1000000) {
-      const millions = number / 1000000;
-      return Number.isInteger(millions) ? `${millions} JT` : `${millions.toFixed(1)} JT`;
-    } else if (number >= 1000) {
-      const thousands = number / 1000;
-      return Number.isInteger(thousands) ? `${thousands} K` : `${thousands.toFixed(1)} K`;
-    } else {
-      return number.toString();
-    }
-  }
+  const formatNumbers = (num: number) =>
+    new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0, // Menghapus desimal
+      maximumFractionDigits: 0,
+    }).format(num);
+
+  const createLinkWithUsername = (href: string) =>
+    `${href}?username=${userName}`;
 
   return (
     <div>
       <SidebarDemo>
         <div className="flex-1 items-center justify-center">
           {/* Title Menu */}
-          <div className="flex flex-wrap justify-between p-5 pt-0">
+          <div className="flex flex-wrap justify-between p-5">
             <h1 className="text-1xl font-bold">Beranda </h1>
             <Tooltip
               side="bottom"
               showArrow={false}
               content={userName}
             >
-              <Link href="/user_setting"> {/* Ganti "/pengaturan" */}
+              <Link href={createLinkWithUsername('/user_setting')}> {/* Ganti "/pengaturan" */}
                 <div className="flex items-center">
                   <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
                     <div className="w-8 h-8 rounded-full"><UserAvatar photoURL={userPhoto} /> </div>
@@ -435,11 +429,19 @@ export default function Dashboard() {
                         className="space-y-2 text-sm leading-7 text-gray-600 dark:text-gray-500"
                       >
                         <div className="flex space-x-4">
-                          <img src="/assets/DB_penggemukan.webp"
+                          <Image
+                            src="/assets/DB_Penetasan.png"
                             alt="DB_penggemukan"
-                            style={{ width: '100px', height: '100%', }} />
+                            width={100} // Atur width dalam pixel
+                            height={50} // Atur height dalam pixel
+                            layout="fixed" // Pastikan ukuran gambar tetap
+                            className="w-24 h-24" // Kelas Tailwind untuk kontrol tambahan
+                          />
                           <p>
-                            Penetasan merupakan fitur yang dirancang untuk mengoptimalkan proses penetasan telur itik, memastikan kesuksesan menetas maksimal dan kualitas anakan itik yang terbaik.
+                            Penetasan merupakan fitur yang dirancang untuk
+                            mengoptimalkan proses penetasan telur itik,
+                            memastikan kesuksesan menetas maksimal dan kualitas
+                            anakan itik yang terbaik.
                           </p>
                         </div>
                       </TabsContent>
@@ -448,9 +450,14 @@ export default function Dashboard() {
                         className="space-y-2 text-sm leading-7 text-gray-600 dark:text-gray-500"
                       >
                         <div className="flex space-x-4">
-                          <img src="/assets/DB_penggemukan.webp"
+                          <Image
+                            src="/assets/DB_penggemukan.png"
                             alt="DB_penggemukan"
-                            style={{ width: '100px', height: '100%', }} />
+                            width={100} // Atur width dalam pixel
+                            height={50} // Atur height dalam pixel
+                            layout="fixed" // Pastikan ukuran gambar tetap
+                            className="w-24 h-24" // Kelas Tailwind untuk kontrol tambahan
+                          />
                           <p>
                             Penggemukan merupakan fitur yang dirancang untuk mengoptimalkan proses penggemukan itik yang bertujuan untuk meningkatkan kualitas daging itik, sehingga memiliki nilai jual daging itik yang lebih di pasaran.
                           </p>
@@ -461,9 +468,14 @@ export default function Dashboard() {
                         className="space-y-2 text-sm leading-7 text-gray-600 dark:text-gray-500"
                       >
                         <div className="flex space-x-4">
-                          <img src="/assets/DB_layer.webp"
+                          <Image
+                            src="/assets/DB_layer.png"
                             alt="DB_layeri"
-                            style={{ width: '100px', height: '100%', }} />
+                            width={100} // Atur width dalam pixel
+                            height={50} // Atur height dalam pixel
+                            layout="fixed" // Pastikan ukuran gambar tetap
+                            className="w-24 h-24" // Kelas Tailwind untuk kontrol tambahan
+                          />
                           <p>
                             Layer merupakan fitur yang dirancang untuk melihat kualitas dan biaya yang keluarkan saat itik dalam proses hamil, sehingga nanti dapa menghindari gagalnya itik bertelur.
                           </p>
@@ -496,10 +508,9 @@ export default function Dashboard() {
                                 data={chartDataPenetasan}
                                 index="Prd"
                                 categories={["Revenue", "Cost", "Laba"]}
-                                valueFormatter={(number: number) => `${formatNumber(number)}`}
+                                valueFormatter={(number: number) => `${formatNumbers(number)}`}
                                 onValueChange={(v) => console.log(v)}
                                 xAxisLabel="Periode"
-                                yAxisLabel="Rp"
                                 fill="solid"
                               />
                             </div>
@@ -518,17 +529,16 @@ export default function Dashboard() {
                           value="tab2"
                           className="space-y-2 text-sm leading-7 text-gray-600 dark:text-gray-500"
                         >
-                         {chartDataPenggemukan.length > 0 ? (
+                          {chartDataPenggemukan.length > 0 ? (
                             <div className="flex space-x-4">
                               <AreaChart
                                 className="flex items-center justify-center h-50"
                                 data={chartDataPenggemukan}
                                 index="Prd"
                                 categories={["Revenue", "Cost", "Laba"]}
-                                valueFormatter={(number: number) => `${formatNumber(number)}`}
+                                valueFormatter={(number: number) => `${formatNumbers(number)}`}
                                 onValueChange={(v) => console.log(v)}
                                 xAxisLabel="Periode"
-                                yAxisLabel="Rp"
                                 fill="solid"
                               />
                             </div>
@@ -554,10 +564,9 @@ export default function Dashboard() {
                                 data={chartDataLayer}
                                 index="Prd"
                                 categories={["Revenue", "Cost", "Laba"]}
-                                valueFormatter={(number: number) => `${formatNumber(number)}`}
+                                valueFormatter={(number: number) => `${formatNumbers(number)}`}
                                 onValueChange={(v) => console.log(v)}
                                 xAxisLabel="Periode"
-                                yAxisLabel="Rp"
                                 fill="solid"
                               />
                             </div>
@@ -582,7 +591,7 @@ export default function Dashboard() {
             {/* Riwayat */}
             <div className="flex justify-center pl-5 gap-5">
               {/* Parent Card */}
-              <div className="bg-white p-3" style={{ width: '400px', height: '608px', borderRadius: '8px', boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)' }}>
+              <div className="bg-white p-3" style={{ width: '400px', height: '606px', borderRadius: '8px', boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)' }}>
                 <div className="flex items-center grid grid-cols-1 justify-between">
                   <div className="flex items-center justify-between pb-3"
                     style={{ maxHeight: '500px' }}>
@@ -642,25 +651,35 @@ export default function Dashboard() {
 
                               {/* Tombol Lihat Detail */}
                               <Grid container justifyContent="space-between">
-                                <img
+                                <Image
                                   src={analysisImages[data.analysisName]}
                                   alt={data.analysisName}
-                                  style={{ width: '25px', height: '25px', objectFit: 'cover', borderRadius: '12px 12px 0 0' }} // Gaya gambar
+                                  width={25}
+                                  height={25}
+                                  layout="fixed"
+                                  className="w-5 h-auto"
                                 />
-                                <Typography
-                                  variant="body1"
-                                  style={{
-                                    backgroundColor: "#FFD580",
-                                    padding: "5px 10px",
-                                    borderRadius: "9999px",
-                                    textAlign: "center",
-                                    display: "inline-block",
-                                    marginTop: "2px",
-                                    fontWeight: "bold",
-                                  }}
-                                >
-                                  Lihat Detail
-                                </Typography>
+                                  {data.laba !== undefined &&
+                                    data.laba !== null &&
+                                    !isNaN(data.laba) ? (
+                                    <Typography
+                                      variant="h6"
+                                      style={{ ...styles.amount, textAlign: "center" }}
+                                    >
+                                      Rp. {data.laba.toLocaleString("id-ID")}
+                                    </Typography>
+                                  ) : (
+                                    <Typography
+                                      variant="h6"
+                                      style={{
+                                        ...styles.amount,
+                                        textAlign: "center",
+                                        color: "red",
+                                      }}
+                                    >
+                                      Laba tidak tersedia
+                                    </Typography>
+                                  )}
                               </Grid>
 
                               {/* Garis pemisah */}
