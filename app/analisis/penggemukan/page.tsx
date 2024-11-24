@@ -369,29 +369,46 @@ const PenggemukanPage = () => {
   }, [totalVariableCost, totalFixedCost]);
 
   // Rumus Hasil Analisis
-  useEffect(() => {
-    const bepHasil =
-      totalFixedCost /
-      (hargaItik - totalVariableCost / jumlahItikSetelahMortalitas);
-    setBepHasil(bepHasil);
-  }, [
-    totalFixedCost,
-    hargaItik,
-    totalVariableCost,
-    jumlahItikSetelahMortalitas,
-  ]);
+  // useEffect(() => {
+  //   const bepHasil =
+  //     totalFixedCost /
+  //     (hargaItik - totalVariableCost / jumlahItikSetelahMortalitas);
+  //   setBepHasil(bepHasil);
+  // }, [
+  //   totalFixedCost,
+  //   hargaItik,
+  //   totalVariableCost,
+  //   jumlahItikSetelahMortalitas,
+  // ]);
+
+  // useEffect(() => {
+  //   const bepHarga =
+  //     totalFixedCost /
+  //     (1 - totalVariableCost / jumlahItikSetelahMortalitas / hargaItik);
+  //   setBepHarga(bepHarga);
+  // }, [
+  //   totalFixedCost,
+  //   totalVariableCost,
+  //   jumlahItikSetelahMortalitas,
+  //   hargaItik,
+  // ]);
 
   useEffect(() => {
+    // Biaya Variable Cost per Unit
+    const variableCostPerUnit = totalVariableCost / jumlahItikSetelahMortalitas;
+  
+    // BEP Harga
     const bepHarga =
-      totalFixedCost /
-      (1 - totalVariableCost / jumlahItikSetelahMortalitas / hargaItik);
+      totalFixedCost / jumlahItikSetelahMortalitas + variableCostPerUnit;
+  
+    // BEP Unit
+    const bepUnit =
+      totalFixedCost / (bepHarga - variableCostPerUnit);
+  
+    // Set hasil ke state
     setBepHarga(bepHarga);
-  }, [
-    totalFixedCost,
-    totalVariableCost,
-    jumlahItikSetelahMortalitas,
-    hargaItik,
-  ]);
+    setBepHasil(bepUnit);
+  }, [totalFixedCost, totalVariableCost, jumlahItikSetelahMortalitas]);
 
   useEffect(() => {
     const marginOfSafety = ((totalRevenue - bepHarga) / totalRevenue) * 100;

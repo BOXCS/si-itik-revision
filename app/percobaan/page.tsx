@@ -8,6 +8,7 @@ import {
   doc,
   getDoc,
   where,
+  orderBy,
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { SidebarDemo } from "@/components/Sidebar";
@@ -181,19 +182,22 @@ export default function PercobaanAnalisis() {
       // Query for "detail_penetasan" collection filtered by userId
       const detailQuery = query(
         collection(firestore, "detail_penetasan"),
-        where("userId", "==", userEmail)
+        where("userId", "==", userEmail),
+        orderBy("created_at", "desc")
       );
 
       // Query for "detail_penggemukan" collection filtered by userId
       const penggemukanQuery = query(
         collection(firestore, "detail_penggemukan"),
-        where("userId", "==", userEmail)
+        where("userId", "==", userEmail),
+        orderBy("created_at", "desc")
       );
 
       // Query for "detail_layer" collection filtered by userId
       const layerQuery = query(
         collection(firestore, "detail_layer"),
-        where("userId", "==", userEmail)
+        where("userId", "==", userEmail),
+        orderBy("created_at", "desc")
       );
 
       // Fetch the data for each query

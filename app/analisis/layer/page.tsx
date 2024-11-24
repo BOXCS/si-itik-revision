@@ -377,17 +377,34 @@ const LayerPage = () => {
   }, [totalCost, totalFixedCost, totalVariableCost]);
 
   //Rumus Hasil Analisis
-  useEffect(() => {
-    const bepHasil =
-      totalFixedCost / (hargaTelur - totalVariableCost / jumlahSatuPeriode);
-    setBepHasil(bepHasil);
-  }, [totalFixedCost, totalVariableCost, hargaTelur, jumlahSatuPeriode]);
+  // useEffect(() => {
+  //   const bepHasil =
+  //     totalFixedCost / (hargaTelur - totalVariableCost / jumlahSatuPeriode);
+  //   setBepHasil(bepHasil);
+  // }, [totalFixedCost, totalVariableCost, hargaTelur, jumlahSatuPeriode]);
+
+  // useEffect(() => {
+  //   const bepHarga =
+  //     totalFixedCost / (1 - totalVariableCost / totalVariableCost / hargaTelur);
+  //   setBepHarga(bepHarga);
+  // }, [totalFixedCost, totalVariableCost, hargaTelur]);
 
   useEffect(() => {
+    // Biaya Variable Cost per Unit
+    const variableCostPerUnit = totalVariableCost / jumlahSatuPeriode;
+  
+    // BEP Harga
     const bepHarga =
-      totalFixedCost / (1 - totalVariableCost / totalVariableCost / hargaTelur);
+      totalFixedCost / jumlahSatuPeriode + variableCostPerUnit;
+  
+    // BEP Unit
+    const bepUnit =
+      totalFixedCost / (bepHarga - variableCostPerUnit);
+  
+    // Set hasil ke state
     setBepHarga(bepHarga);
-  }, [totalFixedCost, totalVariableCost, hargaTelur]);
+    setBepHasil(bepUnit);
+  }, [totalFixedCost, totalVariableCost, jumlahSatuPeriode]);
 
   useEffect(() => {
     const marginOfSafety = ((totalRevenue - bepHarga) / totalRevenue) * 100;

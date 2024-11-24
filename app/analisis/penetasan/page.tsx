@@ -164,7 +164,7 @@ const PenetasanPage = () => {
         description: "User tidak terautentikasi.",
         variant: "destructive",
       });
-      return; // Hentikan eksekusi jika user tidak ada
+      return;
     }
 
     if (!newAnalysisDocRef) {
@@ -173,11 +173,10 @@ const PenetasanPage = () => {
         description: "Silahkan buat analisis baru terlebih dahulu.",
         variant: "destructive",
       });
-      return; // Hentikan eksekusi jika analisis belum ada
+      return;
     }
 
     try {
-      // Pengecekan apakah dokumen analisis benar-benar ada di Firestore
       const docSnapshot = await getDoc(newAnalysisDocRef);
       if (!docSnapshot.exists()) {
         toast({
@@ -186,27 +185,37 @@ const PenetasanPage = () => {
             "Analisis tidak ditemukan di Firestore. Silahkan buat analisis baru.",
           variant: "destructive",
         });
-        return; // Hentikan jika dokumen tidak ada
+        return;
       }
 
-      // Cek apakah periode sudah ada dalam sub-koleksi analisis_periode
+      // Ambil semua dokumen periode dari sub-koleksi `analisis_periode`
       const periodeSnapshot = await getDocs(
         collection(newAnalysisDocRef, "analisis_periode")
       );
-      const existingPeriode = periodeSnapshot.docs.find(
-        (doc) => doc.data().periode === selectedPeriod
-      );
+      const existingPeriods = periodeSnapshot.docs
+        .map((doc) => doc.data().periode)
+        .sort(); // Urutkan periode berdasarkan angka
 
-      if (existingPeriode) {
+      // Periode terakhir yang sudah ada
+      const lastPeriod = existingPeriods.length
+        ? `Periode ${existingPeriods.length}`
+        : null;
+
+      // Pastikan periode yang dipilih sesuai dengan urutan
+      if (
+        lastPeriod &&
+        selectedPeriod !== `Periode ${existingPeriods.length + 1}`
+      ) {
         toast({
-          title: "Data periode sudah ada.",
-          description: "Silahkan tambah periode baru atau buat analisis baru.",
+          title: "Periode tidak sesuai.",
+          description:
+            "Harap isi data untuk periode selanjutnya secara berurutan.",
           variant: "destructive",
         });
-        return; // Hentikan eksekusi jika periode sudah ada
+        return;
       }
 
-      // Siapkan data untuk periode
+      // Data untuk periode baru
       const periodeData = {
         periode: selectedPeriod,
         penerimaan: {
@@ -242,13 +251,13 @@ const PenetasanPage = () => {
         created_at: Timestamp.now(),
       };
 
-      // Tambahkan data ke sub-koleksi analisis_periode di dokumen yang sudah ada
+      // Tambahkan data ke sub-koleksi `analisis_periode`
       await addDoc(
         collection(newAnalysisDocRef, "analisis_periode"),
         periodeData
       );
 
-      // Tambahkan periode ke dalam disabledPeriods
+      // Perbarui daftar periode yang tidak dapat dipilih lagi
       setDisabledPeriods((prev) => [...prev, selectedPeriod]);
 
       toast({
@@ -348,17 +357,35 @@ const PenetasanPage = () => {
   }, [totalVariableCost, totalFixedCost]);
 
   // Rumus Hasil Analisis
-  useEffect(() => {
-    const bepHasil =
-      totalFixedCost / (hargaDOD - totalVariableCost / jumlahDOD);
-    setBepHasil(bepHasil);
-  }, [totalFixedCost, hargaDOD, totalVariableCost, jumlahDOD]);
+  // useEffect(() => {
+  //   const bepHasil =
+  //     totalFixedCost / (hargaDOD - (totalVariableCost / jumlahDOD));
+  //   setBepHasil(bepHasil);
+  // }, [totalFixedCost, hargaDOD, totalVariableCost, jumlahDOD]);
+
+  // useEffect(() => {
+  //   const bepHarga =
+  //     totalFixedCost / (1 - totalVariableCost / jumlahDOD / hargaDOD);
+  //   setBepHarga(bepHarga);
+  // }, [totalFixedCost, totalVariableCost, jumlahDOD, hargaDOD]);
 
   useEffect(() => {
+    // Biaya Variable Cost per Unit
+    const variableCostPerUnit = totalVariableCost / jumlahDOD;
+  
+    // BEP Harga
     const bepHarga =
-      totalFixedCost / (1 - totalVariableCost / jumlahDOD / hargaDOD);
+      totalFixedCost / jumlahDOD + variableCostPerUnit;
+  
+    // BEP Unit
+    const bepUnit =
+      totalFixedCost / (bepHarga - variableCostPerUnit);
+  
+    // Set hasil ke state
     setBepHarga(bepHarga);
-  }, [totalFixedCost, totalVariableCost, jumlahDOD, hargaDOD]);
+    setBepHasil(bepUnit);
+  }, [totalFixedCost, totalVariableCost, jumlahDOD]);
+  
 
   useEffect(() => {
     const marginOfSafety = ((totalRevenue - bepHarga) / totalRevenue) * 100;
