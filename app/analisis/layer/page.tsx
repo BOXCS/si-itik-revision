@@ -406,10 +406,15 @@ const LayerPage = () => {
     setBepHasil(bepUnit);
   }, [totalFixedCost, totalVariableCost, jumlahSatuPeriode]);
 
+  // useEffect(() => {
+  //   const marginOfSafety = ((totalRevenue - bepHarga) / totalRevenue) * 100;
+  //   setMarginOfSafety(marginOfSafety);
+  // }, [totalRevenue, bepHarga]);
+
   useEffect(() => {
-    const marginOfSafety = ((totalRevenue - bepHarga) / totalRevenue) * 100;
+    const marginOfSafety = (((totalRevenue - totalCost) / totalRevenue) * 100);
     setMarginOfSafety(marginOfSafety);
-  }, [totalRevenue, bepHarga]);
+  }, [totalRevenue, totalCost])
 
   useEffect(() => {
     const rcRatio = totalRevenue / totalCost;
