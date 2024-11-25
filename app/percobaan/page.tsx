@@ -535,8 +535,7 @@ export default function PercobaanAnalisis() {
 const CardDetailPenetasan = ({
   item,
   clickDetail,
-}: // className,
-{
+}: {
   item: any;
   clickDetail: () => void;
   className?: string; // Tambahkan className sebagai opsional
@@ -548,15 +547,11 @@ const CardDetailPenetasan = ({
     if (item?.detail) {
       let total = 0;
       item.detail.forEach((data: any) => {
-        console.log(data); // Check structure
         total += data?.hasilAnalisis?.laba || 0;
       });
       setTotalLaba(total);
     }
   }, [item]); // Recalculate laba whenever item changes
-
-  console.log("item.Laba:", item.Laba);
-  console.log("totalLaba:", totalLaba);
 
   useEffect(() => {
     const handleResize = () => {
@@ -572,17 +567,17 @@ const CardDetailPenetasan = ({
     flexWrap: "wrap",
     flexBasis: "calc(25% - 15px)",
     maxWidth: "calc(25% - 15px)",
-    flexDirection: "column", // Ensure 'flexDirection' is valid
-    alignItems: "center",
+    flexDirection: "column",
+    alignItems: "start",
     width: "100%",
     padding: "15px",
     border: "1px solid #ddd",
     borderRadius: "8px",
     boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
     backgroundColor: "#fff",
+    position: "relative", // Required for positioning ID
   };
 
-  // Update the style based on the screen width
   if (windowWidth <= 768) {
     style.flexBasis = "100%";
     style.maxWidth = "100%";
@@ -595,6 +590,21 @@ const CardDetailPenetasan = ({
 
   return (
     <div style={style}>
+      {/* ID Analisis */}
+      <div
+        style={{
+          position: "absolute",
+          top: "10px",
+          right: "10px",
+          padding: "10px",
+          fontSize: "12px",
+          fontWeight: "bold",
+          color: "#888",
+        }}
+      >
+        ID: {item?.id || "Unknown"}
+      </div>
+
       <strong style={{ color: "black", fontSize: "16px", marginBottom: "5px" }}>
         Detail Penetasan
       </strong>
@@ -749,13 +759,14 @@ const CardDetailPenggemukan = ({
     display: "flex",
     flexWrap: "wrap",
     flexDirection: "column", // Ensure 'flexDirection' is valid
-    alignItems: "center",
+    alignItems: "start",
     width: "100%",
     padding: "15px",
     border: "1px solid #ddd",
     borderRadius: "8px",
     boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
     backgroundColor: "#fff",
+    position: "relative",
   };
 
   // Update the style based on the screen width
@@ -771,6 +782,19 @@ const CardDetailPenggemukan = ({
 
   return (
     <div style={style}>
+      <div
+        style={{
+          position: "absolute",
+          right: "10px",
+          top: "10px",
+          padding: "10px",
+          fontSize: "12px",
+          fontWeight: "bold",
+          color: "#888",
+        }}
+      >
+        ID: {item?.id || "unknown"}
+      </div>
       {/* Title */}
       <strong style={{ color: "black", fontSize: "16px", marginBottom: "5px" }}>
         Detail Penggemukan
@@ -937,13 +961,14 @@ const CardDetaillayer = ({
     display: "flex",
     flexWrap: "wrap",
     flexDirection: "column", // Ensure 'flexDirection' is valid
-    alignItems: "center",
+    alignItems: "start",
     width: "100%",
     padding: "15px",
     border: "1px solid #ddd",
     borderRadius: "8px",
     boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
     backgroundColor: "#fff",
+    position: "relative",
   };
 
   // Update the style based on the screen width
@@ -959,6 +984,19 @@ const CardDetaillayer = ({
 
   return (
     <div style={style}>
+      <div
+        style={{
+          position: "absolute",
+          right: "10px",
+          top: "10px",
+          padding: "10px",
+          fontSize: "12px",
+          fontWeight: "bold",
+          color: "#888",
+        }}
+      >
+        ID: {item?.id || "unknown"}
+      </div>
       {/* Title */}
       <strong style={{ color: "black", fontSize: "16px", marginBottom: "5px" }}>
         Detail Layer
