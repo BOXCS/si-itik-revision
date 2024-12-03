@@ -223,14 +223,15 @@ function CardContainer() {
       // Hapus URL gambar dari state komponen dan local storage
       setUserPhoto(null);
       localStorage.removeItem("userPhoto");
+      setIsConfirmDialogOpen(false);
     } catch (error) {
       console.error("Error removing photo: ", error);
     }
   };
 
   const handleConfirmRemovePhoto = () => {
-    setIsConfirmDialogOpen(false); // Tutup dialog konfirmasi
-    handleRemovePhoto(); // Hapus foto
+    console.log("Opening confirm dialog");
+    setIsConfirmDialogOpen(true);
   };
 
   useEffect(() => {
@@ -338,7 +339,10 @@ function CardContainer() {
                 Ubah Foto Profil
               </label>
               <button
-                onClick={handleRemovePhoto}
+                onClick={() => {
+                  console.log("Button clicked!");
+                  handleConfirmRemovePhoto();
+                }}
                 disabled={!userPhoto}
                 className={`px-4 py-2 ${
                   userPhoto
@@ -365,7 +369,7 @@ function CardContainer() {
                         Batal
                       </button>
                       <button
-                        onClick={handleConfirmRemovePhoto}
+                        onClick={handleRemovePhoto}
                         className="px-4 py-2 bg-red-700 hover:bg-red-800 text-white rounded-md"
                       >
                         Hapus
@@ -398,7 +402,7 @@ function CardContainer() {
               <div className="flex flex-col">
                 <label className="font-semibold mb-2">Email</label>
                 <input
-                  className="border border-gray-300 p-2 rounded-md w-full"
+                  className="border border-gray-300 p-2 rounded-md w-full cursor-not-allowed text-gray-400"
                   placeholder="Email otomatis terisi"
                   value={userEmail || ""}
                   readOnly
