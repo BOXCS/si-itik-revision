@@ -172,7 +172,7 @@ const PenggemukanPage = () => {
           persentaseMortalitas,
           jumlahItikSetelahMortalitas,
           hargaItik,
-          totalRevenue: totalRevenue.toFixed(2),
+          totalRevenue: totalRevenue,
         },
         pengeluaran: {
           sewaKandang,

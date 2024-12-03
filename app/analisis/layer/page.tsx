@@ -179,7 +179,7 @@ const LayerPage = () => {
           satuPeriode,
           jumlahSatuPeriode,
           hargaTelur,
-          totalRevenue: totalRevenue.toFixed(2),
+          totalRevenue: totalRevenue,
         },
         pengeluaran: {
           sewaKandang,

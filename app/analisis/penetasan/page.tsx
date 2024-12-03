@@ -224,7 +224,7 @@ const PenetasanPage = () => {
           persentase: persentase.toFixed(2),
           jumlahDOD,
           hargaDOD,
-          totalRevenue: totalRevenue.toFixed(2),
+          totalRevenue: totalRevenue,
         },
         pengeluaran: {
           sewaKandang,
