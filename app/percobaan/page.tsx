@@ -597,7 +597,7 @@ const CardDetailPenetasan = ({
           top: "10px",
           right: "10px",
           padding: "10px",
-          fontSize: "12px",
+          fontSize: "0.61rem",
           fontWeight: "bold",
           color: "#888",
         }}
@@ -736,15 +736,16 @@ const CardDetailPenggemukan = ({
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   useEffect(() => {
-    let total = 0;
-    item?.detail.forEach((data: any) => {
-      total += data?.hasilAnalisis?.laba || 0;
-    });
-
-    // console.log(item.detail);
-
-    setTotalLaba(total);
-  }, [item]);
+    if (Array.isArray(item?.detail)) {
+      let total = 0;
+      item.detail.forEach((data: any) => {
+        total += data?.hasilAnalisis?.laba || 0;
+      });
+      setTotalLaba(total);
+    } else {
+      setTotalLaba(0); // Set default jika detail tidak valid
+    }
+  }, [item]); 
 
   useEffect(() => {
     const handleResize = () => {
