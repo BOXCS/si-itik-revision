@@ -197,7 +197,7 @@ const LayerPage = () => {
           jumlahPakanKilogram,
           totalBiayaPakan,
           totalVariableCost,
-          totalCost: totalCost.toFixed(2),
+          totalCost: totalCost,
         },
         hasilAnalisis: {
           marginOfSafety,

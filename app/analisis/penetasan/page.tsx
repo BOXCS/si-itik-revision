@@ -239,7 +239,7 @@ const PenetasanPage = () => {
           hargaTelur,
           totalBiayaPembelianTelur,
           totalVariableCost,
-          totalCost: totalCost.toFixed(2),
+          totalCost: totalCost,
         },
         hasilAnalisis: {
           marginOfSafety,

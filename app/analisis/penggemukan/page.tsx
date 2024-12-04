@@ -189,7 +189,7 @@ const PenggemukanPage = () => {
           hargaPakan,
           totalHargaPakan,
           totalVariableCost,
-          totalCost: totalCost.toFixed(2),
+          totalCost: totalCost,
         },
         hasilAnalisis: {
           marginOfSafety,
@@ -409,11 +409,6 @@ const PenggemukanPage = () => {
     setBepHarga(bepHarga);
     setBepHasil(bepUnit);
   }, [totalFixedCost, totalVariableCost, jumlahItikSetelahMortalitas]);
-
-  // useEffect(() => {
-  //   const marginOfSafety = ((totalRevenue - bepHarga) / totalRevenue) * 100;
-  //   setMarginOfSafety(marginOfSafety);
-  // }, [totalRevenue, bepHarga]);
 
   useEffect(() => {
     const marginOfSafety = (((totalRevenue - totalCost) / totalRevenue) * 100);
