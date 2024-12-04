@@ -221,7 +221,7 @@ const PenetasanPage = () => {
         penerimaan: {
           jumlahTelurMenetas,
           jumlahTelur,
-          persentase: persentase.toFixed(2),
+          persentase: persentase,
           jumlahDOD,
           hargaDOD,
           totalRevenue: totalRevenue,

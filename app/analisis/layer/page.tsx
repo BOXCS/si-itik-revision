@@ -173,7 +173,7 @@ const LayerPage = () => {
         penerimaan: {
           jumlahTelurDihasilkan,
           jumlahItikAwal,
-          persentase: persentase.toFixed(2),
+          persentase: persentase,
           persentaseBertelur,
           produksiTelurHarian,
           satuPeriode,
