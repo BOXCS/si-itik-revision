@@ -74,6 +74,37 @@ const PenetasanPage = () => {
   const [bepHasil, setBepHasil] = useState<number>(0);
   const [laba, setLaba] = useState<number>(0);
 
+  const resetForm = () => {
+    setJumlahTelurMenetas(0);
+    setJumlahTelur(0);
+    setPersentase(0); // atau nilai default Anda
+    setJumlahDOD(0);
+    setHargaDOD(0);
+    setTotalRevenue(0);
+
+    setSewaKandang(0);
+    setPenyusutanPeralatan(0);
+    setTotalBiaya(0);
+    setTotalFixedCost(0);
+    setBiayaTenagaKerja(0);
+    setBiayaListrik(0);
+    setBiayaOvk(0);
+    setBiayaOperasional(0);
+    setTotalBiayaOperasional(0);
+    setHargaTelur(0);
+    setTotalBiayaPembelianTelur(0);
+    setTotalVariableCost(0);
+    setTotalCost(0);
+
+    setMarginOfSafety(0);
+    setRcRato(0);
+    setBepHarga(0);
+    setBepHasil(0);
+    setLaba(0);
+
+    setCurrentForm("Penerimaan");
+  };
+
   useEffect(() => {
     console.log(periode); // Or any other usage of periode
   }, [periode]); // If you want to react to changes in 'periode'
@@ -264,6 +295,8 @@ const PenetasanPage = () => {
         title: "Sukses",
         description: "Data berhasil disimpan!",
       });
+
+      resetForm();
     } catch (error) {
       console.error("Error adding document: ", error);
       toast({
@@ -356,46 +389,25 @@ const PenetasanPage = () => {
     setTotalCost(totalCost);
   }, [totalVariableCost, totalFixedCost]);
 
-  // Rumus Hasil Analisis
-  // useEffect(() => {
-  //   const bepHasil =
-  //     totalFixedCost / (hargaDOD - (totalVariableCost / jumlahDOD));
-  //   setBepHasil(bepHasil);
-  // }, [totalFixedCost, hargaDOD, totalVariableCost, jumlahDOD]);
-
-  // useEffect(() => {
-  //   const bepHarga =
-  //     totalFixedCost / (1 - totalVariableCost / jumlahDOD / hargaDOD);
-  //   setBepHarga(bepHarga);
-  // }, [totalFixedCost, totalVariableCost, jumlahDOD, hargaDOD]);
-
   useEffect(() => {
     // Biaya Variable Cost per Unit
     const variableCostPerUnit = totalVariableCost / jumlahDOD;
-  
+
     // BEP Harga
-    const bepHarga =
-      totalFixedCost / jumlahDOD + variableCostPerUnit;
-  
+    const bepHarga = totalFixedCost / jumlahDOD + variableCostPerUnit;
+
     // BEP Unit
-    const bepUnit =
-      totalFixedCost / (bepHarga - variableCostPerUnit);
-  
+    const bepUnit = totalFixedCost / (bepHarga - variableCostPerUnit);
+
     // Set hasil ke state
     setBepHarga(bepHarga);
     setBepHasil(bepUnit);
   }, [totalFixedCost, totalVariableCost, jumlahDOD]);
-  
-
-  // useEffect(() => {
-  //   const marginOfSafety = ((totalRevenue - bepHarga) / totalRevenue) * 100;
-  //   setMarginOfSafety(marginOfSafety);
-  // }, [totalRevenue, bepHarga]);
 
   useEffect(() => {
-    const marginOfSafety = (((totalRevenue - totalCost) / totalRevenue) * 100);
+    const marginOfSafety = ((totalRevenue - totalCost) / totalRevenue) * 100;
     setMarginOfSafety(marginOfSafety);
-  }, [totalRevenue, totalCost])
+  }, [totalRevenue, totalCost]);
 
   useEffect(() => {
     const rcRatio = totalRevenue / totalCost;
@@ -407,19 +419,24 @@ const PenetasanPage = () => {
     setLaba(laba);
   }, [totalRevenue, totalCost]);
 
-  // Fungsi untuk format angka ke Rupiah
+  // Fungsi untuk format angka ke Rupiah dengan pemisah ribuan
   const formatNumber = (number: number) => {
     return new Intl.NumberFormat("id-ID", {
-      minimumFractionDigits: 0, // Menghilangkan desimal
-      maximumFractionDigits: 0, // Pastikan tidak ada desimal
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     }).format(number);
   };
 
+  // Fungsi untuk menangani perubahan input dan memformat angka dengan pemisah ribuan
   const handleInputChange =
     (setter: React.Dispatch<React.SetStateAction<number>>) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value.replace(/[^0-9]/g, ""); // Menghapus karakter non-angka
-      setter(value ? parseFloat(value) : 0); // Jika nilai ada, set sebagai angka
+      let value = e.target.value.replace(/[^0-9]/g, ""); // Menghapus karakter selain angka
+
+      // Jika nilai tidak kosong, set ke state
+      if (value !== "") {
+        setter(parseFloat(value)); // Menyimpan nilai angka tanpa pemisah ribuan
+      }
     };
 
   const handleNextForm = () => {
@@ -859,9 +876,16 @@ const PenetasanPage = () => {
                         <input
                           type="number"
                           value={jumlahTelurMenetas}
-                          onChange={(e) =>
-                            setJumlahTelurMenetas(parseFloat(e.target.value))
-                          }
+                          onChange={(e) => {
+                            const newValue = parseFloat(e.target.value);
+                            // Mencegah nilai negatif
+                            if (newValue < 0) {
+                              setJumlahTelurMenetas(0); // Atau set pesan error jika perlu
+                            } else {
+                              setJumlahTelurMenetas(newValue);
+                            }
+                          }}
+                          onWheel={(e) => e.currentTarget.blur()}
                           className="w-full border border-gray-300 p-2 rounded-md"
                         />
                       </div>
@@ -877,9 +901,16 @@ const PenetasanPage = () => {
                         <input
                           type="number"
                           value={jumlahTelur}
-                          onChange={(e) =>
-                            setJumlahTelur(parseFloat(e.target.value))
-                          }
+                          onChange={(e) => {
+                            const newValue = parseFloat(e.target.value);
+                            // Mencegah nilai negatif
+                            if (newValue < 0) {
+                              setJumlahTelur(0); // Atau set pesan error jika perlu
+                            } else {
+                              setJumlahTelur(newValue);
+                            }
+                          }}
+                          onWheel={(e) => e.currentTarget.blur()}
                           className="w-full border border-gray-300 p-2 rounded-md"
                         />
                       </div>
@@ -993,16 +1024,30 @@ const PenetasanPage = () => {
                         <div className="flex items-center border border-gray-300 rounded-md">
                           <span className="p-2 bg-gray-100">Rp.</span>
                           <input
-                            type="number"
-                            value={formatNumber(hargaDOD)}
-                            onChange={handleInputChange(setHargaDOD)}
-                            onBlur={(e) =>
-                              setHargaDOD(
-                                parseFloat(
-                                  e.target.value.replace(/[^0-9]/g, "")
-                                )
-                              )
-                            }
+                            type="text" // Menggunakan type text agar dapat memformat input
+                            inputMode="numeric" // Menampilkan keyboard angka pada perangkat mobile
+                            pattern="[0-9]*" // Menjamin hanya angka yang bisa dimasukkan
+                            value={formatNumber(hargaDOD)} // Menampilkan angka dengan format
+                            onChange={(e) => {
+                              const value = e.target.value.replace(
+                                /[^0-9]/g,
+                                ""
+                              ); // Menghapus karakter non-angka
+                              // Mencegah nilai negatif
+                              if (parseFloat(value) < 0) {
+                                setHargaDOD(0); // Atau set pesan error jika perlu
+                              } else {
+                                setHargaDOD(value ? parseFloat(value) : 0); // Menyimpan angka
+                              }
+                            }}
+                            onBlur={(e) => {
+                              const value = e.target.value.replace(
+                                /[^0-9]/g,
+                                ""
+                              );
+                              setHargaDOD(value ? parseFloat(value) : 0); // Menyimpan angka pada blur
+                            }}
+                            onWheel={(e) => e.currentTarget.blur()} // Menghindari scrolling di input
                             className="w-full border-0 p-2 rounded-md"
                             placeholder="Masukkan harga DOD"
                           />
@@ -1067,18 +1112,32 @@ const PenetasanPage = () => {
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <span className="p-2 bg-gray-100">Rp.</span>
                             <input
-                              type="number"
-                              value={formatNumber(sewaKandang)}
-                              onChange={handleInputChange(setSewaKandang)}
-                              onBlur={(e) =>
-                                setSewaKandang(
-                                  parseFloat(
-                                    e.target.value.replace(/[^0-9]/g, "")
-                                  )
-                                )
-                              }
+                              type="text" // Menggunakan type text agar dapat memformat input
+                              inputMode="numeric" // Menampilkan keyboard angka pada perangkat mobile
+                              pattern="[0-9]*" // Menjamin hanya angka yang bisa dimasukkan
+                              value={formatNumber(sewaKandang)} // Menampilkan angka dengan format
+                              onChange={(e) => {
+                                const value = e.target.value.replace(
+                                  /[^0-9]/g,
+                                  ""
+                                ); // Menghapus karakter non-angka
+                                // Mencegah nilai negatif
+                                if (parseFloat(value) < 0) {
+                                  setSewaKandang(0); // Atau set pesan error jika perlu
+                                } else {
+                                  setSewaKandang(value ? parseFloat(value) : 0); // Menyimpan angka
+                                }
+                              }}
+                              onBlur={(e) => {
+                                const value = e.target.value.replace(
+                                  /[^0-9]/g,
+                                  ""
+                                );
+                                setSewaKandang(value ? parseFloat(value) : 0); // Menyimpan angka pada blur
+                              }}
+                              onWheel={(e) => e.currentTarget.blur()} // Menghindari scrolling di input
                               className="w-full border border-gray-300 p-2 rounded-md"
-                              placeholder="harga sewa kandang"
+                              placeholder="Harga sewa kandang"
                             />
                           </div>
                         </div>
@@ -1094,18 +1153,34 @@ const PenetasanPage = () => {
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <span className="p-2 bg-gray-100">Rp.</span>
                             <input
-                              type="number"
-                              value={formatNumber(penyusutanPeralatan)}
-                              onChange={handleInputChange(
-                                setPenyusutanPeralatan
-                              )}
-                              onBlur={(e) =>
+                              type="text" // Menggunakan type text agar dapat memformat input
+                              inputMode="numeric" // Menampilkan keyboard angka pada perangkat mobile
+                              pattern="[0-9]*" // Menjamin hanya angka yang bisa dimasukkan
+                              value={formatNumber(penyusutanPeralatan)} // Menampilkan angka dengan format
+                              onChange={(e) => {
+                                const value = e.target.value.replace(
+                                  /[^0-9]/g,
+                                  ""
+                                ); // Menghapus karakter non-angka
+                                // Mencegah nilai negatif
+                                if (parseFloat(value) < 0) {
+                                  setPenyusutanPeralatan(0); // Atau set pesan error jika perlu
+                                } else {
+                                  setPenyusutanPeralatan(
+                                    value ? parseFloat(value) : 0
+                                  ); // Menyimpan angka
+                                }
+                              }}
+                              onBlur={(e) => {
+                                const value = e.target.value.replace(
+                                  /[^0-9]/g,
+                                  ""
+                                );
                                 setPenyusutanPeralatan(
-                                  parseFloat(
-                                    e.target.value.replace(/[^0-9]/g, "")
-                                  )
-                                )
-                              }
+                                  value ? parseFloat(value) : 0
+                                ); // Menyimpan angka pada blur
+                              }}
+                              onWheel={(e) => e.currentTarget.blur()} // Menghindari scrolling di input
                               className="w-full border border-gray-300 p-2 rounded-md"
                               placeholder="Masukkan Penyusutan Peralatan"
                             />
@@ -1201,16 +1276,29 @@ const PenetasanPage = () => {
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <span className="p-2 bg-gray-100">Rp.</span>
                             <input
-                              type="number"
-                              value={formatNumber(biayaTenagaKerja)}
-                              onChange={handleInputChange(setBiayaTenagaKerja)}
-                              onBlur={(e) =>
+                              type="text" // Menggunakan type text agar dapat memformat input
+                              inputMode="numeric" // Menampilkan keyboard angka pada perangkat mobile
+                              pattern="[0-9]*" // Menjamin hanya angka yang bisa dimasukkan
+                              value={formatNumber(biayaTenagaKerja)} // Menampilkan angka dengan format
+                              onChange={(e) => {
+                                let value = e.target.value.replace(
+                                  /[^0-9]/g,
+                                  ""
+                                ); // Menghapus karakter selain angka
                                 setBiayaTenagaKerja(
-                                  parseFloat(
-                                    e.target.value.replace(/[^0-9]/g, "")
-                                  )
-                                )
-                              }
+                                  value ? parseFloat(value) : 0
+                                ); // Menyimpan angka
+                              }}
+                              onBlur={(e) => {
+                                let value = e.target.value.replace(
+                                  /[^0-9]/g,
+                                  ""
+                                );
+                                setBiayaTenagaKerja(
+                                  value ? parseFloat(value) : 0
+                                ); // Menyimpan angka pada blur
+                              }}
+                              onWheel={(e) => e.currentTarget.blur()} // Menghindari scrolling di input
                               className="w-full border border-gray-300 p-2 rounded-md"
                             />
                           </div>
@@ -1227,16 +1315,25 @@ const PenetasanPage = () => {
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <span className="p-2 bg-gray-100">Rp.</span>
                             <input
-                              type="number"
-                              value={formatNumber(biayaListrik)}
-                              onChange={handleInputChange(setBiayaListrik)}
-                              onBlur={(e) =>
-                                setBiayaListrik(
-                                  parseFloat(
-                                    e.target.value.replace(/[^0-9]/g, "")
-                                  )
-                                )
-                              }
+                              type="text" // Menggunakan type text agar dapat memformat input
+                              inputMode="numeric" // Menampilkan keyboard angka pada perangkat mobile
+                              pattern="[0-9]*" // Menjamin hanya angka yang bisa dimasukkan
+                              value={formatNumber(biayaListrik)} // Menampilkan angka dengan format
+                              onChange={(e) => {
+                                const value = e.target.value.replace(
+                                  /[^0-9]/g,
+                                  ""
+                                ); // Menghapus karakter non-angka
+                                setBiayaListrik(value ? parseFloat(value) : 0); // Menyimpan angka
+                              }}
+                              onBlur={(e) => {
+                                const value = e.target.value.replace(
+                                  /[^0-9]/g,
+                                  ""
+                                );
+                                setBiayaListrik(value ? parseFloat(value) : 0); // Menyimpan angka pada blur
+                              }}
+                              onWheel={(e) => e.currentTarget.blur()} // Menghindari scrolling di input
                               className="w-full border border-gray-300 p-2 rounded-md"
                             />
                           </div>
@@ -1253,16 +1350,29 @@ const PenetasanPage = () => {
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <span className="p-2 bg-gray-100">Rp.</span>
                             <input
-                              type="number"
-                              value={formatNumber(biayaOvk)}
-                              onChange={handleInputChange(setBiayaOvk)}
-                              onBlur={(e) =>
-                                setBiayaOvk(
-                                  parseFloat(
-                                    e.target.value.replace(/[^0-9]/g, "")
-                                  )
-                                )
-                              }
+                              type="text"
+                              value={biayaOvk.toLocaleString()} // Gunakan toLocaleString untuk format angka
+                              onChange={(e) => {
+                                const newValue = e.target.value.replace(
+                                  /[^0-9]/g,
+                                  ""
+                                );
+                                if (newValue === "") {
+                                  setBiayaOvk(0); // Jika input kosong, set 0
+                                } else {
+                                  setBiayaOvk(parseFloat(newValue)); // Set angka yang sudah dibersihkan
+                                }
+                              }}
+                              onBlur={(e) => {
+                                const newValue = e.target.value.replace(
+                                  /[^0-9]/g,
+                                  ""
+                                );
+                                if (newValue !== "") {
+                                  setBiayaOvk(parseFloat(newValue)); // Set angka saat blur
+                                }
+                              }}
+                              onWheel={(e) => e.currentTarget.blur()}
                               className="w-full border border-gray-300 p-2 rounded-md"
                             />
                           </div>
@@ -1373,17 +1483,21 @@ const PenetasanPage = () => {
                             <div className="flex items-center border border-gray-300 rounded-md">
                               <span className="p-2 bg-gray-100">Rp.</span>
                               <input
-                                type="text"
-                                value={formatNumber(hargaTelur)}
-                                onChange={handleInputChange(setHargaTelur)}
-                                onBlur={(e) =>
-                                  setHargaTelur(
-                                    parseFloat(
-                                      e.target.value.replace(/[^0-9]/g, "")
-                                    ) || 0
-                                  )
-                                }
+                                type="text" // Menggunakan type text agar dapat memformat input
+                                inputMode="numeric" // Menampilkan keyboard angka pada perangkat mobile
+                                pattern="[0-9]*" // Menjamin hanya angka yang bisa dimasukkan
+                                value={formatNumber(hargaTelur)} // Menampilkan angka dengan format
+                                onChange={handleInputChange(setHargaTelur)} // Menangani perubahan input
+                                onBlur={(e) => {
+                                  const value = e.target.value.replace(
+                                    /[^0-9]/g,
+                                    ""
+                                  );
+                                  setHargaTelur(value ? parseFloat(value) : 0); // Menyimpan angka pada blur
+                                }}
+                                onWheel={(e) => e.currentTarget.blur()} // Menghindari scrolling di input
                                 className="w-full border border-gray-300 p-2 rounded-md"
+                                placeholder="Masukkan Harga Telur"
                               />
                             </div>
                           </div>

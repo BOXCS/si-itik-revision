@@ -85,6 +85,42 @@ const LayerPage = () => {
   const [bepHasil, setBepHasil] = useState<number>(0);
   const [laba, setLaba] = useState<number>(0);
 
+  const resetForm = () => {
+    setJumlahTelurDihasilkan(0);
+    setJumlahItikAwal(0);
+    setPersentase(0);
+    setPersentaseBertelur(0);
+    setProduksiTelurHarian(0);
+    setSatuPeriode(0);
+    setJumlahSatuPeriode(0);
+    setHargaTelur(0);
+    setTotalRevenue(0);
+    setJumlahTelurMenetas(0);
+    setSewaKandang(0);
+    setPenyusutanItik(0);
+    setTotalBiaya(0);
+    setJumlahHari(0);
+    setTotalFixedCost(0);
+    setBiayaTenagaKerja(0);
+    setBiayaListrik(0);
+    setBiayaOvk(0);
+    setBiayaOperasional(0);
+    setTotalBiayaOperasional(0);
+    setstandardPakanGram(0);
+    setHargaPakan(0);
+    setjumlahPakanKilogram(0);
+    setTotalBiayaPakan(0);
+    setTotalVariableCost(0);
+    setTotalCost(0);
+    setMarginOfSafety(0);
+    setRcRato(0);
+    setBepHarga(0);
+    setBepHasil(0);
+    setLaba(0);
+
+    setCurrentForm("Penerimaan");
+  };
+
   useEffect(() => {
     console.log(periode); // Or any other usage of periode
   }, [periode]); // If you want to react to changes in 'periode'
@@ -296,19 +332,23 @@ const LayerPage = () => {
     }
   };
 
-  // Fungsi untuk format angka ke Rupiah
+  // Format number with thousand separators
   const formatNumber = (number: number) => {
     return new Intl.NumberFormat("id-ID", {
-      minimumFractionDigits: 0, // Menghilangkan desimal
-      maximumFractionDigits: 0, // Pastikan tidak ada desimal
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     }).format(number);
   };
 
+  // Handle the input change, clean non-numeric characters, and update the state
   const handleInputChange =
     (setter: React.Dispatch<React.SetStateAction<number>>) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value.replace(/[^0-9]/g, ""); // Menghapus karakter non-angka
-      setter(value ? parseFloat(value) : 0); // Jika nilai ada, set sebagai angka
+      let value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
+
+      if (value !== "") {
+        setter(parseFloat(value)); // Update state with the numeric value
+      }
     };
 
   // Rumus Penerimaan
@@ -393,15 +433,13 @@ const LayerPage = () => {
   useEffect(() => {
     // Biaya Variable Cost per Unit
     const variableCostPerUnit = totalVariableCost / jumlahSatuPeriode;
-  
+
     // BEP Harga
-    const bepHarga =
-      totalFixedCost / jumlahSatuPeriode + variableCostPerUnit;
-  
+    const bepHarga = totalFixedCost / jumlahSatuPeriode + variableCostPerUnit;
+
     // BEP Unit
-    const bepUnit =
-      totalFixedCost / (bepHarga - variableCostPerUnit);
-  
+    const bepUnit = totalFixedCost / (bepHarga - variableCostPerUnit);
+
     // Set hasil ke state
     setBepHarga(bepHarga);
     setBepHasil(bepUnit);
@@ -413,9 +451,9 @@ const LayerPage = () => {
   // }, [totalRevenue, bepHarga]);
 
   useEffect(() => {
-    const marginOfSafety = (((totalRevenue - totalCost) / totalRevenue) * 100);
+    const marginOfSafety = ((totalRevenue - totalCost) / totalRevenue) * 100;
     setMarginOfSafety(marginOfSafety);
-  }, [totalRevenue, totalCost])
+  }, [totalRevenue, totalCost]);
 
   useEffect(() => {
     const rcRatio = totalRevenue / totalCost;
@@ -854,6 +892,7 @@ const LayerPage = () => {
                           onChange={(e) =>
                             setJumlahTelurDihasilkan(parseFloat(e.target.value))
                           }
+                          onWheel={(e) => e.currentTarget.blur()}
                           className="w-full border border-gray-300 p-2 rounded-md"
                         />
                       </div>
@@ -872,6 +911,7 @@ const LayerPage = () => {
                           onChange={(e) =>
                             setJumlahItikAwal(parseFloat(e.target.value))
                           }
+                          onWheel={(e) => e.currentTarget.blur()}
                           className="w-full border border-gray-300 p-2 rounded-md"
                         />
                       </div>
@@ -1033,14 +1073,20 @@ const LayerPage = () => {
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <span className="p-2 bg-gray-100">Rp.</span>
                         <input
-                          type="number"
-                          value={formatNumber(hargaTelur)}
-                          onChange={handleInputChange(setHargaTelur)}
-                          onBlur={(e) =>
-                            setHargaTelur(
-                              parseFloat(e.target.value.replace(/[^0-9]/g, ""))
-                            )
+                          type="text" // Change to 'text' for better formatting
+                          inputMode="numeric" // Show numeric keyboard for mobile users
+                          pattern="[0-9]*" // Allow only numeric characters
+                          value={formatNumber(hargaTelur)} // Display formatted value
+                          onChange={handleInputChange(setHargaTelur)} // Handle changes in input
+                          onBlur={
+                            (e) =>
+                              setHargaTelur(
+                                parseFloat(
+                                  e.target.value.replace(/[^0-9]/g, "")
+                                ) || 0
+                              ) // Store as raw numeric value after input is blurred
                           }
+                          onWheel={(e) => e.currentTarget.blur()} // Prevent scroll behavior
                           className="w-full border-0 p-2 rounded-md"
                           placeholder="Masukkan harga Telur"
                         />
@@ -1103,18 +1149,21 @@ const LayerPage = () => {
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <span className="p-2 bg-gray-100">Rp.</span>
                             <input
-                              type="number"
-                              value={formatNumber(sewaKandang)}
-                              onChange={handleInputChange(setSewaKandang)}
+                              type="text" // Change to 'text' for better formatting
+                              inputMode="numeric" // Display numeric keyboard on mobile
+                              pattern="[0-9]*" // Allow only numeric characters
+                              value={formatNumber(sewaKandang)} // Display formatted value
+                              onChange={handleInputChange(setSewaKandang)} // Handle change
                               onBlur={(e) =>
                                 setSewaKandang(
                                   parseFloat(
                                     e.target.value.replace(/[^0-9]/g, "")
-                                  )
+                                  ) || 0
                                 )
-                              }
+                              } // Format on blur and ensure a number is saved
+                              onWheel={(e) => e.currentTarget.blur()} // Disable scroll wheel
                               className="w-full border border-gray-300 p-2 rounded-md"
-                              placeholder="harga sewa kandang"
+                              placeholder="Harga Sewa Kandang"
                             />
                           </div>
                         </div>
@@ -1125,21 +1174,25 @@ const LayerPage = () => {
 
                         <div className="col-span-1">
                           <label className="font-semibold text-sm md:text-base mb-1 block">
-                            Penyusutan Peralatan
+                            Penyusutan Itik
                           </label>
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <span className="p-2 bg-gray-100">Rp.</span>
                             <input
-                              type="number"
-                              value={formatNumber(penyusutanItik)}
-                              onChange={handleInputChange(setPenyusutanItik)}
-                              onBlur={(e) =>
-                                setPenyusutanItik(
-                                  parseFloat(
-                                    e.target.value.replace(/[^0-9]/g, "")
-                                  )
-                                )
+                              type="text" // Change to 'text' for better formatting
+                              inputMode="numeric" // Numeric keyboard for mobile users
+                              pattern="[0-9]*" // Allow only numeric input
+                              value={formatNumber(penyusutanItik)} // Format the number for display
+                              onChange={handleInputChange(setPenyusutanItik)} // Handle input changes
+                              onBlur={
+                                (e) =>
+                                  setPenyusutanItik(
+                                    parseFloat(
+                                      e.target.value.replace(/[^0-9]/g, "")
+                                    ) || 0
+                                  ) // Convert formatted value to raw number on blur
                               }
+                              onWheel={(e) => e.currentTarget.blur()} // Disable scroll behavior
                               className="w-full border border-gray-300 p-2 rounded-md"
                               placeholder="Masukkan Penyusutan Peralatan"
                             />
@@ -1234,17 +1287,21 @@ const LayerPage = () => {
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <span className="p-2 bg-gray-100">Rp.</span>
                             <input
-                              type="number"
-                              value={formatNumber(biayaTenagaKerja)}
-                              onChange={handleInputChange(setBiayaTenagaKerja)}
+                              type="text" // Change to 'text' for better formatting
+                              inputMode="numeric" // Display numeric keyboard on mobile
+                              pattern="[0-9]*" // Allow only numeric characters
+                              value={formatNumber(biayaTenagaKerja)} // Display formatted value
+                              onChange={handleInputChange(setBiayaTenagaKerja)} // Handle change
                               onBlur={(e) =>
                                 setBiayaTenagaKerja(
                                   parseFloat(
                                     e.target.value.replace(/[^0-9]/g, "")
-                                  )
+                                  ) || 0
                                 )
-                              }
+                              } // Format on blur and ensure a number is saved
+                              onWheel={(e) => e.currentTarget.blur()} // Disable scroll wheel
                               className="w-full border border-gray-300 p-2 rounded-md"
+                              placeholder="Masukkan Biaya Tenaga Kerja"
                             />
                           </div>
                         </div>
@@ -1260,17 +1317,21 @@ const LayerPage = () => {
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <span className="p-2 bg-gray-100">Rp.</span>
                             <input
-                              type="number"
-                              value={formatNumber(biayaListrik)}
-                              onChange={handleInputChange(setBiayaListrik)}
+                              type="text" // Change to 'text' for better formatting
+                              inputMode="numeric" // Display numeric keyboard on mobile
+                              pattern="[0-9]*" // Allow only numeric characters
+                              value={formatNumber(biayaListrik)} // Display formatted value
+                              onChange={handleInputChange(setBiayaListrik)} // Handle change
                               onBlur={(e) =>
                                 setBiayaListrik(
                                   parseFloat(
                                     e.target.value.replace(/[^0-9]/g, "")
-                                  )
+                                  ) || 0
                                 )
-                              }
+                              } // Format on blur and ensure a number is saved
+                              onWheel={(e) => e.currentTarget.blur()} // Disable scroll wheel
                               className="w-full border border-gray-300 p-2 rounded-md"
+                              placeholder="Masukkan Biaya Listrik"
                             />
                           </div>
                         </div>
@@ -1296,6 +1357,7 @@ const LayerPage = () => {
                                   )
                                 )
                               }
+                              onWheel={(e) => e.currentTarget.blur()}
                               className="w-full border border-gray-300 p-2 rounded-md"
                             />
                           </div>
@@ -1404,6 +1466,7 @@ const LayerPage = () => {
                                         )
                                       )
                                     } // Mengembalikan angka asli saat blur
+                                    onWheel={(e) => e.currentTarget.blur()}
                                     className="w-full border border-gray-300 p-2 rounded-md"
                                     placeholder="Masukkan dalam Gram"
                                   />
@@ -1487,23 +1550,27 @@ const LayerPage = () => {
 
                           <div className="col-span-1">
                             <label className="font-semibold text-sm md:text-base mb-1 block">
-                              harga pakan
+                              Harga Pakan
                             </label>
                             <div className="flex items-center border border-gray-300 rounded-md">
                               <span className="p-2 bg-gray-100">Rp.</span>
                               <input
-                                type="number"
-                                value={formatNumber(hargaPakan)}
-                                onChange={handleInputChange(setHargaPakan)}
-                                onBlur={(e) =>
-                                  setHargaPakan(
-                                    parseFloat(
-                                      e.target.value.replace(/[^0-9]/g, "")
-                                    )
-                                  )
+                                type="text" // Change to 'text' for better formatting
+                                inputMode="numeric" // Numeric keyboard for mobile users
+                                pattern="[0-9]*" // Allow only numeric input
+                                value={formatNumber(hargaPakan)} // Format the number for display
+                                onChange={handleInputChange(setHargaPakan)} // Handle input changes
+                                onBlur={
+                                  (e) =>
+                                    setHargaPakan(
+                                      parseFloat(
+                                        e.target.value.replace(/[^0-9]/g, "")
+                                      ) || 0
+                                    ) // Convert formatted value to raw number on blur
                                 }
+                                onWheel={(e) => e.currentTarget.blur()} // Disable scroll behavior
                                 className="w-full border border-gray-300 p-2 rounded-md"
-                                placeholder="Masukkan Penyusutan Peralatan"
+                                placeholder="Masukkan Harga Pakan"
                               />
                             </div>
                           </div>

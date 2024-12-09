@@ -339,7 +339,10 @@ export default function PercobaanAnalisis() {
         setSelectedDetail(docSnapshot.data());
 
         // Fetch 'analisis_periode' for the selected item
-        const analisisPeriodeRef = collection(docRef, "analisis_periode");
+        const analisisPeriodeRef = query(
+          collection(docRef, "analisis_periode"),
+          orderBy("created_at", "desc") // Mengurutkan berdasarkan created_at descending
+        );
         const analisisPeriodeSnapshot = await getDocs(analisisPeriodeRef);
 
         // console.log(analisisPeriodeSnapshot);
