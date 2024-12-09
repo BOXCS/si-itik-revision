@@ -276,6 +276,8 @@ const LayerPage = () => {
         title: "Sukses",
         description: "Data berhasil disimpan!",
       });
+
+      resetForm();
     } catch (error) {
       console.error("Error adding document: ", error);
       toast({
@@ -344,7 +346,7 @@ const LayerPage = () => {
   const handleInputChange =
     (setter: React.Dispatch<React.SetStateAction<number>>) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      let value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
+      const value = e.target.value.replace(/[^0-9]/g, ""); // Use 'const' instead of 'let'
 
       if (value !== "") {
         setter(parseFloat(value)); // Update state with the numeric value

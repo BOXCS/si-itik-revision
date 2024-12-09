@@ -335,7 +335,7 @@ const PenggemukanPage = () => {
   const handleInputChange =
     (setter: React.Dispatch<React.SetStateAction<number>>) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      let value = e.target.value.replace(/[^0-9]/g, ""); // Menghapus karakter selain angka
+      const value = e.target.value.replace(/[^0-9]/g, ""); // Menghapus karakter selain angka
 
       // Jika nilai tidak kosong, set ke state
       if (value !== "") {

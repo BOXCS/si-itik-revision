@@ -419,7 +419,7 @@ const PenetasanPage = () => {
     setLaba(laba);
   }, [totalRevenue, totalCost]);
 
-  // Fungsi untuk format angka ke Rupiah dengan pemisah ribuan
+  // Format number with thousand separators
   const formatNumber = (number: number) => {
     return new Intl.NumberFormat("id-ID", {
       minimumFractionDigits: 0,
@@ -427,15 +427,14 @@ const PenetasanPage = () => {
     }).format(number);
   };
 
-  // Fungsi untuk menangani perubahan input dan memformat angka dengan pemisah ribuan
+  // Handle the input change, clean non-numeric characters, and update the state
   const handleInputChange =
     (setter: React.Dispatch<React.SetStateAction<number>>) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      let value = e.target.value.replace(/[^0-9]/g, ""); // Menghapus karakter selain angka
+      const value = e.target.value.replace(/[^0-9]/g, ""); // Use 'const' instead of 'let'
 
-      // Jika nilai tidak kosong, set ke state
       if (value !== "") {
-        setter(parseFloat(value)); // Menyimpan nilai angka tanpa pemisah ribuan
+        setter(parseFloat(value)); // Update state with the numeric value
       }
     };
 
@@ -1281,7 +1280,7 @@ const PenetasanPage = () => {
                               pattern="[0-9]*" // Menjamin hanya angka yang bisa dimasukkan
                               value={formatNumber(biayaTenagaKerja)} // Menampilkan angka dengan format
                               onChange={(e) => {
-                                let value = e.target.value.replace(
+                                const value = e.target.value.replace(
                                   /[^0-9]/g,
                                   ""
                                 ); // Menghapus karakter selain angka
@@ -1290,7 +1289,7 @@ const PenetasanPage = () => {
                                 ); // Menyimpan angka
                               }}
                               onBlur={(e) => {
-                                let value = e.target.value.replace(
+                                const value = e.target.value.replace(
                                   /[^0-9]/g,
                                   ""
                                 );
