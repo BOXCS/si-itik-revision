@@ -1070,7 +1070,7 @@ const LayerPage = () => {
 
                     <div className="col-span-1">
                       <label className="font-semibold text-sm md:text-base mb-1 block">
-                        Harga Telur
+                        Harga Telur per Butir
                       </label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <span className="p-2 bg-gray-100">Rp.</span>
@@ -1101,7 +1101,7 @@ const LayerPage = () => {
 
                     <div className="col-span-1">
                       <label className="font-semibold text-sm md:text-base mb-1 block">
-                        Total Revenue
+                        Total Pendapatan
                       </label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <span className="p-2 bg-orange-200">Rp.</span>
@@ -1139,14 +1139,14 @@ const LayerPage = () => {
                       {/* Fixed Cost Header */}
                       <div className="text-center mb-6">
                         <h3 className="font-extrabold text-2xl md:text-3xl">
-                          Fixed Cost
+                          Biaya Tetap
                         </h3>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
                         <div className="col-span-1">
                           <label className="font-semibold text-sm md:text-base mb-1 block">
-                            Sewa Kandang
+                            Sewa Kandang per Hari
                           </label>
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <span className="p-2 bg-gray-100">Rp.</span>
@@ -1176,7 +1176,7 @@ const LayerPage = () => {
 
                         <div className="col-span-1">
                           <label className="font-semibold text-sm md:text-base mb-1 block">
-                            Penyusutan Itik
+                            Penyusutan Itik per Hari
                           </label>
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <span className="p-2 bg-gray-100">Rp.</span>
@@ -1259,7 +1259,7 @@ const LayerPage = () => {
 
                         <div className="col-span-1">
                           <label className="font-semibold text-sm md:text-base mb-1 block">
-                            Total Fixed Cost
+                            Total Biaya Tetap
                           </label>
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <span className="p-2 bg-gray-100">Rp.</span>
@@ -1284,7 +1284,7 @@ const LayerPage = () => {
                       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
                         <div className="col-span-1">
                           <label className="font-semibold text-sm md:text-base mb-1 block">
-                            Biaya Tenaga Kerja
+                            Biaya Tenaga Kerja per Hari
                           </label>
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <span className="p-2 bg-gray-100">Rp.</span>
@@ -1314,7 +1314,7 @@ const LayerPage = () => {
 
                         <div className="col-span-1">
                           <label className="font-semibold text-sm md:text-base mb-1 block">
-                            Biaya Listrik
+                            Biaya Listrik per Hari
                           </label>
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <span className="p-2 bg-gray-100">Rp.</span>
@@ -1344,7 +1344,7 @@ const LayerPage = () => {
 
                         <div className="col-span-1">
                           <label className="font-semibold text-sm md:text-base mb-1 block">
-                            Biaya OVK
+                            Biaya OVK per Hari
                           </label>
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <span className="p-2 bg-gray-100">Rp.</span>
@@ -1552,7 +1552,7 @@ const LayerPage = () => {
 
                           <div className="col-span-1">
                             <label className="font-semibold text-sm md:text-base mb-1 block">
-                              Harga Pakan
+                              Harga Pakan per Kilogram
                             </label>
                             <div className="flex items-center border border-gray-300 rounded-md">
                               <span className="p-2 bg-gray-100">Rp.</span>
@@ -1689,7 +1689,7 @@ const LayerPage = () => {
 
                         <div className="col-span-1">
                           <label className="font-semibold text-sm md:text-base mb-1 block">
-                            Total Fixed Cost
+                            Total Biaya Tetap
                           </label>
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <span className="p-2 bg-gray-100">Rp.</span>
@@ -1708,7 +1708,7 @@ const LayerPage = () => {
 
                         <div className="col-span-1">
                           <label className="font-semibold text-sm md:text-base mb-1 block">
-                            Total Cost
+                            Total Pengeluaran
                           </label>
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <span className="p-2 bg-orange-200">Rp.</span>
@@ -1743,16 +1743,31 @@ const LayerPage = () => {
 
               {/* Form Hasil Analisis */}
               {currentForm === "HasilAnalisis" && (
-                <div className="flex flex-col w-full px-4 md:px-6 py-4">
+                <div className="flex flex-col w-full px-4 md:px-6 py-4 space-y-4">
                   <h2 className="text-lg md:text-xl font-extrabold mb-4 md:mb-6">
                     Hasil Analisis
                   </h2>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center justify-center">
-                    <div className="col-span-1">
-                      <label className="font-semibold text-sm md:text-base mb-1 block">
-                        Margin Of Safety (MOS)
-                      </label>
+                  {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center justify-center"> */}
+                  <div className="grid grid-cols-1 gap-4 items-center justify-center">
+                    {/* MOS */}
+                    <div className="col-span-2">
+                      <div className="flex items-center justify-between">
+                        <label className="font-semibold text-sm md:text-base mb-1 block">
+                          Batas Aman Keuntungan
+                        </label>
+                        <button
+                          onClick={() =>
+                            alert("Margin of Safety (MOS) adalah...")
+                          } // Ganti dengan modal atau informasi yang diinginkan
+                          className="hidden w-6 h-6 md:flex items-center justify-center bg-orange-200 rounded-full shadow-md hover:bg-orange-300 transition-all"
+                          title="Informasi tentang MOS"
+                        >
+                          <span className="text-sm font-bold text-gray-700">
+                            ?
+                          </span>
+                        </button>
+                      </div>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <input
                           type="text"
@@ -1763,42 +1778,82 @@ const LayerPage = () => {
                         <span className="p-2 bg-orange-200">%</span>
                       </div>
                     </div>
+                  </div>
 
-                    <div className="col-span-1">
+                  <div className="col-span-2">
+                    <div className="flex items-center justify-between">
                       <label className="font-semibold text-sm md:text-base mb-1 block">
-                        R/C Ratio
+                        Rasio Keuntungan Terhadap Biaya
                       </label>
-                      <div className="flex items-center border border-gray-300 rounded-md">
-                        <input
-                          type="text"
-                          value={rcRatio.toFixed(2)}
-                          readOnly
-                          className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
-                        />
-                      </div>
+                      <button
+                        onClick={() =>
+                          alert("Margin of Safety (MOS) adalah...")
+                        } // Ganti dengan modal atau informasi yang diinginkan
+                        className="hidden w-6 h-6 md:flex items-center justify-center bg-orange-200 rounded-full shadow-md hover:bg-orange-300 transition-all"
+                        title="Informasi tentang MOS"
+                      >
+                        <span className="text-sm font-bold text-gray-700">
+                          ?
+                        </span>
+                      </button>
                     </div>
-
-                    <div className="col-span-1">
-                      <label className="font-semibold text-sm md:text-base mb-1 block">
-                        BEP Harga
-                      </label>
-                      <div className="flex items-center border border-gray-300 rounded-md">
-                        <span className="p-2 bg-orange-200">Rp.</span>
-                        <input
-                          type="text"
-                          value={formatNumber(bepHarga)}
-                          readOnly
-                          className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
-                        />
-                      </div>
+                    <div className="flex items-center border border-gray-300 rounded-md">
+                      <input
+                        type="text"
+                        value={rcRatio.toFixed(2)}
+                        readOnly
+                        className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
+                      />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5 items-center justify-center">
-                    <div className="col-span-1">
+                  <div className="col-span-2">
+                    <div className="flex items-center justify-between">
                       <label className="font-semibold text-sm md:text-base mb-1 block">
-                        BEP Unit
+                        Titik Impas Berdasarkan Harga
                       </label>
+                      <button
+                        onClick={() =>
+                          alert("Margin of Safety (MOS) adalah...")
+                        } // Ganti dengan modal atau informasi yang diinginkan
+                        className="hidden w-6 h-6 md:flex items-center justify-center bg-orange-200 rounded-full shadow-md hover:bg-orange-300 transition-all"
+                        title="Informasi tentang MOS"
+                      >
+                        <span className="text-sm font-bold text-gray-700">
+                          ?
+                        </span>
+                      </button>
+                    </div>
+                    <div className="flex items-center border border-gray-300 rounded-md">
+                      <span className="p-2 bg-orange-200">Rp.</span>
+                      <input
+                        type="text"
+                        value={formatNumber(bepHarga)}
+                        readOnly
+                        className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
+                      />
+                    </div>
+                  </div>
+                  {/* </div> */}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5 items-center justify-center">
+                    <div className="col-span-2">
+                      <div className="flex items-center justify-between">
+                        <label className="font-semibold text-sm md:text-base mb-1 block">
+                          Titik Impas Berdasarkan Jumlah Unit
+                        </label>
+                        <button
+                          onClick={() =>
+                            alert("Margin of Safety (MOS) adalah...")
+                          } // Ganti dengan modal atau informasi yang diinginkan
+                          className="hidden w-6 h-6 md:flex items-center justify-center bg-orange-200 rounded-full shadow-md hover:bg-orange-300 transition-all"
+                          title="Informasi tentang MOS"
+                        >
+                          <span className="text-sm font-bold text-gray-700">
+                            ?
+                          </span>
+                        </button>
+                      </div>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <input
                           type="text"
@@ -1809,10 +1864,23 @@ const LayerPage = () => {
                         <span className="p-2 bg-orange-200">Ekor</span>
                       </div>
                     </div>
-                    <div className="col-span-1">
-                      <label className="font-semibold text-sm md:text-base mb-1 block">
-                        Laba
-                      </label>
+                    <div className="col-span-2">
+                      <div className="flex items-center justify-between">
+                        <label className="font-semibold text-sm md:text-base mb-1 block">
+                          Keuntungan
+                        </label>
+                        <button
+                          onClick={() =>
+                            alert("Margin of Safety (MOS) adalah...")
+                          } // Ganti dengan modal atau informasi yang diinginkan
+                          className="hidden w-6 h-6 md:flex items-center justify-center bg-orange-200 rounded-full shadow-md hover:bg-orange-300 transition-all"
+                          title="Informasi tentang MOS"
+                        >
+                          <span className="text-sm font-bold text-gray-700">
+                            ?
+                          </span>
+                        </button>
+                      </div>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <span className="p-2 bg-orange-200">Rp.</span>
                         <input
@@ -1839,6 +1907,60 @@ const LayerPage = () => {
                     >
                       Simpan
                     </button>
+                  </div>
+                </div>
+              )}
+              {currentForm === "HasilAnalisis" && (
+                <div className="bg-white mt-6 p-6 rounded-lg shadow-md">
+                  <h3 className="text-lg font-bold mb-4">Saran Optimalisasi</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {laba < 0 && (
+                      <div className="bg-red-100 p-4 rounded-md">
+                        <h4 className="font-semibold mb-2">
+                          Kurangi Biaya Produksi
+                        </h4>
+                        <p>
+                          Pengeluaran Anda lebih besar daripada pendapatan.
+                          Pertimbangkan untuk mengurangi biaya seperti{" "}
+                          <strong>biaya tenaga kerja</strong> atau
+                          <strong>biaya pakan</strong>.
+                        </p>
+                      </div>
+                    )}
+                    {marginOfSafety < 20 && (
+                      <div className="bg-yellow-100 p-4 rounded-md">
+                        <h4 className="font-semibold mb-2">
+                          Tingkatkan Penjualan
+                        </h4>
+                        <p>
+                          Margin of Safety rendah. Pertimbangkan untuk
+                          meningkatkan volume penjualan atau mengurangi
+                          pengeluaran agar margin lebih stabil.
+                        </p>
+                      </div>
+                    )}
+                    {rcRatio < 1.5 && (
+                      <div className="bg-yellow-100 p-4 rounded-md">
+                        <h4 className="font-semibold mb-2">
+                          Optimalkan Pendapatan
+                        </h4>
+                        <p>
+                          R/C Ratio rendah. Evaluasi harga jual produk atau
+                          tambahkan produk bernilai lebih tinggi untuk
+                          meningkatkan rasio ini.
+                        </p>
+                      </div>
+                    )}
+                    {rcRatio >= 1.5 && laba > 0 && (
+                      <div className="bg-green-100 p-4 rounded-md">
+                        <h4 className="font-semibold mb-2">Strategi Optimal</h4>
+                        <p>
+                          Usaha Anda berjalan dengan baik! Fokus pada
+                          mempertahankan efisiensi pengeluaran sambil
+                          meningkatkan volume penjualan.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

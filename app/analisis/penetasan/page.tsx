@@ -52,6 +52,7 @@ const PenetasanPage = () => {
   const [totalRevenue, setTotalRevenue] = useState<number>(0);
 
   // States untuk Pengeluaran form
+  const [jenisKotak, setJenisKotak] = useState("");
   const [sewaKandang, setSewaKandang] = useState<number>(0);
   const [penyusutanPeralatan, setPenyusutanPeralatan] = useState<number>(0);
   const [totalBiaya, setTotalBiaya] = useState<number>(0);
@@ -460,6 +461,118 @@ const PenetasanPage = () => {
 
   const handleToggleRumus = () => {
     setIsOpenRumus(!isOpenRumus); // Mengubah state open/close
+  };
+
+  // Fungsi untuk saran optimalisasi berdasarkan jenis kotak
+  const getOptimalisasiSaran = () => {
+    {
+      /* Panel Tambahan */
+    }
+    {
+      currentForm === "HasilAnalisis" && (
+        <div className="bg-white mt-6 p-6 rounded-lg shadow-md">
+          <h3 className="text-lg font-bold mb-4">Saran Optimalisasi</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {laba < 0 && (
+              <div className="bg-red-100 p-4 rounded-md">
+                <h4 className="font-semibold mb-2">Kurangi Biaya Produksi</h4>
+                <p>
+                  Pengeluaran Anda lebih besar daripada pendapatan.
+                  Pertimbangkan untuk mengurangi biaya seperti{" "}
+                  <strong>biaya tenaga kerja</strong> atau
+                  <strong>biaya pakan</strong>.
+                </p>
+              </div>
+            )}
+            {marginOfSafety < 20 && (
+              <div className="bg-yellow-100 p-4 rounded-md">
+                <h4 className="font-semibold mb-2">Tingkatkan Penjualan</h4>
+                <p>
+                  Margin of Safety rendah. Pertimbangkan untuk meningkatkan
+                  volume penjualan atau mengurangi pengeluaran agar margin lebih
+                  stabil.
+                </p>
+              </div>
+            )}
+            {rcRatio < 1.5 && (
+              <div className="bg-yellow-100 p-4 rounded-md">
+                <h4 className="font-semibold mb-2">Optimalkan Pendapatan</h4>
+                <p>
+                  R/C Ratio rendah. Evaluasi harga jual produk atau tambahkan
+                  produk bernilai lebih tinggi untuk meningkatkan rasio ini.
+                </p>
+              </div>
+            )}
+            {rcRatio >= 1.5 && laba > 0 && (
+              <div className="bg-green-100 p-4 rounded-md">
+                <h4 className="font-semibold mb-2">Strategi Optimal</h4>
+                <p>
+                  Usaha Anda berjalan dengan baik! Fokus pada mempertahankan
+                  efisiensi pengeluaran sambil meningkatkan volume penjualan.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    if (jenisKotak === "otomatis") {
+      if (laba < 0) {
+        return (
+          <div className="bg-red-100 p-4 rounded-md">
+            <h4 className="font-semibold mb-2">
+              Pertimbangkan Penggunaan Mesin Tetas Biasa
+            </h4>
+            <p>
+              Mesin otomatis dapat meningkatkan efisiensi produksi, namun
+              biayanya lebih tinggi. Evaluasi kembali pengeluaran dan hitung
+              apakah investasi ini lebih menguntungkan dibandingkan dengan kotak
+              biasa.
+            </p>
+          </div>
+        );
+      } else {
+        return (
+          <div className="bg-green-100 p-4 rounded-md">
+            <h4 className="font-semibold mb-2">
+              Optimalkan Penggunaan Mesin Tetas Otomatis
+            </h4>
+            <p>
+              Mesin otomatis dapat meningkatkan produktivitas. Pastikan biaya
+              pengoperasian mesin lebih rendah dibandingkan dengan keuntungan
+              yang didapatkan untuk memastikan keuntungan maksimal.
+            </p>
+          </div>
+        );
+      }
+    } else {
+      if (laba < 0) {
+        return (
+          <div className="bg-red-100 p-4 rounded-md">
+            <h4 className="font-semibold mb-2">
+              Pertimbangkan Penggunaan Kotak Tetas Otomatis
+            </h4>
+            <p>
+              Walaupun penggunaan mesin otomatis memerlukan biaya tambahan. Namun, biaya tenaga kerja akan jauh lebih murah
+            </p>
+          </div>
+        );
+      } else {
+        return (
+          <div className="bg-yellow-100 p-4 rounded-md">
+            <h4 className="font-semibold mb-2">
+              Perhatikan Biaya Pengeluaran dengan Kotak Tetas Biasa
+            </h4>
+            <p>
+              Dengan menggunakan kotak biasa, pengeluaran lebih rendah. Namun,
+              pastikan untuk mempertimbangkan efisiensi dan potensi pengurangan
+              pengeluaran lainnya agar tetap menghasilkan laba yang optimal.
+            </p>
+          </div>
+        );
+      }
+    }
   };
 
   return (
@@ -987,7 +1100,7 @@ const PenetasanPage = () => {
 
                       <div className="col-span-1">
                         <label className="font-semibold text-sm md:text-base mb-1 block">
-                          Jumlah DOD
+                          Jumlah Anak Itik
                         </label>
                         <input
                           type="text"
@@ -1002,7 +1115,7 @@ const PenetasanPage = () => {
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
                       <div className="col-span-1">
                         <label className="font-semibold text-sm md:text-base mb-1 block">
-                          Jumlah DOD
+                        Jumlah Anak Itik
                         </label>
                         <input
                           type="text"
@@ -1018,7 +1131,7 @@ const PenetasanPage = () => {
 
                       <div className="col-span-1">
                         <label className="font-semibold text-sm md:text-base mb-1 block">
-                          Harga DOD
+                          Harga per 1 Anak Itik
                         </label>
                         <div className="flex items-center border border-gray-300 rounded-md">
                           <span className="p-2 bg-gray-100">Rp.</span>
@@ -1059,7 +1172,7 @@ const PenetasanPage = () => {
 
                       <div className="col-span-1">
                         <label className="font-semibold text-sm md:text-base mb-1 block">
-                          Total Revenue
+                          Total Pendapatan
                         </label>
                         <div className="flex items-center border border-gray-300 rounded-md">
                           <span className="p-2 bg-orange-200">Rp.</span>
@@ -1092,13 +1205,28 @@ const PenetasanPage = () => {
                   <h2 className="text-lg md:text-xl font-extrabold mb-4 md:mb-6">
                     Data Pengeluaran
                   </h2>
-                  {/* Bagian Fixed Cost */}
+                  {/* Dropdown untuk memilih jenis kotak */}
+                  <div className="w-full px-4 mb-6">
+                    <label className="font-semibold text-sm md:text-base mb-1 block">
+                      Pilih Jenis Kotak
+                    </label>
+                    <select
+                      value={jenisKotak}
+                      onChange={(e) => setJenisKotak(e.target.value)}
+                      className="w-full border border-gray-300 p-2 rounded-md"
+                    >
+                      <option value="biasa">Kotak Tetas Biasa</option>
+                      <option value="otomatis">Mesin Tetas Otomatis</option>
+                    </select>
+                  </div>
+
+                  {/* Mengubah biaya berdasarkan jenis kotak */}
                   <div className="flex flex-col space-y-6 md:space-y-8">
+                    {/* Bagian Fixed Cost */}
                     <div className="w-full px-4">
-                      {/* Fixed Cost Header */}
                       <div className="text-center mb-6">
                         <h3 className="font-extrabold text-2xl md:text-3xl">
-                          Fixed Cost
+                          Biaya Tetap
                         </h3>
                       </div>
 
@@ -1106,25 +1234,24 @@ const PenetasanPage = () => {
                       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
                         <div className="col-span-1">
                           <label className="font-semibold text-sm md:text-base mb-1 block">
-                            Sewa Kandang
+                            Sewa Kotak per hari
                           </label>
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <span className="p-2 bg-gray-100">Rp.</span>
                             <input
-                              type="text" // Menggunakan type text agar dapat memformat input
-                              inputMode="numeric" // Menampilkan keyboard angka pada perangkat mobile
-                              pattern="[0-9]*" // Menjamin hanya angka yang bisa dimasukkan
-                              value={formatNumber(sewaKandang)} // Menampilkan angka dengan format
+                              type="text"
+                              inputMode="numeric"
+                              pattern="[0-9]*"
+                              value={formatNumber(sewaKandang)}
                               onChange={(e) => {
                                 const value = e.target.value.replace(
                                   /[^0-9]/g,
                                   ""
-                                ); // Menghapus karakter non-angka
-                                // Mencegah nilai negatif
+                                );
                                 if (parseFloat(value) < 0) {
-                                  setSewaKandang(0); // Atau set pesan error jika perlu
+                                  setSewaKandang(0);
                                 } else {
-                                  setSewaKandang(value ? parseFloat(value) : 0); // Menyimpan angka
+                                  setSewaKandang(value ? parseFloat(value) : 0);
                                 }
                               }}
                               onBlur={(e) => {
@@ -1132,11 +1259,11 @@ const PenetasanPage = () => {
                                   /[^0-9]/g,
                                   ""
                                 );
-                                setSewaKandang(value ? parseFloat(value) : 0); // Menyimpan angka pada blur
+                                setSewaKandang(value ? parseFloat(value) : 0);
                               }}
-                              onWheel={(e) => e.currentTarget.blur()} // Menghindari scrolling di input
+                              onWheel={(e) => e.currentTarget.blur()}
                               className="w-full border border-gray-300 p-2 rounded-md"
-                              placeholder="Harga sewa kandang"
+                              placeholder="Harga sewa kotak"
                             />
                           </div>
                         </div>
@@ -1147,7 +1274,7 @@ const PenetasanPage = () => {
 
                         <div className="col-span-1">
                           <label className="font-semibold text-sm md:text-base mb-1 block">
-                            Penyusutan Peralatan
+                            Penyusutan Peralatan per hari
                           </label>
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <span className="p-2 bg-gray-100">Rp.</span>
@@ -1245,7 +1372,7 @@ const PenetasanPage = () => {
 
                         <div className="col-span-1">
                           <label className="font-semibold text-sm md:text-base mb-1 block">
-                            Total Fixed Cost
+                            Total Biaya Tetap
                           </label>
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <span className="p-2 bg-gray-100">Rp.</span>
@@ -1270,7 +1397,7 @@ const PenetasanPage = () => {
                       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
                         <div className="col-span-1">
                           <label className="font-semibold text-sm md:text-base mb-1 block">
-                            Biaya Tenaga Kerja
+                            Biaya Tenaga Kerja per hari
                           </label>
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <span className="p-2 bg-gray-100">Rp.</span>
@@ -1309,7 +1436,7 @@ const PenetasanPage = () => {
 
                         <div className="col-span-1">
                           <label className="font-semibold text-sm md:text-base mb-1 block">
-                            Biaya Listrik
+                            Biaya Listrik per hari
                           </label>
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <span className="p-2 bg-gray-100">Rp.</span>
@@ -1344,7 +1471,7 @@ const PenetasanPage = () => {
 
                         <div className="col-span-1">
                           <label className="font-semibold text-sm md:text-base mb-1 block">
-                            Biaya OVK
+                            Biaya OVK per hari
                           </label>
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <span className="p-2 bg-gray-100">Rp.</span>
@@ -1477,7 +1604,7 @@ const PenetasanPage = () => {
 
                           <div className="col-span-1">
                             <label className="font-semibold text-sm md:text-base mb-1 block">
-                              Harga Telur
+                              Harga Telur per butir
                             </label>
                             <div className="flex items-center border border-gray-300 rounded-md">
                               <span className="p-2 bg-gray-100">Rp.</span>
@@ -1613,7 +1740,7 @@ const PenetasanPage = () => {
 
                         <div className="col-span-1">
                           <label className="font-semibold text-sm md:text-base mb-1 block">
-                            Total Fixed Cost
+                            Total Biaya Tetap
                           </label>
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <span className="p-2 bg-gray-100">Rp.</span>
@@ -1632,7 +1759,7 @@ const PenetasanPage = () => {
 
                         <div className="col-span-1">
                           <label className="font-semibold text-sm md:text-base mb-1 block">
-                            Total Cost
+                            Total Pengeluaran
                           </label>
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <span className="p-2 bg-orange-200">Rp.</span>
@@ -1676,7 +1803,7 @@ const PenetasanPage = () => {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center justify-center">
                     <div className="col-span-1">
                       <label className="font-semibold text-sm md:text-base mb-1 block">
-                        Margin Of Safety (MOS)
+                        Batas Aman Keuntungan
                       </label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <input
@@ -1691,7 +1818,7 @@ const PenetasanPage = () => {
 
                     <div className="col-span-1">
                       <label className="font-semibold text-sm md:text-base mb-1 block">
-                        R/C Ratio
+                        Rasio Keuntungan Terhadap Biaya
                       </label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <input
@@ -1705,7 +1832,7 @@ const PenetasanPage = () => {
 
                     <div className="col-span-1">
                       <label className="font-semibold text-sm md:text-base mb-1 block">
-                        BEP Harga
+                        Titik Impas Berdasarkan Harga
                       </label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <span className="p-2 bg-orange-200">Rp.</span>
@@ -1722,7 +1849,7 @@ const PenetasanPage = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5 items-center justify-center">
                     <div className="col-span-1">
                       <label className="font-semibold text-sm md:text-base mb-1 block">
-                        BEP Unit
+                        Titik Impas Berdasarkan Jumlah Unit
                       </label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <input
@@ -1736,7 +1863,7 @@ const PenetasanPage = () => {
                     </div>
                     <div className="col-span-1">
                       <label className="font-semibold text-sm md:text-base mb-1 block">
-                        Laba
+                        Keuntungan
                       </label>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <span className="p-2 bg-orange-200">Rp.</span>
@@ -1764,6 +1891,14 @@ const PenetasanPage = () => {
                     >
                       Simpan
                     </button>
+                  </div>
+                </div>
+              )}
+              {currentForm === "HasilAnalisis" && (
+                <div className="bg-white mt-6 p-6 rounded-lg shadow-md">
+                  <h3 className="text-lg font-bold mb-4">Saran Optimalisasi</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {getOptimalisasiSaran()}
                   </div>
                 </div>
               )}
