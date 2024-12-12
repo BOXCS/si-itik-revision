@@ -17,6 +17,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { IconX } from "@tabler/icons-react";
 import { firestore } from "@/lib/firebase";
+import ReusableModal from "@/components/ui/modal";
 
 const PenetasanPage = () => {
   const initialPeriods = JSON.parse(
@@ -31,6 +32,11 @@ const PenetasanPage = () => {
   const [periode, setPeriode] = useState(periods[0]);
   const { user } = useUser(); // Pindahkan di sini
   const [disabledPeriods, setDisabledPeriods] = useState<string[]>([]);
+  const [isModalMosOpen, setIsModalMosOpen] = useState(false);
+  const [isModalRatioOpen, setIsModalRatioOpen] = useState(false);
+  const [isModalHargaOpen, setIsModalHargaOpen] = useState(false);
+  const [isModalUnitOpen, setIsModalUnitOpen] = useState(false);
+  const [isModalLabaOpen, setIsModalLabaOpen] = useState(false);
 
   // Tambahkan state untuk mengatur status analisis baru
   const [activeTab, setActiveTab] = useState("info");
@@ -465,58 +471,6 @@ const PenetasanPage = () => {
 
   // Fungsi untuk saran optimalisasi berdasarkan jenis kotak
   const getOptimalisasiSaran = () => {
-    {
-      /* Panel Tambahan */
-    }
-    {
-      currentForm === "HasilAnalisis" && (
-        <div className="bg-white mt-6 p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-bold mb-4">Saran Optimalisasi</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {laba < 0 && (
-              <div className="bg-red-100 p-4 rounded-md">
-                <h4 className="font-semibold mb-2">Kurangi Biaya Produksi</h4>
-                <p>
-                  Pengeluaran Anda lebih besar daripada pendapatan.
-                  Pertimbangkan untuk mengurangi biaya seperti{" "}
-                  <strong>biaya tenaga kerja</strong> atau
-                  <strong>biaya pakan</strong>.
-                </p>
-              </div>
-            )}
-            {marginOfSafety < 20 && (
-              <div className="bg-yellow-100 p-4 rounded-md">
-                <h4 className="font-semibold mb-2">Tingkatkan Penjualan</h4>
-                <p>
-                  Margin of Safety rendah. Pertimbangkan untuk meningkatkan
-                  volume penjualan atau mengurangi pengeluaran agar margin lebih
-                  stabil.
-                </p>
-              </div>
-            )}
-            {rcRatio < 1.5 && (
-              <div className="bg-yellow-100 p-4 rounded-md">
-                <h4 className="font-semibold mb-2">Optimalkan Pendapatan</h4>
-                <p>
-                  R/C Ratio rendah. Evaluasi harga jual produk atau tambahkan
-                  produk bernilai lebih tinggi untuk meningkatkan rasio ini.
-                </p>
-              </div>
-            )}
-            {rcRatio >= 1.5 && laba > 0 && (
-              <div className="bg-green-100 p-4 rounded-md">
-                <h4 className="font-semibold mb-2">Strategi Optimal</h4>
-                <p>
-                  Usaha Anda berjalan dengan baik! Fokus pada mempertahankan
-                  efisiensi pengeluaran sambil meningkatkan volume penjualan.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      );
-    }
-
     if (jenisKotak === "otomatis") {
       if (laba < 0) {
         return (
@@ -554,7 +508,8 @@ const PenetasanPage = () => {
               Pertimbangkan Penggunaan Kotak Tetas Otomatis
             </h4>
             <p>
-              Walaupun penggunaan mesin otomatis memerlukan biaya tambahan. Namun, biaya tenaga kerja akan jauh lebih murah
+              Walaupun penggunaan mesin otomatis memerlukan biaya tambahan.
+              Namun, biaya tenaga kerja akan jauh lebih murah
             </p>
           </div>
         );
@@ -1115,7 +1070,7 @@ const PenetasanPage = () => {
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
                       <div className="col-span-1">
                         <label className="font-semibold text-sm md:text-base mb-1 block">
-                        Jumlah Anak Itik
+                          Jumlah Anak Itik
                         </label>
                         <input
                           type="text"
@@ -1795,16 +1750,29 @@ const PenetasanPage = () => {
 
               {/* Form Hasil Analisis */}
               {currentForm === "HasilAnalisis" && (
-                <div className="flex flex-col w-full px-4 md:px-6 py-4">
+                <div className="flex flex-col w-full px-4 md:px-6 py-4 space-y-4">
                   <h2 className="text-lg md:text-xl font-extrabold mb-4 md:mb-6">
                     Hasil Analisis
                   </h2>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center justify-center">
-                    <div className="col-span-1">
-                      <label className="font-semibold text-sm md:text-base mb-1 block">
-                        Batas Aman Keuntungan
-                      </label>
+                  {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center justify-center"> */}
+                  <div className="grid grid-cols-1 gap-4 items-center justify-center">
+                    {/* MOS */}
+                    <div className="col-span-2">
+                      <div className="flex items-center justify-between">
+                        <label className="font-semibold text-sm md:text-base mb-1 block">
+                          Batas Aman Keuntungan
+                        </label>
+                        <button
+                          onClick={() => setIsModalMosOpen(true)}
+                          className="w-6 h-6 flex items-center justify-center bg-orange-200 rounded-full shadow-md hover:bg-orange-300 transition-all"
+                          title="Informasi tentang MOS"
+                        >
+                          <span className="text-sm font-bold text-gray-700">
+                            ?
+                          </span>
+                        </button>
+                      </div>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <input
                           type="text"
@@ -1815,42 +1783,109 @@ const PenetasanPage = () => {
                         <span className="p-2 bg-orange-200">%</span>
                       </div>
                     </div>
+                    <ReusableModal
+                      isOpen={isModalMosOpen}
+                      onClose={() => setIsModalMosOpen(false)}
+                      title="Apa itu Batas Aman Keuntungan"
+                    >
+                      Margin of Safety (MOS) atau Batas aman keuntungan adalah
+                      suatu ukuran yang menunjukkan seberapa jauh penjualan yang
+                      dapat menurun sebelum perusahaan mulai merugi. Ini adalah
+                      selisih antara penjualan yang diproyeksikan dan titik
+                      impas (BEP).
+                    </ReusableModal>
+                  </div>
 
-                    <div className="col-span-1">
+                  <div className="col-span-2">
+                    <div className="flex items-center justify-between">
                       <label className="font-semibold text-sm md:text-base mb-1 block">
                         Rasio Keuntungan Terhadap Biaya
                       </label>
-                      <div className="flex items-center border border-gray-300 rounded-md">
-                        <input
-                          type="text"
-                          value={rcRatio.toFixed(2)}
-                          readOnly
-                          className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
-                        />
-                      </div>
+                      <button
+                        onClick={() => setIsModalRatioOpen(true)}
+                        className="hidden w-6 h-6 md:flex items-center justify-center bg-orange-200 rounded-full shadow-md hover:bg-orange-300 transition-all"
+                        title="Informasi tentang MOS"
+                      >
+                        <span className="text-sm font-bold text-gray-700">
+                          ?
+                        </span>
+                      </button>
                     </div>
+                    <div className="flex items-center border border-gray-300 rounded-md">
+                      <input
+                        type="text"
+                        value={rcRatio.toFixed(2)}
+                        readOnly
+                        className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
+                      />
+                    </div>
+                    <ReusableModal
+                      isOpen={isModalRatioOpen}
+                      onClose={() => setIsModalRatioOpen(false)}
+                      title="Apa itu Rasio Keuntungan"
+                    >
+                      R/C Ratio atau Rasio Keuntungan Terhadap Biaya adalah
+                      perbandingan antara total pendapatan (revenue) yang
+                      dihasilkan dari penjualan telur/itik dengan total biaya
+                      (cost) yang dikeluarkan untuk menghasilkan produk
+                      tersebut. Rasio ini digunakan untuk mengevaluasi efisiensi
+                      dan profitabilitas suatu usaha.
+                    </ReusableModal>
+                  </div>
 
-                    <div className="col-span-1">
+                  <div className="col-span-2">
+                    <div className="flex items-center justify-between">
                       <label className="font-semibold text-sm md:text-base mb-1 block">
                         Titik Impas Berdasarkan Harga
                       </label>
-                      <div className="flex items-center border border-gray-300 rounded-md">
-                        <span className="p-2 bg-orange-200">Rp.</span>
-                        <input
-                          type="text"
-                          value={formatNumber(bepHarga)}
-                          readOnly
-                          className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
-                        />
-                      </div>
+                      <button
+                        onClick={() => setIsModalHargaOpen(true)}
+                        className="hidden w-6 h-6 md:flex items-center justify-center bg-orange-200 rounded-full shadow-md hover:bg-orange-300 transition-all"
+                        title="Informasi tentang MOS"
+                      >
+                        <span className="text-sm font-bold text-gray-700">
+                          ?
+                        </span>
+                      </button>
                     </div>
+                    <div className="flex items-center border border-gray-300 rounded-md">
+                      <span className="p-2 bg-orange-200">Rp.</span>
+                      <input
+                        type="text"
+                        value={formatNumber(bepHarga)}
+                        readOnly
+                        className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
+                      />
+                    </div>
+                    <ReusableModal
+                      isOpen={isModalHargaOpen}
+                      onClose={() => setIsModalHargaOpen(false)}
+                      title="Apa itu Titik Impas Harga"
+                    >
+                      BEP harga atau titik impas harga menunjukkan jumlah
+                      pendapatan atau nilai penjualan dalam bentuk uang yang
+                      dibutuhkan untuk mencapai titik impas. Ini membantu
+                      menentukan target pendapatan yang harus dicapai.
+                    </ReusableModal>
                   </div>
+                  {/* </div> */}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5 items-center justify-center">
-                    <div className="col-span-1">
-                      <label className="font-semibold text-sm md:text-base mb-1 block">
-                        Titik Impas Berdasarkan Jumlah Unit
-                      </label>
+                    <div className="col-span-2">
+                      <div className="flex items-center justify-between">
+                        <label className="font-semibold text-sm md:text-base mb-1 block">
+                          Titik Impas Berdasarkan Jumlah Unit
+                        </label>
+                        <button
+                          onClick={() => setIsModalUnitOpen(true)}
+                          className="hidden w-6 h-6 md:flex items-center justify-center bg-orange-200 rounded-full shadow-md hover:bg-orange-300 transition-all"
+                          title="Informasi tentang MOS"
+                        >
+                          <span className="text-sm font-bold text-gray-700">
+                            ?
+                          </span>
+                        </button>
+                      </div>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <input
                           type="text"
@@ -1860,11 +1895,33 @@ const PenetasanPage = () => {
                         />
                         <span className="p-2 bg-orange-200">Ekor</span>
                       </div>
+                      <ReusableModal
+                        isOpen={isModalUnitOpen}
+                        onClose={() => setIsModalUnitOpen(false)}
+                        title="Apa itu Titik Impas Unit"
+                      >
+                        BEP unit atau Titik Impas Unit menunjukkan jumlah unit
+                        produk yang harus terjual agar perusahaan mencapai titik
+                        impas. BEP unit dihitung untuk mengetahui seberapa
+                        banyak produk yang perlu dijual untuk menutup seluruh
+                        biaya (tetap dan variabel).
+                      </ReusableModal>
                     </div>
-                    <div className="col-span-1">
-                      <label className="font-semibold text-sm md:text-base mb-1 block">
-                        Keuntungan
-                      </label>
+                    <div className="col-span-2">
+                      <div className="flex items-center justify-between">
+                        <label className="font-semibold text-sm md:text-base mb-1 block">
+                          Keuntungan
+                        </label>
+                        <button
+                          onClick={() => setIsModalLabaOpen(true)}
+                          className="hidden w-6 h-6 md:flex items-center justify-center bg-orange-200 rounded-full shadow-md hover:bg-orange-300 transition-all"
+                          title="Informasi tentang MOS"
+                        >
+                          <span className="text-sm font-bold text-gray-700">
+                            ?
+                          </span>
+                        </button>
+                      </div>
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <span className="p-2 bg-orange-200">Rp.</span>
                         <input
@@ -1874,6 +1931,21 @@ const PenetasanPage = () => {
                           className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
                         />
                       </div>
+                      <ReusableModal
+                        isOpen={isModalLabaOpen}
+                        onClose={() => setIsModalLabaOpen(false)}
+                        title="Apa itu Keuntungan"
+                      >
+                        Laba atau Keuntungan adalah selisih positif antara total pendapatan
+                        dengan total biaya yang dikeluarkan dalam suatu
+                        aktivitas bisnis atau usaha. Laba menunjukkan keuntungan
+                        yang diperoleh perusahaan setelah menutupi semua biaya,
+                        baik biaya tetap maupun biaya variabel. Jika hasil
+                        perhitungan bernilai negatif, maka perusahaan mengalami
+                        kerugian (rugi). Laba merupakan indikator penting untuk
+                        mengukur keberhasilan operasional dan kesehatan
+                        finansial suatu bisnis.
+                      </ReusableModal>
                     </div>
                   </div>
 
@@ -1899,6 +1971,53 @@ const PenetasanPage = () => {
                   <h3 className="text-lg font-bold mb-4">Saran Optimalisasi</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {getOptimalisasiSaran()}
+                    {laba < 0 && (
+                      <div className="bg-red-100 p-4 rounded-md">
+                        <h4 className="font-semibold mb-2">
+                          Kurangi Biaya Produksi
+                        </h4>
+                        <p>
+                          Pengeluaran Anda lebih besar daripada pendapatan.
+                          Pertimbangkan untuk mengurangi biaya seperti{" "}
+                          <strong>biaya tenaga kerja</strong> atau{" "}
+                          <strong>biaya pembelian telur</strong>.
+                        </p>
+                      </div>
+                    )}
+                    {marginOfSafety < 20 && (
+                      <div className="bg-yellow-100 p-4 rounded-md">
+                        <h4 className="font-semibold mb-2">
+                          Tingkatkan Penjualan
+                        </h4>
+                        <p>
+                          Batas aman keuntungan rendah. Pertimbangkan untuk
+                          meningkatkan volume penjualan atau mengurangi
+                          pengeluaran agar margin lebih stabil.
+                        </p>
+                      </div>
+                    )}
+                    {rcRatio < 1.5 && (
+                      <div className="bg-yellow-100 p-4 rounded-md">
+                        <h4 className="font-semibold mb-2">
+                          Optimalkan Pendapatan
+                        </h4>
+                        <p>
+                          Rasio Keuntungan rendah. Evaluasi harga jual produk
+                          atau tambahkan produk bernilai lebih tinggi untuk
+                          meningkatkan rasio ini.
+                        </p>
+                      </div>
+                    )}
+                    {rcRatio >= 1.5 && laba > 0 && (
+                      <div className="bg-green-100 p-4 rounded-md">
+                        <h4 className="font-semibold mb-2">Strategi Optimal</h4>
+                        <p>
+                          Usaha Anda berjalan dengan baik! Fokus pada
+                          mempertahankan efisiensi pengeluaran sambil
+                          meningkatkan volume penjualan.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

@@ -244,7 +244,7 @@ export default function LandingPage() {
               <div className="card-content">
                 <h3 className="text-2xl font-semibold">User Friendly</h3>
                 <p className={`mt-2 ${isOpen[0] ? "show" : "hidden"}`}>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                  Menggunakan bahasa yang mudah dipahami
                 </p>
               </div>
               <button
@@ -260,7 +260,7 @@ export default function LandingPage() {
               <div className="card-content">
                 <h3 className="text-2xl font-semibold">Menganalisis</h3>
                 <p className={`mt-2 ${isOpen[1] ? "show" : "hidden"}`}>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elis.
+                  Analisis pendapatan dan pengeluaran
                 </p>
               </div>
               <button
@@ -276,7 +276,7 @@ export default function LandingPage() {
               <div className="card-content">
                 <h3 className="text-2xl font-semibold">Mengelola</h3>
                 <p className={`mt-2 ${isOpen[2] ? "show" : "hidden"}`}>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                  Kelola ternak dengan melihat saran optimalisasi agar mendapat hasil maksimal
                 </p>
               </div>
               <button
@@ -323,8 +323,8 @@ export default function LandingPage() {
               className="fima-img" // Add a custom class for styling
             />
             <div className="fima-layer">
-              <h4>Penetasan</h4>
-              <p>Atur dan pantau proses penetasan telur itik dengan mudah.</p>
+              <h4>Penggemukan</h4>
+              <p>Atur dan pantau proses penggemukan itik dengan mudah.</p>
             </div>
           </div>
 
@@ -439,7 +439,7 @@ export default function LandingPage() {
             </div>
 
             <Link
-              href="#Navbar"
+              href="#Home"
               className="px-8 py-2 rounded-md bg-[#FCCD8F] text-black font-bold transition duration-200 hover:bg-white hover:text-black border-2 border-transparent hover:border-[#FCCD8F]"
             >
               <IconArrowUp />

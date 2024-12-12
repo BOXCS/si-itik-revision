@@ -15,6 +15,7 @@ import {
 import { firestore } from "@/lib/firebase";
 import { useUser } from "@/app/context/UserContext";
 import { IconX } from "@tabler/icons-react";
+import ReusableModal from "@/components/ui/modal";
 
 // interface TabSelectionProps
 
@@ -31,6 +32,11 @@ const PenggemukanPage = () => {
   const [periode, setPeriode] = useState(periods[0]);
   const { user } = useUser(); // Pindahkan di sini
   const [disabledPeriods, setDisabledPeriods] = useState<string[]>([]);
+  const [isModalMosOpen, setIsModalMosOpen] = useState(false);
+  const [isModalRatioOpen, setIsModalRatioOpen] = useState(false);
+  const [isModalHargaOpen, setIsModalHargaOpen] = useState(false);
+  const [isModalUnitOpen, setIsModalUnitOpen] = useState(false);
+  const [isModalLabaOpen, setIsModalLabaOpen] = useState(false);
 
   // Tambahkan state untuk mengatur status analisis baru
   const [activeTab, setActiveTab] = useState("info");
@@ -1685,9 +1691,7 @@ const PenggemukanPage = () => {
                           Batas Aman Keuntungan
                         </label>
                         <button
-                          onClick={() =>
-                            alert("Margin of Safety (MOS) adalah...")
-                          } // Ganti dengan modal atau informasi yang diinginkan
+                          onClick={() => setIsModalMosOpen(true)}
                           className="hidden w-6 h-6 md:flex items-center justify-center bg-orange-200 rounded-full shadow-md hover:bg-orange-300 transition-all"
                           title="Informasi tentang MOS"
                         >
@@ -1705,6 +1709,17 @@ const PenggemukanPage = () => {
                         />
                         <span className="p-2 bg-orange-200">%</span>
                       </div>
+                      <ReusableModal
+                      isOpen={isModalMosOpen}
+                      onClose={() => setIsModalMosOpen(false)}
+                      title="Apa itu Batas Aman Keuntungan"
+                    >
+                      Margin of Safety (MOS) atau Batas aman keuntungan adalah
+                      suatu ukuran yang menunjukkan seberapa jauh penjualan yang
+                      dapat menurun sebelum perusahaan mulai merugi. Ini adalah
+                      selisih antara penjualan yang diproyeksikan dan titik
+                      impas (BEP).
+                    </ReusableModal>
                     </div>
                   </div>
 
@@ -1714,9 +1729,7 @@ const PenggemukanPage = () => {
                         Rasio Keuntungan Terhadap Biaya
                       </label>
                       <button
-                        onClick={() =>
-                          alert("Margin of Safety (MOS) adalah...")
-                        } // Ganti dengan modal atau informasi yang diinginkan
+                        onClick={() => setIsModalRatioOpen(true)}
                         className="hidden w-6 h-6 md:flex items-center justify-center bg-orange-200 rounded-full shadow-md hover:bg-orange-300 transition-all"
                         title="Informasi tentang MOS"
                       >
@@ -1733,6 +1746,18 @@ const PenggemukanPage = () => {
                         className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
                       />
                     </div>
+                    <ReusableModal
+                      isOpen={isModalRatioOpen}
+                      onClose={() => setIsModalRatioOpen(false)}
+                      title="Apa itu Rasio Keuntungan"
+                    >
+                      R/C Ratio atau Rasio Keuntungan Terhadap Biaya adalah
+                      perbandingan antara total pendapatan (revenue) yang
+                      dihasilkan dari penjualan telur/itik dengan total biaya
+                      (cost) yang dikeluarkan untuk menghasilkan produk
+                      tersebut. Rasio ini digunakan untuk mengevaluasi efisiensi
+                      dan profitabilitas suatu usaha.
+                    </ReusableModal>
                   </div>
 
                   <div className="col-span-2">
@@ -1741,9 +1766,7 @@ const PenggemukanPage = () => {
                         Titik Impas Berdasarkan Harga
                       </label>
                       <button
-                        onClick={() =>
-                          alert("Margin of Safety (MOS) adalah...")
-                        } // Ganti dengan modal atau informasi yang diinginkan
+                        onClick={() => setIsModalHargaOpen(true)}
                         className="hidden w-6 h-6 md:flex items-center justify-center bg-orange-200 rounded-full shadow-md hover:bg-orange-300 transition-all"
                         title="Informasi tentang MOS"
                       >
@@ -1761,6 +1784,16 @@ const PenggemukanPage = () => {
                         className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
                       />
                     </div>
+                    <ReusableModal
+                      isOpen={isModalHargaOpen}
+                      onClose={() => setIsModalHargaOpen(false)}
+                      title="Apa itu Titik Impas Harga"
+                    >
+                      BEP harga atau titik impas harga menunjukkan jumlah
+                      pendapatan atau nilai penjualan dalam bentuk uang yang
+                      dibutuhkan untuk mencapai titik impas. Ini membantu
+                      menentukan target pendapatan yang harus dicapai.
+                    </ReusableModal>
                   </div>
                   {/* </div> */}
 
@@ -1771,9 +1804,7 @@ const PenggemukanPage = () => {
                           Titik Impas Berdasarkan Jumlah Unit
                         </label>
                         <button
-                          onClick={() =>
-                            alert("Margin of Safety (MOS) adalah...")
-                          } // Ganti dengan modal atau informasi yang diinginkan
+                          onClick={() => setIsModalUnitOpen(true)}
                           className="hidden w-6 h-6 md:flex items-center justify-center bg-orange-200 rounded-full shadow-md hover:bg-orange-300 transition-all"
                           title="Informasi tentang MOS"
                         >
@@ -1791,6 +1822,17 @@ const PenggemukanPage = () => {
                         />
                         <span className="p-2 bg-orange-200">Ekor</span>
                       </div>
+                      <ReusableModal
+                        isOpen={isModalUnitOpen}
+                        onClose={() => setIsModalUnitOpen(false)}
+                        title="Apa itu Titik Impas Unit"
+                      >
+                        BEP unit atau Titik Impas Unit menunjukkan jumlah unit
+                        produk yang harus terjual agar perusahaan mencapai titik
+                        impas. BEP unit dihitung untuk mengetahui seberapa
+                        banyak produk yang perlu dijual untuk menutup seluruh
+                        biaya (tetap dan variabel).
+                      </ReusableModal>
                     </div>
                     <div className="col-span-2">
                       <div className="flex items-center justify-between">
@@ -1798,9 +1840,7 @@ const PenggemukanPage = () => {
                           Keuntungan
                         </label>
                         <button
-                          onClick={() =>
-                            alert("Margin of Safety (MOS) adalah...")
-                          } // Ganti dengan modal atau informasi yang diinginkan
+                          onClick={() => setIsModalLabaOpen(true)}
                           className="hidden w-6 h-6 md:flex items-center justify-center bg-orange-200 rounded-full shadow-md hover:bg-orange-300 transition-all"
                           title="Informasi tentang MOS"
                         >
@@ -1818,6 +1858,21 @@ const PenggemukanPage = () => {
                           className="w-full border-0 p-2 rounded-md cursor-not-allowed bg-orange-100"
                         />
                       </div>
+                      <ReusableModal
+                        isOpen={isModalLabaOpen}
+                        onClose={() => setIsModalLabaOpen(false)}
+                        title="Apa itu Keuntungan"
+                      >
+                        Laba atau Keuntungan adalah selisih positif antara total pendapatan
+                        dengan total biaya yang dikeluarkan dalam suatu
+                        aktivitas bisnis atau usaha. Laba menunjukkan keuntungan
+                        yang diperoleh perusahaan setelah menutupi semua biaya,
+                        baik biaya tetap maupun biaya variabel. Jika hasil
+                        perhitungan bernilai negatif, maka perusahaan mengalami
+                        kerugian (rugi). Laba merupakan indikator penting untuk
+                        mengukur keberhasilan operasional dan kesehatan
+                        finansial suatu bisnis.
+                      </ReusableModal>
                     </div>
                   </div>
 
