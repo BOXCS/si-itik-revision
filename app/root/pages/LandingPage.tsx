@@ -135,7 +135,14 @@ export default function LandingPage() {
             <a href="#timelineCaKer">Cara Kerja</a>
           </li>
           <li className="underline-animation text-[#D05805] hover:text-orange-600 font-medium transition duration-300">
-            <a href="#">Unduh Aplikasi Seluler</a>
+            <a
+              href="https://drive.google.com/file/d/1_vSzfnenalaA9OLTYwLHLRZms88KEzQe/view?usp=sharing"
+              target="_blank" // Menambahkan target="_blank" akan membuka di tab baru
+              rel="noopener noreferrer" // Praktik keamanan saat menggunakan target="_blank"
+              download
+            >
+              Unduh Aplikasi Seluler
+            </a>
           </li>
         </ul>
 
@@ -184,7 +191,7 @@ export default function LandingPage() {
           </h1>
           <p className="mt-4">{descriptions[currentIndex]}</p>
           <a
-            href="#Beranda"
+            href="/auth/login"
             className="btn-coba bg-[#D05805] text-white px-4 py-2 mt-4 rounded-lg font-medium transition duration-200 hover:bg-[#F68110] hover:text-black border-2 border-transparent hover:border-teal-500"
           >
             Coba Sekarang
@@ -276,7 +283,8 @@ export default function LandingPage() {
               <div className="card-content">
                 <h3 className="text-2xl font-semibold">Mengelola</h3>
                 <p className={`mt-2 ${isOpen[2] ? "show" : "hidden"}`}>
-                  Kelola ternak dengan melihat saran optimalisasi agar mendapat hasil maksimal
+                  Kelola ternak dengan melihat saran optimalisasi agar mendapat
+                  hasil maksimal
                 </p>
               </div>
               <button
